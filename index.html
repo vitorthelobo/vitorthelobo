@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vítor Lobo — Brand Strategist</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --border: #1f1f1f;
+      --accent: #c9a84c;
+      --text: #e8e8e8;
+      --muted: #888;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    header h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    header h1 span { color: var(--accent); }
+
+    header p {
+      color: var(--muted);
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* Section */
+    section {
+      margin-bottom: 56px;
+    }
+
+    section h2 {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    section p {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 620px;
+    }
+
+    /* Skills */
+    .skills {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .skill {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .skill-name {
+      width: 160px;
+      font-size: 0.9rem;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .skill-pct {
+      font-size: 0.8rem;
+      color: var(--muted);
+      width: 36px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Stack grid */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .stack-category {
+      margin-bottom: 24px;
+    }
+
+    .stack-category h3 {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.82rem;
+      color: var(--text);
+      margin: 4px 4px 0 0;
+    }
+
+    /* Projects */
+    .projects {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .project-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      align-items: center;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      gap: 12px;
+    }
+
+    .project-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .project-category {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .badge.done {
+      background: #0d2b1a;
+      color: #4caf7d;
+      border: 1px solid #1a4a2e;
+    }
+
+    .badge.wip {
+      background: #1a1a00;
+      color: #c9a84c;
+      border: 1px solid #3a3000;
+    }
+
+    /* Quote */
+    blockquote {
+      border-left: 2px solid var(--accent);
+      padding: 16px 24px;
+      margin-top: 48px;
+      color: var(--muted);
+      font-style: italic;
+      font-size: 1rem;
+    }
+
+    blockquote cite {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 540px) {
+      header h1 { font-size: 2rem; }
+      .project-row { grid-template-columns: 1fr; }
+      .skill-name { width: 130px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Vítor <span>Lobo</span></h1>
+      <p>Brand Strategist &nbsp;·&nbsp; Visual Identity Designer &nbsp;·&nbsp; Creative Director</p>
+    </header>
+
+    <section>
+      <h2>Quem sou eu</h2>
+      <p>
+        Fundador da <strong>The Lobo Design</strong> e estrategista de marca com 10 anos de mercado.
+        Trabalho com branding premium para clientes nacionais e internacionais, com foco em
+        identidade visual de alto impacto. Acredito que marca não é estética — é percepção de valor.
+      </p>
+    </section>
+
+    <section>
+      <h2>O que eu faço</h2>
+      <div class="skills">
+        <div class="skill">
+          <span class="skill-name">Brand Strategy</span>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+          <span class="skill-pct">100%</span>
+        </div>
+        <div class="skill">
+          <span class="skill-name">Visual Identity</span>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+          <span class="skill-pct">100%</span>
+        </div>
+        <div class="skill">
+          <span class="skill-name">Brand Naming</span>
+          <div class="bar-track"><div class="bar-fill" style="width:95%"></div></div>
+          <span class="skill-pct">95%</span>
+        </div>
+        <div class="skill">
+          <span class="skill-name">AI-Powered Design</span>
+          <div class="bar-track"><div class="bar-fill" style="width:85%"></div></div>
+          <span class="skill-pct">85%</span>
+        </div>
+        <div class="skill">
+          <span class="skill-name">Motion & Branding</span>
+          <div class="bar-track"><div class="bar-fill" style="width:80%"></div></div>
+          <span class="skill-pct">80%</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Stack criativo</h2>
+
+      <div class="stack-category">
+        <h3>Design & Branding</h3>
+        <span class="tag">Figma</span>
+        <span class="tag">Illustrator</span>
+        <span class="tag">Photoshop</span>
+        <span class="tag">After Effects</span>
+      </div>
+
+      <div class="stack-category">
+        <h3>IA Generativa</h3>
+        <span class="tag">Midjourney</span>
+        <span class="tag">Flux</span>
+        <span class="tag">Kling</span>
+        <span class="tag">Sora</span>
+        <span class="tag">Freepik AI</span>
+      </div>
+
+      <div class="stack-category">
+        <h3>Web & Dev</h3>
+        <span class="tag">HTML/CSS</span>
+        <span class="tag">React</span>
+        <span class="tag">Vercel</span>
+        <span class="tag">Lovable</span>
+        <span class="tag">Figma Make</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Projetos em destaque</h2>
+      <div class="projects">
+        <div class="project-row">
+          <span class="project-name">🐝 IPCOM Tecnologia</span>
+          <span class="project-category">Brand Identity · Cloud B2B</span>
+          <span class="badge done">Entregue</span>
+        </div>
+        <div class="project-row">
+          <span class="project-name">⚖️ FCA Advogados</span>
+          <span class="project-category">Rebranding Jurídico Premium</span>
+          <span class="badge wip">Em andamento</span>
+        </div>
+        <div class="project-row">
+          <span class="project-name">🚗 Super Wash</span>
+          <span class="project-category">Brand + Content Strategy</span>
+          <span class="badge wip">Em andamento</span>
+        </div>
+        <div class="project-row">
+          <span class="project-name">🐺 The Lobo Design</span>
+          <span class="project-category">Minha própria marca</span>
+          <span class="badge wip">Em construção</span>
+        </div>
+      </div>
+    </section>
+
+    <blockquote>
+      "Marca boa não é a mais bonita. É a mais lembrada."
+      <cite>— Vítor Lobo</cite>
+    </blockquote>
+
+    <footer>
+      <p>Maceió, Alagoas — Brasil 🇧🇷 &nbsp;·&nbsp; Atendimento nacional e internacional</p>
+    </footer>
+
+  </div>
+</body>
+</html>
