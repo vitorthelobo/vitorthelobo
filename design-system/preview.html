@@ -20,13 +20,15 @@
   --text-subtle: #7C8696;
   --text-invert: #F3F5F8;
 
-  /* Ação */
-  --primary: #3B8494;
-  --primary-hover: #316B7A;
+  /* Ação — accent padrão: Índigo (troca via data-accent) */
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
   --primary-contrast: #FFFFFF;
-  --primary-tint: #DCF1F4;
-  --link: #35798a;
-  --focus-ring: rgba(59,132,148,.45);
+  --primary-tint: color-mix(in srgb, var(--primary) 10%, transparent);
+  --link: #4F46E5;
+  --focus-ring: color-mix(in srgb, var(--primary) 45%, transparent);
+  --accent-glow: #6366F1;
+  --accent-glow-2: #8B5CF6;
 
   /* Status */
   --success: #15803D; --success-bg: #EAF7EF; --success-border: #BBE5CB;
@@ -35,23 +37,33 @@
   --info:    #3B8494; --info-bg:    #EFF9FA; --info-border:    #B9E3EA;
 
   /* Glass */
-  --glass-bg: rgba(255,255,255,.55);
+  --glass-bg: rgba(255,255,255,.58);
   --glass-border: rgba(255,255,255,.65);
+  --glass-panel-border: rgba(20,24,29,.10);
+  --glass-inner: rgba(255,255,255,.45);
 
-  /* Mesh */
-  --mesh-hero: radial-gradient(120% 90% at 18% 8%, #DCEBFF 0%, transparent 55%),
-               radial-gradient(100% 80% at 85% 18%, #DCF1F4 0%, transparent 50%),
-               #F7F8FA;
-  --mesh-paywall: radial-gradient(110% 90% at 82% 0%, #FFE8D9 0%, transparent 55%),
-                  radial-gradient(100% 80% at 10% 32%, #DCF1F4 0%, transparent 50%),
-                  #F7F8FA;
+  /* Mesh — derivado do accent ativo */
+  --mesh-hero: radial-gradient(120% 90% at 18% 8%, color-mix(in srgb, var(--accent-glow) 22%, transparent) 0%, transparent 55%),
+               radial-gradient(100% 80% at 85% 18%, color-mix(in srgb, var(--accent-glow-2) 16%, transparent) 0%, transparent 50%),
+               radial-gradient(90% 70% at 50% 95%, color-mix(in srgb, var(--accent-glow) 10%, transparent) 0%, transparent 55%),
+               var(--bg);
+  --mesh-paywall: radial-gradient(110% 90% at 82% 0%, rgba(249,115,22,.16) 0%, transparent 55%),
+                  radial-gradient(100% 80% at 10% 32%, color-mix(in srgb, var(--accent-glow) 18%, transparent) 0%, transparent 50%),
+                  var(--bg);
+
+  /* Background gradients — derivados do accent ativo (iguais nos 2 temas) */
+  --grad-brand: linear-gradient(135deg, color-mix(in srgb, var(--accent-glow) 60%, #FFFFFF) 0%, var(--accent-glow) 50%, color-mix(in srgb, var(--accent-glow) 55%, #000000) 100%);
+  --grad-card: radial-gradient(130% 130% at 15% 0%, color-mix(in srgb, var(--accent-glow) 52%, #FFFFFF) 0%, var(--accent-glow) 48%, color-mix(in srgb, var(--accent-glow) 55%, #000000) 112%);
+  --grad-header: linear-gradient(to bottom, color-mix(in srgb, var(--accent-glow) 45%, transparent) 0%, color-mix(in srgb, var(--accent-glow) 12%, transparent) 55%, transparent 100%);
+  --grad-btn: linear-gradient(180deg, color-mix(in srgb, var(--accent-glow) 80%, #FFFFFF) 0%, var(--accent-glow) 100%);
+  --grad-ember: linear-gradient(135deg, #FB923C 0%, #F97316 45%, #EA580C 100%);
 
   --shadow-1: 0 1px 2px rgba(20,24,29,.06);
   --shadow-2: 0 4px 16px rgba(20,24,29,.08);
   --shadow-3: 0 12px 40px rgba(20,24,29,.14);
 
   --track: #E4E8EE;
-  --fill: #4C9FAE;
+  --fill: #6366F1;
   --header-bg: rgba(247,248,250,.82);
   --tooltip-bg: #252C35;
   --tooltip-text: #F3F5F8;
@@ -80,34 +92,31 @@
     --text-subtle: #8B94A3;
     --text-invert: #14181D;
 
-    --primary: #8FD0DB;
-    --primary-hover: #6BB9C6;
-    --primary-contrast: #10242B;
-    --primary-tint: rgba(143,208,219,.12);
-    --link: #8FD0DB;
-    --focus-ring: rgba(143,208,219,.45);
+    --primary: #6366F1;
+    --primary-hover: #818CF8;
+    --primary-contrast: #FFFFFF;
+    --primary-tint: color-mix(in srgb, var(--primary) 14%, transparent);
+    --link: #A5B4FC;
+    --focus-ring: color-mix(in srgb, var(--primary) 45%, transparent);
+    --accent-glow: #6366F1;
+    --accent-glow-2: #8B5CF6;
 
     --success: #4ADE80; --success-bg: rgba(74,222,128,.10); --success-border: rgba(74,222,128,.35);
     --warning: #FACC15; --warning-bg: rgba(250,204,21,.10); --warning-border: rgba(250,204,21,.35);
     --danger:  #F87171; --danger-bg:  rgba(248,113,113,.10); --danger-border: rgba(248,113,113,.35);
     --info:    #8FD0DB; --info-bg:    rgba(143,208,219,.10); --info-border:   rgba(143,208,219,.35);
 
-    --glass-bg: rgba(255,255,255,.06);
+    --glass-bg: rgba(255,255,255,.055);
     --glass-border: rgba(255,255,255,.12);
-
-    --mesh-hero: radial-gradient(120% 90% at 18% 8%, rgba(37,99,235,.28) 0%, transparent 55%),
-                 radial-gradient(100% 80% at 85% 18%, rgba(76,159,174,.22) 0%, transparent 50%),
-                 #101318;
-    --mesh-paywall: radial-gradient(110% 90% at 82% 0%, rgba(249,115,22,.20) 0%, transparent 55%),
-                    radial-gradient(100% 80% at 10% 32%, rgba(76,159,174,.18) 0%, transparent 50%),
-                    #101318;
+    --glass-panel-border: rgba(255,255,255,.14);
+    --glass-inner: rgba(255,255,255,.05);
 
     --shadow-1: 0 1px 2px rgba(0,0,0,.40);
     --shadow-2: 0 4px 16px rgba(0,0,0,.45);
     --shadow-3: 0 12px 40px rgba(0,0,0,.55);
 
     --track: #262C37;
-    --fill: #8FD0DB;
+    --fill: #818CF8;
     --header-bg: rgba(16,19,24,.82);
     --tooltip-bg: #DBE0E8;
     --tooltip-text: #14181D;
@@ -129,39 +138,91 @@
   --text-subtle: #8B94A3;
   --text-invert: #14181D;
 
-  --primary: #8FD0DB;
-  --primary-hover: #6BB9C6;
-  --primary-contrast: #10242B;
-  --primary-tint: rgba(143,208,219,.12);
-  --link: #8FD0DB;
-  --focus-ring: rgba(143,208,219,.45);
+  --primary: #6366F1;
+  --primary-hover: #818CF8;
+  --primary-contrast: #FFFFFF;
+  --primary-tint: color-mix(in srgb, var(--primary) 14%, transparent);
+  --link: #A5B4FC;
+  --focus-ring: color-mix(in srgb, var(--primary) 45%, transparent);
+  --accent-glow: #6366F1;
+  --accent-glow-2: #8B5CF6;
 
   --success: #4ADE80; --success-bg: rgba(74,222,128,.10); --success-border: rgba(74,222,128,.35);
   --warning: #FACC15; --warning-bg: rgba(250,204,21,.10); --warning-border: rgba(250,204,21,.35);
   --danger:  #F87171; --danger-bg:  rgba(248,113,113,.10); --danger-border: rgba(248,113,113,.35);
   --info:    #8FD0DB; --info-bg:    rgba(143,208,219,.10); --info-border:   rgba(143,208,219,.35);
 
-  --glass-bg: rgba(255,255,255,.06);
+  --glass-bg: rgba(255,255,255,.055);
   --glass-border: rgba(255,255,255,.12);
-
-  --mesh-hero: radial-gradient(120% 90% at 18% 8%, rgba(37,99,235,.28) 0%, transparent 55%),
-               radial-gradient(100% 80% at 85% 18%, rgba(76,159,174,.22) 0%, transparent 50%),
-               #101318;
-  --mesh-paywall: radial-gradient(110% 90% at 82% 0%, rgba(249,115,22,.20) 0%, transparent 55%),
-                  radial-gradient(100% 80% at 10% 32%, rgba(76,159,174,.18) 0%, transparent 50%),
-                  #101318;
+  --glass-panel-border: rgba(255,255,255,.14);
+  --glass-inner: rgba(255,255,255,.05);
 
   --shadow-1: 0 1px 2px rgba(0,0,0,.40);
   --shadow-2: 0 4px 16px rgba(0,0,0,.45);
   --shadow-3: 0 12px 40px rgba(0,0,0,.55);
 
   --track: #262C37;
-  --fill: #8FD0DB;
+  --fill: #818CF8;
   --header-bg: rgba(16,19,24,.82);
   --tooltip-bg: #DBE0E8;
   --tooltip-text: #14181D;
 
   color-scheme: dark;
+}
+
+/* ---- Accents candidatos (data-accent no <html>; ausente = Índigo) ---- */
+:root[data-accent="eletrico"] {
+  --primary: #2563EB; --primary-hover: #1D4ED8; --primary-contrast: #FFFFFF;
+  --link: #2563EB; --fill: #3B82F6;
+  --accent-glow: #3B82F6; --accent-glow-2: #22D3EE;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-accent="eletrico"]:not([data-theme="light"]) {
+    --primary: #2563EB; --primary-hover: #3B82F6; --primary-contrast: #FFFFFF;
+    --link: #93C5FD; --fill: #60A5FA;
+    --accent-glow: #3B82F6; --accent-glow-2: #22D3EE;
+  }
+}
+:root[data-accent="eletrico"][data-theme="dark"] {
+  --primary: #2563EB; --primary-hover: #3B82F6; --primary-contrast: #FFFFFF;
+  --link: #93C5FD; --fill: #60A5FA;
+  --accent-glow: #3B82F6; --accent-glow-2: #22D3EE;
+}
+
+:root[data-accent="violeta"] {
+  --primary: #7C3AED; --primary-hover: #6D28D9; --primary-contrast: #FFFFFF;
+  --link: #7C3AED; --fill: #8B5CF6;
+  --accent-glow: #8B5CF6; --accent-glow-2: #EC4899;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-accent="violeta"]:not([data-theme="light"]) {
+    --primary: #7C3AED; --primary-hover: #8B5CF6; --primary-contrast: #FFFFFF;
+    --link: #C4B5FD; --fill: #A78BFA;
+    --accent-glow: #8B5CF6; --accent-glow-2: #EC4899;
+  }
+}
+:root[data-accent="violeta"][data-theme="dark"] {
+  --primary: #7C3AED; --primary-hover: #8B5CF6; --primary-contrast: #FFFFFF;
+  --link: #C4B5FD; --fill: #A78BFA;
+  --accent-glow: #8B5CF6; --accent-glow-2: #EC4899;
+}
+
+:root[data-accent="mare"] {
+  --primary: #0E7490; --primary-hover: #155E75; --primary-contrast: #FFFFFF;
+  --link: #0E7490; --fill: #0891B2;
+  --accent-glow: #06B6D4; --accent-glow-2: #3B82F6;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-accent="mare"]:not([data-theme="light"]) {
+    --primary: #22D3EE; --primary-hover: #67E8F9; --primary-contrast: #083344;
+    --link: #67E8F9; --fill: #22D3EE;
+    --accent-glow: #06B6D4; --accent-glow-2: #3B82F6;
+  }
+}
+:root[data-accent="mare"][data-theme="dark"] {
+  --primary: #22D3EE; --primary-hover: #67E8F9; --primary-contrast: #083344;
+  --link: #67E8F9; --fill: #22D3EE;
+  --accent-glow: #06B6D4; --accent-glow-2: #3B82F6;
 }
 
 /* ---- Pares tipográficos ---- */
@@ -199,6 +260,12 @@ body {
   font-size: 16px;
   line-height: 1.55;
   transition: background-color .2s ease, color .2s ease;
+}
+/* Mesh ambiente fixo — o que o glass desfoca */
+.ambient {
+  position: fixed; inset: 0; z-index: -1;
+  background: var(--mesh-hero);
+  pointer-events: none;
 }
 h1,h2,h3,h4 { margin: 0; text-wrap: balance; }
 p { margin: 0; }
@@ -246,7 +313,8 @@ code, .mono { font-family: var(--font-mono); }
 /* ---- Seletor de par tipográfico ---- */
 .pairbar {
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--header-bg);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
 .pairbar-inner { display: flex; align-items: center; gap: 10px; padding: 12px 0; flex-wrap: wrap; }
 .pairbar-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-subtle); margin-right: 4px; }
@@ -261,13 +329,27 @@ code, .mono { font-family: var(--font-mono); }
   background: var(--primary-tint); font-weight: 600;
 }
 .pair-chip .pf { font-size: 12px; opacity: .75; font-weight: 400; }
+.pair-chip .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; margin-right: 7px; vertical-align: -1px; }
+.pairbar-sep { width: 1px; height: 22px; background: var(--border-strong); margin: 0 6px; }
+
+/* Candidatas de cor */
+.cand-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.cand-row:last-child { border-bottom: none; padding-bottom: 0; }
+.cand-info { min-width: 210px; flex: 1; }
+.cand-info .nm { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.cand-info .nm .rec-mini { font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--success); background: var(--success-bg); border: 1px solid var(--success-border); padding: 2px 8px; border-radius: 999px; }
+.cand-info .note { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; max-width: 40ch; }
+.cand-scale { display: flex; gap: 6px; }
+.cand-scale button { width: 44px; height: 40px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; padding: 0; }
+.cand-scale button:hover { transform: translateY(-2px); }
+.cand-apply { flex: none; }
 .pair-chip[data-pair="sora"] .pf { font-family: 'Sora', sans-serif; }
 .pair-chip[data-pair="fraunces"] .pf { font-family: 'Fraunces', serif; }
 .pair-chip[data-pair="grotesk"] .pf { font-family: 'Space Grotesk', sans-serif; }
 .pair-chip[data-pair="jakarta"] .pf { font-family: 'Plus Jakarta Sans', sans-serif; }
 
 /* ============ Hero ============ */
-.hero { background: var(--mesh-hero); border-bottom: 1px solid var(--border); }
+.hero { border-bottom: 1px solid var(--border); }
 .hero-inner { padding: 72px 0 64px; max-width: 720px; }
 .eyebrow {
   font-size: 12px; font-weight: 600; letter-spacing: .08em;
@@ -296,7 +378,8 @@ code, .mono { font-family: var(--font-mono); }
 .section-head .desc { color: var(--text-muted); margin-top: 8px; max-width: 68ch; font-size: 14.5px; }
 
 .stage {
-  background: var(--surface); border: 1px solid var(--border);
+  background: var(--glass-bg); border: 1px solid var(--glass-panel-border);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
   border-radius: 16px; padding: 28px; box-shadow: var(--shadow-1);
 }
 .stage + .stage { margin-top: 16px; }
@@ -508,7 +591,9 @@ code, .mono { font-family: var(--font-mono); }
 
 /* ============ Supplier card ============ */
 .supplier {
-  border: 1px solid var(--border); border-radius: 16px; background: var(--surface);
+  border: 1px solid var(--glass-panel-border); border-radius: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
   padding: 22px 24px; box-shadow: var(--shadow-1);
   display: flex; flex-direction: column; gap: 14px;
   transition: border-color .15s ease;
@@ -539,7 +624,8 @@ code, .mono { font-family: var(--font-mono); }
 .evd .ic.warn { color: var(--warning); }
 .evd a { font-size: 13px; }
 .unverified-panel {
-  background: var(--surface-2); border-radius: 8px; padding: 14px 18px;
+  background: var(--glass-inner); border: 1px solid var(--glass-panel-border);
+  border-radius: 8px; padding: 14px 18px;
 }
 .unverified-panel .t { font-size: 13.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
 .unverified-panel ul { margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 13.5px; display: flex; flex-direction: column; gap: 4px; }
@@ -554,7 +640,9 @@ code, .mono { font-family: var(--font-mono); }
 /* ============ Metodologia ============ */
 .panel-dashed {
   border: 1px dashed var(--border-strong); border-radius: 12px;
-  padding: 16px 20px; font-size: 13.5px; color: var(--text-muted); background: var(--surface);
+  padding: 16px 20px; font-size: 13.5px; color: var(--text-muted);
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
 }
 .panel-dashed b { color: var(--text); }
 
@@ -584,11 +672,58 @@ code, .mono { font-family: var(--font-mono); }
 .pricing .benefits .b { display: flex; gap: 10px; }
 .pricing .benefits .ok { color: var(--success); flex: none; }
 .pricing .scope {
-  background: var(--surface-2); border-radius: 8px; padding: 14px 16px;
+  background: var(--glass-inner); border: 1px solid var(--glass-panel-border);
+  border-radius: 8px; padding: 14px 16px;
   font-size: 13px; color: var(--text-muted); text-align: left;
 }
 .pricing .scope b { color: var(--text); }
 .pricing .disclaimer { font-size: 12px; color: var(--text-subtle); }
+
+/* ============ Background gradients ============ */
+.grad-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.grad-tile { border-radius: 12px; height: 110px; border: 1px solid var(--glass-panel-border); position: relative; overflow: hidden; }
+.grad-tile .tag {
+  position: absolute; left: 10px; bottom: 10px; font-family: var(--font-mono); font-size: 11px;
+  color: #fff; background: rgba(10,10,14,.45); padding: 3px 9px; border-radius: 6px;
+}
+.g-brand { background: var(--grad-brand); }
+.g-card { background: var(--grad-card); }
+.g-btn { background: var(--grad-btn); }
+.g-ember { background: var(--grad-ember); }
+.g-header-tile { background: var(--grad-header), var(--surface); }
+.g-header-tile .tag { color: var(--text); background: var(--surface-3); }
+
+.card-featured {
+  background: var(--grad-card); border-radius: 16px; padding: 22px 24px;
+  color: #fff; box-shadow: var(--shadow-2); border: none;
+  display: flex; flex-direction: column; gap: 12px; max-width: 560px;
+}
+.card-featured .toprow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.chip-onGrad {
+  font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  background: rgba(10,10,14,.55); color: #fff; border-radius: 999px; padding: 4px 12px;
+}
+.chip-onGrad.lite { background: rgba(255,255,255,.22); }
+.card-featured .midrow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.card-featured h3 { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); font-size: 21px; color: #fff; }
+.card-featured .score-big { font-family: var(--font-mono); font-weight: 600; font-size: 19px; }
+.card-featured .meta { font-size: 13px; color: rgba(255,255,255,.85); }
+.btn-onGrad {
+  background: rgba(10,10,14,.82); color: #fff; border: none;
+}
+.btn-onGrad:hover { background: rgba(10,10,14,.95); }
+.btn-gradient { background: var(--grad-btn); color: #fff; border: none; }
+.btn-gradient:hover { filter: brightness(1.08); box-shadow: var(--shadow-2); transform: translateY(-1px); }
+
+.header-wash-demo {
+  border-radius: 16px; overflow: hidden; border: 1px solid var(--glass-panel-border);
+  background: var(--surface); max-width: 560px;
+}
+.header-wash-demo .wash { background: var(--grad-header); padding: 20px 22px 42px; display: flex; align-items: center; gap: 12px; }
+.header-wash-demo .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--grad-brand); flex: none; }
+.header-wash-demo .hi { font-weight: 700; font-size: 15px; }
+.header-wash-demo .sub { font-size: 12.5px; color: var(--text-muted); }
+.header-wash-demo .body-mock { padding: 0 22px 22px; }
 
 /* ============ Feedback ============ */
 .skeleton { border-radius: 8px; background: var(--surface-3); position: relative; overflow: hidden; }
@@ -620,7 +755,9 @@ code, .mono { font-family: var(--font-mono); }
 /* Toast */
 .toast-region { position: fixed; bottom: 20px; right: 20px; z-index: 110; display: flex; flex-direction: column; gap: 10px; }
 .toast {
-  background: var(--surface); border: 1px solid var(--border);
+  background: var(--header-bg);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-panel-border);
   border-left: 3px solid var(--success); border-radius: 12px;
   box-shadow: var(--shadow-3); padding: 12px 16px; min-width: 240px;
   display: flex; gap: 10px; align-items: center; font-size: 14px;
@@ -638,7 +775,10 @@ code, .mono { font-family: var(--font-mono); }
   display: flex; align-items: center; justify-content: center; padding: 20px;
 }
 .modal {
-  background: var(--surface); border-radius: 24px; box-shadow: var(--shadow-3);
+  background: var(--header-bg);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-panel-border);
+  border-radius: 24px; box-shadow: var(--shadow-3);
   max-width: 460px; width: 100%; padding: 32px;
   display: flex; flex-direction: column; gap: 14px;
   animation: modal-in .2s cubic-bezier(.16,1,.3,1);
@@ -667,6 +807,7 @@ code, .mono { font-family: var(--font-mono); }
 }
 </style>
 
+<div class="ambient" aria-hidden="true"></div>
 <div class="topbar">
   <div class="container topbar-inner">
     <div class="brand">Autopilot UI<span class="dot">.</span></div>
@@ -676,13 +817,23 @@ code, .mono { font-family: var(--font-mono); }
 </div>
 
 <div class="pairbar">
-  <div class="container pairbar-inner" role="group" aria-label="Combinação tipográfica">
-    <span class="pairbar-label">Fonte</span>
-    <button class="pair-chip" data-pair="inter" aria-pressed="true">Inter <span class="pf">· sistema</span></button>
-    <button class="pair-chip" data-pair="sora" aria-pressed="false"><span class="pf">Sora</span>&nbsp;+ Inter</button>
-    <button class="pair-chip" data-pair="fraunces" aria-pressed="false"><span class="pf">Fraunces</span>&nbsp;+ Inter</button>
-    <button class="pair-chip" data-pair="grotesk" aria-pressed="false"><span class="pf">Space Grotesk</span>&nbsp;+ Plex</button>
-    <button class="pair-chip" data-pair="jakarta" aria-pressed="false"><span class="pf">Jakarta Sans</span></button>
+  <div class="container pairbar-inner">
+    <span class="pairbar-label" role="presentation">Cor</span>
+    <span role="group" aria-label="Cor de marca" style="display:contents">
+      <button class="pair-chip accent-chip" data-accent="indigo" aria-pressed="true"><span class="dot" style="background:#6366F1"></span>Índigo</button>
+      <button class="pair-chip accent-chip" data-accent="eletrico" aria-pressed="false"><span class="dot" style="background:#3B82F6"></span>Elétrico</button>
+      <button class="pair-chip accent-chip" data-accent="violeta" aria-pressed="false"><span class="dot" style="background:#8B5CF6"></span>Violeta</button>
+      <button class="pair-chip accent-chip" data-accent="mare" aria-pressed="false"><span class="dot" style="background:#06B6D4"></span>Maré+</button>
+    </span>
+    <span class="pairbar-sep" role="presentation"></span>
+    <span class="pairbar-label" role="presentation">Fonte</span>
+    <span role="group" aria-label="Combinação tipográfica" style="display:contents">
+      <button class="pair-chip" data-pair="sora" aria-pressed="true"><span class="pf">Sora</span>&nbsp;+ Inter</button>
+      <button class="pair-chip" data-pair="inter" aria-pressed="false">Inter <span class="pf">· sistema</span></button>
+      <button class="pair-chip" data-pair="fraunces" aria-pressed="false"><span class="pf">Fraunces</span>&nbsp;+ Inter</button>
+      <button class="pair-chip" data-pair="grotesk" aria-pressed="false"><span class="pf">Space Grotesk</span>&nbsp;+ Plex</button>
+      <button class="pair-chip" data-pair="jakarta" aria-pressed="false"><span class="pf">Jakarta Sans</span></button>
+    </span>
   </div>
 </div>
 
@@ -695,7 +846,8 @@ code, .mono { font-family: var(--font-mono); }
       <div class="hero-meta">
         <span class="hero-tag">2 temas</span>
         <span class="hero-tag">30 componentes</span>
-        <span class="hero-tag">5 pares tipográficos</span>
+        <span class="hero-tag">Sora + Inter</span>
+        <span class="hero-tag">4 cores candidatas</span>
         <span class="hero-tag">WCAG AA</span>
       </div>
     </div>
@@ -709,17 +861,12 @@ code, .mono { font-family: var(--font-mono); }
     <div class="section-head">
       <div class="eyebrow">Fundamentos</div>
       <h2>Cor</h2>
-      <p class="desc">Paleta Maré (teal do produto) + tokens semânticos que trocam automaticamente com o tema. Clique num swatch para copiar o hex.</p>
+      <p class="desc">Quatro candidatas a cor de marca, mais saturadas que a Maré original. Clique em "Aplicar" para ver a página inteira na cor (o mesh de fundo acompanha) e num swatch para copiar o hex. Índigo é a recomendação: dá a vibração do roxo mantendo a leitura de confiança.</p>
     </div>
 
     <div class="stage">
-      <div class="stage-label">Maré — escala de marca</div>
-      <div class="swatch-grid" id="mareSwatches"></div>
-    </div>
-
-    <div class="stage">
-      <div class="stage-label">Accents de atmosfera — Aurora & Ember (somente gradientes)</div>
-      <div class="swatch-grid" id="accentSwatches"></div>
+      <div class="stage-label">Candidatas — aplicam ao vivo em toda a página</div>
+      <div id="candidates"></div>
     </div>
 
     <div class="stage">
@@ -750,22 +897,22 @@ code, .mono { font-family: var(--font-mono); }
     <div class="section-head">
       <div class="eyebrow">Fundamentos</div>
       <h2>Tipografia</h2>
-      <p class="desc">Escolha o par no seletor do topo ou nos cards abaixo — a página inteira re-tipografa ao vivo. O mono (scores e valores) acompanha cada par.</p>
+      <p class="desc">Par oficial: <b>Sora</b> (display) + <b>Inter</b> (corpo) + JetBrains Mono (scores). O seletor continua ativo para comparação — a página inteira re-tipografa ao vivo.</p>
     </div>
 
     <div class="stage">
       <div class="stage-label">Combinações — clique para aplicar</div>
       <div class="pair-cards">
-        <button class="pair-card" data-pair="inter" aria-pressed="true">
-          <div class="who">Inter · Inter · JetBrains Mono</div>
-          <div class="big">Ranking de fornecedores</div>
-          <div class="why">Uma família só, pesos fazendo a hierarquia. Máxima coesão, tom neutro de produto — a base atual do DS.</div>
-          <span class="rec">Recomendada</span>
-        </button>
-        <button class="pair-card" data-pair="sora" aria-pressed="false">
+        <button class="pair-card" data-pair="sora" aria-pressed="true">
           <div class="who">Sora · Inter · JetBrains Mono</div>
           <div class="big">Ranking de fornecedores</div>
           <div class="why">Display geométrico com personalidade tech — dá presença ao hero e ao preço do paywall sem perder a leitura do corpo em Inter.</div>
+          <span class="rec">Escolhida ✓</span>
+        </button>
+        <button class="pair-card" data-pair="inter" aria-pressed="false">
+          <div class="who">Inter · Inter · JetBrains Mono</div>
+          <div class="big">Ranking de fornecedores</div>
+          <div class="why">Uma família só, pesos fazendo a hierarquia. Máxima coesão, tom neutro de produto.</div>
         </button>
         <button class="pair-card" data-pair="fraunces" aria-pressed="false">
           <div class="who">Fraunces · Inter · JetBrains Mono</div>
@@ -1043,6 +1190,66 @@ code, .mono { font-family: var(--font-mono); }
     </div>
   </section>
 
+  <!-- ==================== DEGRADÊS ==================== -->
+  <section class="section" id="degrades">
+    <div class="section-head">
+      <div class="eyebrow">Componentes</div>
+      <h2>Background Gradients</h2>
+      <p class="desc">Quatro degradês derivados da cor de marca ativa (trocam junto com o accent) + Ember fixo para conversão. Regras: 1 card em destaque por lista, no máximo; degradê nunca comunica status — Verificado/Atenção/Evitar seguem sempre nas cores semânticas.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Tokens de degradê</div>
+      <div class="grad-tiles">
+        <div class="grad-tile g-brand"><span class="tag">--grad-brand</span></div>
+        <div class="grad-tile g-card"><span class="tag">--grad-card</span></div>
+        <div class="grad-tile g-btn"><span class="tag">--grad-btn</span></div>
+        <div class="grad-tile g-header-tile"><span class="tag">--grad-header</span></div>
+        <div class="grad-tile g-ember"><span class="tag">--grad-ember</span></div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">FeaturedCard — destaque do ranking (1 por lista)</div>
+      <article class="card-featured">
+        <div class="toprow">
+          <span class="chip-onGrad">Melhor da categoria</span>
+          <span class="chip-onGrad lite">✓ Verificado</span>
+        </div>
+        <div class="midrow">
+          <h3>Mesa Posta Recepções</h3>
+          <span class="score-big">93/100</span>
+        </div>
+        <div class="meta">Buffet completo (almoço/jantar) · Curitiba · 1,8 km</div>
+        <button class="btn btn-onGrad btn-block">Ver verificação completa</button>
+      </article>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Header wash — topo de tela com brilho da marca</div>
+      <div class="header-wash-demo">
+        <div class="wash">
+          <div class="avatar" aria-hidden="true"></div>
+          <div>
+            <div class="hi">Olá, Vitor</div>
+            <div class="sub">Sua pesquisa de Curitiba vence em 12 dias</div>
+          </div>
+        </div>
+        <div class="body-mock">
+          <input class="input" placeholder="Buscar nos seus relatórios" aria-label="Buscar nos seus relatórios">
+        </div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Botão gradient — só para o CTA hero e o paywall</div>
+      <div class="row">
+        <button class="btn btn-gradient btn-lg">Começar pelo meu evento</button>
+        <button class="btn btn-gradient">Ir para pagamento →</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ==================== FEEDBACK ==================== -->
   <section class="section" id="feedback">
     <div class="section-head">
@@ -1148,43 +1355,81 @@ code, .mono { font-family: var(--font-mono); }
     });
     try { localStorage.setItem('ap-pair', pair); } catch (e) {}
   }
-  document.querySelectorAll('.pair-chip, .pair-card').forEach(function (el) {
+  document.querySelectorAll('.pair-chip[data-pair], .pair-card').forEach(function (el) {
     el.addEventListener('click', function () { setPair(el.getAttribute('data-pair')); });
   });
-  try {
-    var savedPair = localStorage.getItem('ap-pair');
-    if (savedPair) setPair(savedPair);
-  } catch (e) {}
+  var savedPair = null;
+  try { savedPair = localStorage.getItem('ap-pair'); } catch (e) {}
+  setPair(savedPair || 'sora');
 
-  /* ---- Swatches ---- */
-  var mare = [
-    ['mare-50','#EFF9FA'],['mare-100','#DCF1F4'],['mare-200','#B9E3EA'],['mare-300','#8FD0DB'],
-    ['mare-400','#6BB9C6'],['mare-500','#4C9FAE'],['mare-600','#3B8494'],['mare-700','#316B7A'],
-    ['mare-800','#295361'],['mare-900','#1F3F4B']
+  /* ---- Accent de marca ---- */
+  function setAccent(name) {
+    if (name === 'indigo') root.removeAttribute('data-accent');
+    else root.setAttribute('data-accent', name);
+    document.querySelectorAll('[data-accent-btn]').forEach(function (el) {
+      el.setAttribute('aria-pressed', el.getAttribute('data-accent-btn') === name ? 'true' : 'false');
+      if (el.classList.contains('cand-apply')) {
+        el.textContent = el.getAttribute('data-accent-btn') === name ? 'Aplicada ✓' : 'Aplicar';
+      }
+    });
+    document.querySelectorAll('.accent-chip').forEach(function (el) {
+      el.setAttribute('aria-pressed', el.getAttribute('data-accent') === name ? 'true' : 'false');
+    });
+    try { localStorage.setItem('ap-accent', name); } catch (e) {}
+  }
+  document.querySelectorAll('.accent-chip').forEach(function (el) {
+    el.addEventListener('click', function () { setAccent(el.getAttribute('data-accent')); });
+  });
+
+  /* ---- Candidatas de cor ---- */
+  var candidates = [
+    { id: 'indigo', name: 'Índigo', rec: true,
+      note: 'A vibração do roxo com leitura de confiança — o meio-termo ideal.',
+      scale: ['#4338CA','#4F46E5','#6366F1','#818CF8','#A5B4FC'] },
+    { id: 'eletrico', name: 'Azul Elétrico', rec: false,
+      note: 'Máxima confiança e energia — o azul das referências Zentra.',
+      scale: ['#1D4ED8','#2563EB','#3B82F6','#60A5FA','#93C5FD'] },
+    { id: 'violeta', name: 'Violeta', rec: false,
+      note: 'O roxo pleno — diferenciação máxima, tom mais criativo.',
+      scale: ['#6D28D9','#7C3AED','#8B5CF6','#A78BFA','#C4B5FD'] },
+    { id: 'mare', name: 'Maré saturada', rec: false,
+      note: 'Mantém a identidade atual do app, com o dobro de saturação.',
+      scale: ['#0E7490','#0891B2','#06B6D4','#22D3EE','#67E8F9'] }
   ];
-  var accents = [
-    ['aurora-400','#60A5FA'],['aurora-500','#3B82F6'],['aurora-600','#2563EB'],
-    ['ember-400','#FB923C'],['ember-500','#F97316'],['ember-600','#EA580C']
-  ];
-  function buildSwatches(list, mount) {
-    var host = document.getElementById(mount);
-    list.forEach(function (s) {
-      var b = document.createElement('button');
-      b.className = 'swatch';
-      b.setAttribute('aria-label', 'Copiar ' + s[1]);
-      b.innerHTML = '<div class="chip-color" style="background:' + s[1] + '"></div>' +
-                    '<div class="nm">' + s[0] + '</div><div class="hx">' + s[1] + '</div>';
-      b.addEventListener('click', function () {
-        var done = function () { showToast('Copiado: ' + s[1], 'info'); };
+  var candHost = document.getElementById('candidates');
+  candidates.forEach(function (c) {
+    var row = document.createElement('div');
+    row.className = 'cand-row';
+    var info = document.createElement('div');
+    info.className = 'cand-info';
+    info.innerHTML = '<div class="nm">' + c.name + (c.rec ? ' <span class="rec-mini">Recomendada</span>' : '') + '</div>' +
+                     '<div class="note">' + c.note + '</div>';
+    var scale = document.createElement('div');
+    scale.className = 'cand-scale';
+    c.scale.forEach(function (hex) {
+      var s = document.createElement('button');
+      s.style.background = hex;
+      s.title = hex;
+      s.setAttribute('aria-label', 'Copiar ' + hex);
+      s.addEventListener('click', function () {
+        var done = function () { showToast('Copiado: ' + hex, 'info'); };
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(s[1]).then(done, done);
+          navigator.clipboard.writeText(hex).then(done, done);
         } else { done(); }
       });
-      host.appendChild(b);
+      scale.appendChild(s);
     });
-  }
-  buildSwatches(mare, 'mareSwatches');
-  buildSwatches(accents, 'accentSwatches');
+    var apply = document.createElement('button');
+    apply.className = 'btn btn-outline btn-sm cand-apply';
+    apply.setAttribute('data-accent-btn', c.id);
+    apply.textContent = 'Aplicar';
+    apply.addEventListener('click', function () { setAccent(c.id); });
+    row.appendChild(info); row.appendChild(scale); row.appendChild(apply);
+    candHost.appendChild(row);
+  });
+  var savedAccent = null;
+  try { savedAccent = localStorage.getItem('ap-accent'); } catch (e) {}
+  setAccent(savedAccent || 'indigo');
 
   /* ---- Score bars animam ao entrar na viewport ---- */
   var io = new IntersectionObserver(function (entries) {

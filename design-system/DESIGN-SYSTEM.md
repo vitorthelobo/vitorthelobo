@@ -1,8 +1,14 @@
-# Autopilot de Eventos — Design System v1.0
+# Autopilot de Eventos — Design System v1.1
 
 > Sistema de design completo para o **Autopilot de Eventos** (autopilot-eventos-demo.vercel.app).
 > Direção visual baseada nas referências aprovadas: dark premium com gradientes mesh, glassmorphism,
 > botões pill e tipografia de hierarquia forte — adaptado para **dois temas: Light e Dark**.
+>
+> **v1.1:** tipografia oficial **Sora + Inter**; cor de marca migrando da Maré (teal) para um accent
+> saturado — **Índigo `#4F46E5` é o padrão recomendado** (candidatas alternativas na §2.1);
+> glassmorphism promovido a tratamento padrão dos painéis (§2.7); nova família de
+> **Background Gradients** (§2.11) com FeaturedCard e header wash (§4.31–4.33).
+> Preview interativo: `design-system/preview.html`.
 
 ---
 
@@ -34,31 +40,35 @@
 
 ### 2.1 Cor — Paleta base
 
-#### Brand · Maré (teal/cyan — cor do produto, extraída do app atual)
+#### Brand · Índigo (padrão recomendado — saturado e forte)
 
 | Token | Hex | Uso |
 |---|---|---|
-| `mare-50`  | `#EFF9FA` | fundos tingidos (light) |
-| `mare-100` | `#DCF1F4` | hover de superfícies tingidas (light) |
-| `mare-200` | `#B9E3EA` | bordas ativas (light) |
-| `mare-300` | `#8FD0DB` | **botão primário (dark)**, barras de score |
-| `mare-400` | `#6BB9C6` | hover do primário (dark), links (dark) |
-| `mare-500` | `#4C9FAE` | ícones/acento neutro entre temas |
-| `mare-600` | `#3B8494` | **botão primário (light)**, links (light) |
-| `mare-700` | `#316B7A` | hover do primário (light) |
-| `mare-800` | `#295361` | texto sobre tinta clara |
-| `mare-900` | `#1F3F4B` | texto de alto contraste sobre `mare-100` |
+| `brand-300` | `#A5B4FC` | links (dark) |
+| `brand-400` | `#818CF8` | hover do primário (dark), barras de score (dark) |
+| `brand-500` | `#6366F1` | **botão primário (dark)** (texto branco), glow dos gradientes |
+| `brand-600` | `#4F46E5` | **botão primário (light)**, links (light) |
+| `brand-700` | `#4338CA` | hover do primário (light) |
 
-#### Accent · Aurora (azul — gradientes e momentos hero, ref. Zentra azul)
+**Candidatas alternativas** (mesma mecânica de tokens; testáveis ao vivo no `preview.html`):
 
-`aurora-400 #60A5FA` · `aurora-500 #3B82F6` · `aurora-600 #2563EB` · `aurora-700 #1D4ED8`
+| Candidata | 700 | 600 | 500 | 400 | 300 | Leitura |
+|---|---|---|---|---|---|---|
+| **Índigo** ✦ recomendada | `#4338CA` | `#4F46E5` | `#6366F1` | `#818CF8` | `#A5B4FC` | a vibração do roxo com leitura de confiança |
+| Azul Elétrico | `#1D4ED8` | `#2563EB` | `#3B82F6` | `#60A5FA` | `#93C5FD` | máxima confiança/energia (ref. Zentra) |
+| Violeta | `#6D28D9` | `#7C3AED` | `#8B5CF6` | `#A78BFA` | `#C4B5FD` | roxo pleno — diferenciação máxima, tom criativo |
+| Maré saturada | `#0E7490` | `#0891B2` | `#06B6D4` | `#22D3EE` | `#67E8F9` | mantém a identidade atual, 2× saturação (dark usa texto escuro `#083344` no primário) |
 
-#### Accent · Ember (laranja — destaque de conversão/paywall, ref. Zentra laranja)
+> Sobre o roxo: funciona, mas o violeta puro é hoje a cor mais genérica de SaaS/IA. O **Índigo**
+> entrega a mesma sensação com mais credibilidade — por isso é o padrão. A decisão final troca
+> apenas os 5 hex de `brand-*`; nada mais no sistema muda.
+
+#### Accent · Ember (laranja — exclusivo de conversão/paywall)
 
 `ember-400 #FB923C` · `ember-500 #F97316` · `ember-600 #EA580C`
 
-> **Regra de uso dos accents:** Aurora e Ember aparecem apenas em *gradientes de atmosfera*
-> (hero, paywall, ilustração de fundo) e micro-destaques. Ações e navegação são sempre **Maré**.
+> **Regra:** Ember aparece só no gradiente do paywall e no `--grad-ember`. Ações e navegação são
+> sempre a cor de marca.
 
 #### Neutros
 
@@ -104,13 +114,15 @@
   --text-subtle:   #7C8696;
   --text-invert:   #F3F5F8;
 
-  /* Ação */
-  --primary:          #3B8494;
-  --primary-hover:    #316B7A;
+  /* Ação — accent Índigo (troque os 5 hex para outra candidata) */
+  --primary:          #4F46E5;
+  --primary-hover:    #4338CA;
   --primary-contrast: #FFFFFF;
-  --primary-tint:     #DCF1F4;
-  --link:             #3B8494;
-  --focus-ring:       rgba(59,132,148,.45);
+  --primary-tint:     color-mix(in srgb, var(--primary) 10%, transparent);
+  --link:             #4F46E5;
+  --focus-ring:       color-mix(in srgb, var(--primary) 45%, transparent);
+  --accent-glow:      #6366F1;   /* alimenta mesh e gradientes */
+  --accent-glow-2:    #8B5CF6;
 
   /* Status */
   --success: #15803D;  --success-bg: #EAF7EF;  --success-border: #BBE5CB;
@@ -119,17 +131,26 @@
   --info:    #3B8494;  --info-bg:    #EFF9FA;  --info-border:    #B9E3EA;
 
   /* Glass (ref. Cannabis Lab / Creative.style) */
-  --glass-bg:     rgba(255,255,255,.55);
-  --glass-border: rgba(255,255,255,.65);
-  --glass-blur:   20px;
+  --glass-bg:           rgba(255,255,255,.58);
+  --glass-border:       rgba(255,255,255,.65);
+  --glass-panel-border: rgba(20,24,29,.10);
+  --glass-inner:        rgba(255,255,255,.45);
+  --glass-blur:         20px;
 
-  /* Gradiente mesh (ref. Zentra) */
-  --mesh-hero:    radial-gradient(120% 90% at 20% 10%, #DCEBFF 0%, transparent 55%),
-                  radial-gradient(100% 80% at 85% 20%, #DCF1F4 0%, transparent 50%),
-                  #F7F8FA;
-  --mesh-paywall: radial-gradient(110% 90% at 80% 0%, #FFE8D9 0%, transparent 55%),
-                  radial-gradient(100% 80% at 10% 30%, #DCF1F4 0%, transparent 50%),
-                  #F7F8FA;
+  /* Gradiente mesh — derivado do accent (mesma definição nos 2 temas) */
+  --mesh-hero:    radial-gradient(120% 90% at 18% 8%, color-mix(in srgb, var(--accent-glow) 22%, transparent) 0%, transparent 55%),
+                  radial-gradient(100% 80% at 85% 18%, color-mix(in srgb, var(--accent-glow-2) 16%, transparent) 0%, transparent 50%),
+                  var(--bg);
+  --mesh-paywall: radial-gradient(110% 90% at 82% 0%, rgba(249,115,22,.16) 0%, transparent 55%),
+                  radial-gradient(100% 80% at 10% 32%, color-mix(in srgb, var(--accent-glow) 18%, transparent) 0%, transparent 50%),
+                  var(--bg);
+
+  /* Background gradients (§2.11) — derivados do accent, iguais nos 2 temas */
+  --grad-brand:  linear-gradient(135deg, color-mix(in srgb, var(--accent-glow) 60%, #FFFFFF) 0%, var(--accent-glow) 50%, color-mix(in srgb, var(--accent-glow) 55%, #000000) 100%);
+  --grad-card:   radial-gradient(130% 130% at 15% 0%, color-mix(in srgb, var(--accent-glow) 52%, #FFFFFF) 0%, var(--accent-glow) 48%, color-mix(in srgb, var(--accent-glow) 55%, #000000) 112%);
+  --grad-header: linear-gradient(to bottom, color-mix(in srgb, var(--accent-glow) 45%, transparent) 0%, color-mix(in srgb, var(--accent-glow) 12%, transparent) 55%, transparent 100%);
+  --grad-btn:    linear-gradient(180deg, color-mix(in srgb, var(--accent-glow) 80%, #FFFFFF) 0%, var(--accent-glow) 100%);
+  --grad-ember:  linear-gradient(135deg, #FB923C 0%, #F97316 45%, #EA580C 100%);
 
   --shadow-1: 0 1px 2px rgba(20,24,29,.06);
   --shadow-2: 0 4px 16px rgba(20,24,29,.08);
@@ -152,28 +173,26 @@
   --text-subtle:   #8B94A3;
   --text-invert:   #14181D;
 
-  --primary:          #8FD0DB;
-  --primary-hover:    #6BB9C6;
-  --primary-contrast: #10242B;   /* texto escuro sobre teal claro, como no app */
-  --primary-tint:     rgba(143,208,219,.12);
-  --link:             #8FD0DB;
-  --focus-ring:       rgba(143,208,219,.45);
+  --primary:          #6366F1;
+  --primary-hover:    #818CF8;
+  --primary-contrast: #FFFFFF;
+  --primary-tint:     color-mix(in srgb, var(--primary) 14%, transparent);
+  --link:             #A5B4FC;
+  --focus-ring:       color-mix(in srgb, var(--primary) 45%, transparent);
+  --accent-glow:      #6366F1;
+  --accent-glow-2:    #8B5CF6;
 
   --success: #4ADE80;  --success-bg: rgba(74,222,128,.10);  --success-border: rgba(74,222,128,.35);
   --warning: #FACC15;  --warning-bg: rgba(250,204,21,.10);  --warning-border: rgba(250,204,21,.35);
   --danger:  #F87171;  --danger-bg:  rgba(248,113,113,.10); --danger-border:  rgba(248,113,113,.35);
   --info:    #8FD0DB;  --info-bg:    rgba(143,208,219,.10); --info-border:    rgba(143,208,219,.35);
 
-  --glass-bg:     rgba(255,255,255,.06);
-  --glass-border: rgba(255,255,255,.12);
-  --glass-blur:   20px;
-
-  --mesh-hero:    radial-gradient(120% 90% at 20% 10%, rgba(37,99,235,.28) 0%, transparent 55%),
-                  radial-gradient(100% 80% at 85% 20%, rgba(76,159,174,.22) 0%, transparent 50%),
-                  #101318;
-  --mesh-paywall: radial-gradient(110% 90% at 80% 0%, rgba(249,115,22,.20) 0%, transparent 55%),
-                  radial-gradient(100% 80% at 10% 30%, rgba(76,159,174,.18) 0%, transparent 50%),
-                  #101318;
+  --glass-bg:           rgba(255,255,255,.055);
+  --glass-border:       rgba(255,255,255,.12);
+  --glass-panel-border: rgba(255,255,255,.14);
+  --glass-inner:        rgba(255,255,255,.05);
+  --glass-blur:         20px;
+  /* mesh e gradientes herdam da definição light (usam var(--bg) e var(--accent-glow)) */
 
   --shadow-1: 0 1px 2px rgba(0,0,0,.40);
   --shadow-2: 0 4px 16px rgba(0,0,0,.45);
@@ -187,11 +206,14 @@
 
 | Papel | Fonte | Fallback |
 |---|---|---|
-| UI & corpo | **Inter** | `-apple-system, "Segoe UI", Roboto, sans-serif` |
-| Números/score | **JetBrains Mono** | `ui-monospace, "SF Mono", Consolas, monospace` |
+| Display (h1, h2, preço, marca) | **Sora** (600/700) | `'Inter', -apple-system, sans-serif` |
+| UI & corpo | **Inter** (400–700) | `-apple-system, "Segoe UI", Roboto, sans-serif` |
+| Números/score | **JetBrains Mono** (500/600) | `ui-monospace, "SF Mono", Consolas, monospace` |
 
-> Uma família só para tudo (Inter) mantém o produto coeso; o mono entra **apenas** em scores
-> (`93/100`), pesos (`30%`) e valores monetários do paywall quando tabulares.
+> **Par oficial (decidido): Sora + Inter.** Sora entra só nos papéis de display — `display`, `h1`,
+> `h2` e a marca — com `letter-spacing: -0.025em` e peso 700 (display usa 700, não 800).
+> Corpo, labels e componentes ficam em Inter. O mono entra **apenas** em scores (`93/100`),
+> pesos (`30%`) e valores monetários do paywall quando tabulares.
 
 **Escala (rem base 16px):**
 
@@ -253,18 +275,29 @@ Breakpoints: `sm 640px` · `md 768px` · `lg 1024px` · `xl 1280px`. Mobile-firs
 | 2 | `--shadow-2` | Cards em hover, dropdowns |
 | 3 | `--shadow-3` | Modais, paywall, toasts |
 
-**Receita glass** (hero, paywall, banner flutuante):
+**Receita glass** (tratamento padrão dos painéis, v1.1):
 
 ```css
 .glass {
   background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--glass-panel-border);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 ```
 
-Usar glass **somente** sobre `--mesh-hero`/`--mesh-paywall`. Sobre fundo chapado, usar `--surface`.
+**Como aplicar (v1.1 — glass promovido a padrão):**
+- A página inteira ganha um **mesh ambiente fixo** (`position: fixed; inset: 0; z-index: -1;
+  background: var(--mesh-hero)`) — é ele que o glass desfoca.
+- **São glass:** cards de conteúdo (stage, SupplierCard), painel de metodologia, top bar,
+  modal, toast e o PricingCard (blur 14–24px conforme o tamanho).
+- **Painéis internos** ("o que não conseguimos verificar", escopo do paywall) usam
+  `--glass-inner` + borda `--glass-panel-border`, sem blur próprio.
+- **Ficam sólidos:** OptionCards do wizard, inputs e dropdowns (`--surface`/`--surface-2`) —
+  conteúdo interativo denso pede fundo estável e legível.
+- Performance: máx. ~8 superfícies com `backdrop-filter` visíveis por viewport; em listas
+  longas de SupplierCards, aplicar blur só nos primeiros cards visíveis ou usar
+  `--glass-bg` sem blur (fallback aceitável).
 
 ### 2.8 Iconografia
 
@@ -291,7 +324,27 @@ Receitas:
 
 ### 2.10 Z-index
 
-`base 0` · `dropdown 40` · `sticky-header 50` · `modal-backdrop 90` · `modal 100` · `toast 110`
+`ambient -1` · `base 0` · `dropdown 40` · `sticky-header 50` · `modal-backdrop 90` · `modal 100` · `toast 110`
+
+### 2.11 Background Gradients
+
+Família de degradês de fundo (ref. app de futsal laranja). Todos derivam de `--accent-glow` via
+`color-mix`, então **seguem automaticamente a cor de marca** e valem para os dois temas.
+
+| Token | Forma | Uso |
+|---|---|---|
+| `--grad-brand` | linear 135°, claro → saturado → profundo | avatares, ilustrações, tile de marca |
+| `--grad-card` | radial a partir do canto sup. esquerdo (ponto de luz) → profundo | **FeaturedCard** (§4.31) |
+| `--grad-header` | linear vertical, glow do accent → transparente | **header wash** (§4.32), topo de telas logadas |
+| `--grad-btn` | linear vertical sutil, claro → saturado | **botão gradient** (§4.33) |
+| `--grad-ember` | linear 135° laranja fixo | exclusivo do paywall/conversão |
+
+**Regras de uso:**
+1. No máximo **1 FeaturedCard por lista** — o degradê é o destaque, e destaque repetido não é destaque.
+2. Degradê **nunca comunica status**: Verificado/Atenção/Evitar permanecem nas cores semânticas chapadas.
+3. Texto sobre `--grad-card`/`--grad-brand` é sempre branco; elementos internos usam os chips
+   translúcidos e o botão escuro `on-grad` (§4.31), nunca o botão primário normal.
+4. `--grad-header` fica **atrás** de conteúdo com texto em `--text` normal (é um glow, não uma superfície).
 
 ---
 
@@ -315,9 +368,9 @@ Receitas:
 
 | Elemento | Light | Dark |
 |---|---|---|
-| Botão primário | fundo `mare-600`, texto branco | fundo `mare-300`, **texto escuro** `#10242B` (padrão atual do app) |
-| Card | branco + `--shadow-1` + borda `--border` | `--surface` + borda `--border` (sombra quase nula; borda faz o trabalho) |
-| Mesh hero | pastéis azul/teal sobre off-white | azul profundo/teal sobre near-black (ref. Zentra) |
+| Botão primário | fundo `brand-600`, texto branco | fundo `brand-500`, texto branco (exceção: Maré saturada usa texto escuro `#083344`) |
+| Card glass | `rgba(255,255,255,.58)` + blur sobre mesh pastel | `rgba(255,255,255,.055)` + blur sobre mesh profundo |
+| Mesh ambiente | glow pastel do accent sobre off-white | glow saturado do accent sobre near-black (ref. Zentra) |
 | Banner demo | `--warning-bg` sólido | `--warning-bg` translúcido sobre `--bg` |
 
 ---
@@ -338,6 +391,8 @@ Inventário completo derivado das telas do app + estados necessários.
 | `ghost` | pill, transparente, texto `--text-muted`; hover `--surface-2` | Ações terciárias, ícones |
 | `link` | inline, sublinhado, cor `--link` | "Já sei a categoria que preciso →", "‹ Voltar e revisar" |
 | `danger` | pill, fundo `--danger`, texto branco | Exclusões (futuro) |
+| `gradient` | pill, `--grad-btn`, texto branco (§4.33) | somente CTA hero da landing e CTA do paywall |
+| `on-grad` | pill, fundo escuro `rgba(10,10,14,.82)`, texto branco | único botão permitido dentro do FeaturedCard (§4.31) |
 
 **Tamanhos:** `sm 36px` / `md 44px` (padrão) / `lg 52px` (CTAs de wizard e paywall, full-width no container). Padding horizontal: `20 / 24 / 32px`. Ícone à esquerda ou direita com gap `8px`.
 
@@ -559,6 +614,36 @@ Altura `64px`, fundo `--bg` (com `backdrop-filter: blur(12px)` + fundo translúc
 
 Para o banner demo (".env"): mono `caption`, fundo `--surface-2`, borda `--border`, `radius: 4px`, padding `1px 6px`.
 
+### 4.31 FeaturedCard (card em destaque com degradê)
+
+Tradução da referência (card "Friday Night League") para o produto: destacar o **melhor colocado
+de cada categoria** no ranking, ou uma pesquisa ativa na home logada.
+
+Anatomia sobre `background: var(--grad-card)`, `radius-lg`, padding `22px 24px`, texto branco:
+1. **Linha de chips:** `chip-onGrad` escuro (`rgba(10,10,14,.55)`, pill, caps 11.5px) — ex.
+   "MELHOR DA CATEGORIA" — + variante clara (`rgba(255,255,255,.22)`) para o status "✓ Verificado".
+2. **Linha principal:** nome em Sora 21px à esquerda + score mono 19px à direita
+   (como título × preço na referência).
+3. **Meta:** `13px` em `rgba(255,255,255,.85)` — categoria · cidade · distância.
+4. **Botão `on-grad`:** pill full-width **escuro** (`rgba(10,10,14,.82)`, texto branco, hover `.95`)
+   — o "Join Game" da referência. Nunca usar o botão primário normal dentro do degradê.
+
+Elevação `--shadow-2`, sem borda. Máximo 1 por lista (regra §2.11).
+
+### 4.32 Header wash (topo com glow da marca)
+
+Topo de telas logadas (home, relatórios): `background: var(--grad-header)` no bloco do cabeçalho,
+desvanecendo para transparente antes do primeiro conteúdo (~40% da altura da tela na referência;
+no web app, ~180–240px). Conteúdo sobre o wash usa texto normal (`--text` / `--text-muted`) —
+o wash é atmosfera, não superfície. Combina com avatar em `--grad-brand` e busca em Input padrão.
+
+### 4.33 Botão gradient
+
+Variante do Button (§4.1): `background: var(--grad-btn)`, texto branco, sem borda; hover
+`brightness(1.08)` + `--shadow-2` + `translateY(-1px)`. **Uso restrito a 2 lugares:** o CTA hero
+da landing e o CTA do paywall. Em todo o resto vale o `primary` chapado — se tudo brilha, nada
+brilha.
+
 ---
 
 ## 5. Padrões de página
@@ -616,7 +701,10 @@ PageHeader → `panel-dashed` metodologia → por categoria: SectionHeader + Sup
 ## 7. Checklist de implementação
 
 - [ ] Colar bloco de tokens (2.2) num `tokens.css`; zero hex fora dele.
-- [ ] Carregar Inter (400/500/600/700/800) + JetBrains Mono (600) com `font-display: swap`.
+- [ ] Confirmar a cor de marca no `preview.html` (Índigo recomendada) e fixar os 5 hex `brand-*`.
+- [ ] Carregar Sora (600/700) + Inter (400/500/600/700) + JetBrains Mono (500/600) com `font-display: swap`.
+- [ ] Montar o mesh ambiente fixo + migrar painéis para glass (§2.7); manter wizard/inputs sólidos.
+- [ ] Implementar os Background Gradients (§2.11) e o FeaturedCard no topo de cada categoria do ranking.
 - [ ] `<html data-theme>` + script anti-FOUC lendo `localStorage("ap-theme")` antes do paint.
 - [ ] ThemeToggle no header (4.27 / 3.2).
 - [ ] Migrar botões e chips para `radius-pill`.
@@ -627,4 +715,4 @@ PageHeader → `panel-dashed` metodologia → por categoria: SectionHeader + Sup
 
 ---
 
-*Autopilot de Eventos DS v1.0 · 30/08/2026 · Base visual: referências Zentra / Creative.style / Cannabis Lab + telas atuais do app.*
+*Autopilot de Eventos DS v1.1 · 30/08/2026 · Base visual: referências Zentra / Creative.style / Cannabis Lab / app de futsal (gradients) + telas atuais do app.*
