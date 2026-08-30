@@ -1,0 +1,1283 @@
+<title>Autopilot UI</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Sora:wght@600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* ============================================================
+   AUTOPILOT UI · Design System Showcase
+   Tokens light (default) → dark via media query → toggles
+   ============================================================ */
+:root {
+  /* Superfícies */
+  --bg: #F7F8FA;
+  --surface: #FFFFFF;
+  --surface-2: #F1F3F6;
+  --surface-3: #E4E8EE;
+  --border: #E4E8EE;
+  --border-strong: #D2D8E0;
+
+  /* Texto */
+  --text: #14181D;
+  --text-muted: #5B6572;
+  --text-subtle: #7C8696;
+  --text-invert: #F3F5F8;
+
+  /* Ação */
+  --primary: #3B8494;
+  --primary-hover: #316B7A;
+  --primary-contrast: #FFFFFF;
+  --primary-tint: #DCF1F4;
+  --link: #35798a;
+  --focus-ring: rgba(59,132,148,.45);
+
+  /* Status */
+  --success: #15803D; --success-bg: #EAF7EF; --success-border: #BBE5CB;
+  --warning: #A16207; --warning-bg: #FBF3E0; --warning-border: #EAD9A8;
+  --danger:  #B91C1C; --danger-bg:  #FBEAEA; --danger-border:  #F1C2C2;
+  --info:    #3B8494; --info-bg:    #EFF9FA; --info-border:    #B9E3EA;
+
+  /* Glass */
+  --glass-bg: rgba(255,255,255,.55);
+  --glass-border: rgba(255,255,255,.65);
+
+  /* Mesh */
+  --mesh-hero: radial-gradient(120% 90% at 18% 8%, #DCEBFF 0%, transparent 55%),
+               radial-gradient(100% 80% at 85% 18%, #DCF1F4 0%, transparent 50%),
+               #F7F8FA;
+  --mesh-paywall: radial-gradient(110% 90% at 82% 0%, #FFE8D9 0%, transparent 55%),
+                  radial-gradient(100% 80% at 10% 32%, #DCF1F4 0%, transparent 50%),
+                  #F7F8FA;
+
+  --shadow-1: 0 1px 2px rgba(20,24,29,.06);
+  --shadow-2: 0 4px 16px rgba(20,24,29,.08);
+  --shadow-3: 0 12px 40px rgba(20,24,29,.14);
+
+  --track: #E4E8EE;
+  --fill: #4C9FAE;
+  --header-bg: rgba(247,248,250,.82);
+  --tooltip-bg: #252C35;
+  --tooltip-text: #F3F5F8;
+
+  /* Tipografia — trocada pelo seletor de pares */
+  --font-display: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  --display-weight: 800;
+  --display-tracking: -0.02em;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101318;
+    --surface: #161A21;
+    --surface-2: #1C212A;
+    --surface-3: #262C37;
+    --border: #262C37;
+    --border-strong: #39414F;
+
+    --text: #F3F5F8;
+    --text-muted: #B7BFCC;
+    --text-subtle: #8B94A3;
+    --text-invert: #14181D;
+
+    --primary: #8FD0DB;
+    --primary-hover: #6BB9C6;
+    --primary-contrast: #10242B;
+    --primary-tint: rgba(143,208,219,.12);
+    --link: #8FD0DB;
+    --focus-ring: rgba(143,208,219,.45);
+
+    --success: #4ADE80; --success-bg: rgba(74,222,128,.10); --success-border: rgba(74,222,128,.35);
+    --warning: #FACC15; --warning-bg: rgba(250,204,21,.10); --warning-border: rgba(250,204,21,.35);
+    --danger:  #F87171; --danger-bg:  rgba(248,113,113,.10); --danger-border: rgba(248,113,113,.35);
+    --info:    #8FD0DB; --info-bg:    rgba(143,208,219,.10); --info-border:   rgba(143,208,219,.35);
+
+    --glass-bg: rgba(255,255,255,.06);
+    --glass-border: rgba(255,255,255,.12);
+
+    --mesh-hero: radial-gradient(120% 90% at 18% 8%, rgba(37,99,235,.28) 0%, transparent 55%),
+                 radial-gradient(100% 80% at 85% 18%, rgba(76,159,174,.22) 0%, transparent 50%),
+                 #101318;
+    --mesh-paywall: radial-gradient(110% 90% at 82% 0%, rgba(249,115,22,.20) 0%, transparent 55%),
+                    radial-gradient(100% 80% at 10% 32%, rgba(76,159,174,.18) 0%, transparent 50%),
+                    #101318;
+
+    --shadow-1: 0 1px 2px rgba(0,0,0,.40);
+    --shadow-2: 0 4px 16px rgba(0,0,0,.45);
+    --shadow-3: 0 12px 40px rgba(0,0,0,.55);
+
+    --track: #262C37;
+    --fill: #8FD0DB;
+    --header-bg: rgba(16,19,24,.82);
+    --tooltip-bg: #DBE0E8;
+    --tooltip-text: #14181D;
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #101318;
+  --surface: #161A21;
+  --surface-2: #1C212A;
+  --surface-3: #262C37;
+  --border: #262C37;
+  --border-strong: #39414F;
+
+  --text: #F3F5F8;
+  --text-muted: #B7BFCC;
+  --text-subtle: #8B94A3;
+  --text-invert: #14181D;
+
+  --primary: #8FD0DB;
+  --primary-hover: #6BB9C6;
+  --primary-contrast: #10242B;
+  --primary-tint: rgba(143,208,219,.12);
+  --link: #8FD0DB;
+  --focus-ring: rgba(143,208,219,.45);
+
+  --success: #4ADE80; --success-bg: rgba(74,222,128,.10); --success-border: rgba(74,222,128,.35);
+  --warning: #FACC15; --warning-bg: rgba(250,204,21,.10); --warning-border: rgba(250,204,21,.35);
+  --danger:  #F87171; --danger-bg:  rgba(248,113,113,.10); --danger-border: rgba(248,113,113,.35);
+  --info:    #8FD0DB; --info-bg:    rgba(143,208,219,.10); --info-border:   rgba(143,208,219,.35);
+
+  --glass-bg: rgba(255,255,255,.06);
+  --glass-border: rgba(255,255,255,.12);
+
+  --mesh-hero: radial-gradient(120% 90% at 18% 8%, rgba(37,99,235,.28) 0%, transparent 55%),
+               radial-gradient(100% 80% at 85% 18%, rgba(76,159,174,.22) 0%, transparent 50%),
+               #101318;
+  --mesh-paywall: radial-gradient(110% 90% at 82% 0%, rgba(249,115,22,.20) 0%, transparent 55%),
+                  radial-gradient(100% 80% at 10% 32%, rgba(76,159,174,.18) 0%, transparent 50%),
+                  #101318;
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,.40);
+  --shadow-2: 0 4px 16px rgba(0,0,0,.45);
+  --shadow-3: 0 12px 40px rgba(0,0,0,.55);
+
+  --track: #262C37;
+  --fill: #8FD0DB;
+  --header-bg: rgba(16,19,24,.82);
+  --tooltip-bg: #DBE0E8;
+  --tooltip-text: #14181D;
+
+  color-scheme: dark;
+}
+
+/* ---- Pares tipográficos ---- */
+body[data-pair="sora"] {
+  --font-display: 'Sora', 'Inter', sans-serif;
+  --display-weight: 700;
+  --display-tracking: -0.025em;
+}
+body[data-pair="fraunces"] {
+  --font-display: 'Fraunces', Georgia, serif;
+  --display-weight: 600;
+  --display-tracking: -0.01em;
+}
+body[data-pair="grotesk"] {
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --font-body: 'IBM Plex Sans', 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --display-weight: 700;
+  --display-tracking: -0.02em;
+}
+body[data-pair="jakarta"] {
+  --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --display-weight: 800;
+  --display-tracking: -0.02em;
+}
+
+/* ============ Base ============ */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  transition: background-color .2s ease, color .2s ease;
+}
+h1,h2,h3,h4 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--link); }
+button { font-family: inherit; }
+code, .mono { font-family: var(--font-mono); }
+
+.container { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+:is(button, a, input, select, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ============ Top bar ============ */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-inner {
+  display: flex; align-items: center; gap: 16px;
+  height: 60px;
+}
+.brand { font-family: var(--font-display); font-weight: var(--display-weight); font-size: 17px; letter-spacing: var(--display-tracking); white-space: nowrap; }
+.brand .dot { color: var(--primary); }
+.topbar-spacer { flex: 1; }
+
+.theme-toggle {
+  width: 40px; height: 40px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface-2);
+  color: var(--text); cursor: pointer; font-size: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background-color .15s ease;
+}
+.theme-toggle:hover { background: var(--surface-3); }
+
+/* ---- Seletor de par tipográfico ---- */
+.pairbar {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.pairbar-inner { display: flex; align-items: center; gap: 10px; padding: 12px 0; flex-wrap: wrap; }
+.pairbar-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-subtle); margin-right: 4px; }
+.pair-chip {
+  border: 1px solid var(--border-strong); background: transparent; color: var(--text-muted);
+  border-radius: 999px; padding: 7px 16px; font-size: 13.5px; font-weight: 500;
+  cursor: pointer; transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.pair-chip:hover { border-color: var(--primary); color: var(--text); }
+.pair-chip[aria-pressed="true"] {
+  border: 1.5px solid var(--primary); color: var(--primary);
+  background: var(--primary-tint); font-weight: 600;
+}
+.pair-chip .pf { font-size: 12px; opacity: .75; font-weight: 400; }
+.pair-chip[data-pair="sora"] .pf { font-family: 'Sora', sans-serif; }
+.pair-chip[data-pair="fraunces"] .pf { font-family: 'Fraunces', serif; }
+.pair-chip[data-pair="grotesk"] .pf { font-family: 'Space Grotesk', sans-serif; }
+.pair-chip[data-pair="jakarta"] .pf { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+/* ============ Hero ============ */
+.hero { background: var(--mesh-hero); border-bottom: 1px solid var(--border); }
+.hero-inner { padding: 72px 0 64px; max-width: 720px; }
+.eyebrow {
+  font-size: 12px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-subtle);
+}
+.hero h1 {
+  font-family: var(--font-display); font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: clamp(34px, 5.4vw, 52px); line-height: 1.08; margin: 14px 0 18px;
+}
+.hero p { color: var(--text-muted); max-width: 54ch; font-size: 17px; }
+.hero-meta { display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
+.hero-tag {
+  font-size: 12.5px; padding: 6px 14px; border-radius: 999px;
+  border: 1px solid var(--border-strong); color: var(--text-muted); background: var(--glass-bg);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+
+/* ============ Seções ============ */
+.section { padding: 64px 0 8px; }
+.section-head { margin-bottom: 28px; }
+.section-head h2 {
+  font-family: var(--font-display); font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking); font-size: 26px; margin-top: 8px;
+}
+.section-head .desc { color: var(--text-muted); margin-top: 8px; max-width: 68ch; font-size: 14.5px; }
+
+.stage {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px; box-shadow: var(--shadow-1);
+}
+.stage + .stage { margin-top: 16px; }
+.stage-label {
+  font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-subtle); margin-bottom: 18px;
+}
+.row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.col { display: flex; flex-direction: column; gap: 14px; }
+
+/* ============ Cores ============ */
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+.swatch { cursor: pointer; border: none; background: none; padding: 0; text-align: left; }
+.swatch .chip-color {
+  height: 56px; border-radius: 10px; border: 1px solid var(--border);
+  transition: transform .12s ease;
+}
+.swatch:hover .chip-color { transform: translateY(-2px); }
+.swatch .nm { font-size: 12px; font-weight: 600; margin-top: 7px; }
+.swatch .hx { font-family: var(--font-mono); font-size: 11px; color: var(--text-subtle); }
+
+.sem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.sem-card { border-radius: 12px; padding: 14px 16px; border: 1px solid; font-size: 13.5px; }
+.sem-card .t { font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.sem-card .s { color: var(--text-muted); margin-top: 4px; font-size: 12.5px; }
+
+/* ============ Tipografia ============ */
+.type-specimen { display: flex; flex-direction: column; gap: 18px; }
+.type-row { display: grid; grid-template-columns: 150px 1fr; gap: 18px; align-items: baseline; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+.type-row:last-child { border-bottom: none; padding-bottom: 0; }
+.type-meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-subtle); }
+.t-display { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); font-size: 44px; line-height: 1.1; }
+.t-h1 { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); font-size: 31px; line-height: 1.2; }
+.t-h2 { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); font-size: 23px; line-height: 1.25; }
+.t-h3 { font-weight: 600; font-size: 18px; line-height: 1.35; }
+.t-body { font-size: 16px; max-width: 62ch; }
+.t-bodysm { font-size: 14px; color: var(--text-muted); max-width: 62ch; }
+.t-caption { font-size: 12.5px; color: var(--text-subtle); }
+.t-score { font-family: var(--font-mono); font-weight: 600; font-size: 13px; }
+
+.pair-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.pair-card {
+  border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+  background: var(--surface-2); cursor: pointer; text-align: left;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.pair-card:hover { border-color: var(--border-strong); }
+.pair-card[aria-pressed="true"] { border: 1.5px solid var(--primary); background: var(--primary-tint); }
+.pair-card .big { font-size: 24px; line-height: 1.15; margin-bottom: 8px; font-weight: 700; }
+.pair-card[data-pair="inter"] .big { font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.02em; }
+.pair-card[data-pair="sora"] .big { font-family: 'Sora', sans-serif; letter-spacing: -0.025em; }
+.pair-card[data-pair="fraunces"] .big { font-family: 'Fraunces', serif; font-weight: 600; }
+.pair-card[data-pair="grotesk"] .big { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+.pair-card[data-pair="jakarta"] .big { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; letter-spacing: -0.02em; }
+.pair-card .who { font-size: 12px; font-family: var(--font-mono); color: var(--text-subtle); margin-bottom: 10px; }
+.pair-card[data-pair="grotesk"] .who + .why { font-family: 'IBM Plex Sans', sans-serif; }
+.pair-card[data-pair="jakarta"] .why { font-family: 'Plus Jakarta Sans', sans-serif; }
+.pair-card .why { font-size: 13.5px; color: var(--text-muted); }
+.pair-card .rec {
+  display: inline-block; margin-top: 12px; font-size: 11px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--success);
+  background: var(--success-bg); border: 1px solid var(--success-border);
+  padding: 3px 10px; border-radius: 999px;
+}
+
+/* ============ Botões ============ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 999px; font-weight: 600; cursor: pointer;
+  border: 1px solid transparent; font-size: 15px;
+  height: 44px; padding: 0 24px;
+  transition: background-color .15s ease, border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.btn:active { transform: scale(.98); }
+.btn-sm { height: 36px; padding: 0 20px; font-size: 14px; }
+.btn-lg { height: 52px; padding: 0 32px; font-size: 16px; }
+.btn-primary { background: var(--primary); color: var(--primary-contrast); }
+.btn-primary:hover { background: var(--primary-hover); box-shadow: var(--shadow-2); transform: translateY(-1px); }
+.btn-primary:active { transform: scale(.98); }
+.btn-secondary { background: var(--surface-2); border-color: var(--border-strong); color: var(--text); }
+.btn-secondary:hover { background: var(--surface-3); }
+.btn-outline { background: transparent; border-color: var(--primary); color: var(--primary); }
+.btn-outline:hover { background: var(--primary-tint); }
+.btn-ghost { background: transparent; color: var(--text-muted); }
+.btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { filter: brightness(.92); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; pointer-events: none; }
+.btn-block { width: 100%; }
+.textlink {
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: var(--link); text-decoration: underline; font-size: 15px;
+}
+.textlink:hover { color: var(--primary-hover); }
+.spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============ Formulários ============ */
+.field { display: flex; flex-direction: column; gap: 8px; max-width: 420px; }
+.field label { font-size: 14px; font-weight: 600; }
+.input {
+  height: 48px; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text); padding: 0 16px;
+  font-size: 15px; font-family: inherit; width: 100%;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.input::placeholder { color: var(--text-subtle); }
+.input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--focus-ring); }
+.input.is-error { border-color: var(--danger); }
+.field .help { font-size: 12.5px; color: var(--text-subtle); }
+.field .error-msg { font-size: 13.5px; color: var(--danger); display: flex; gap: 6px; align-items: center; }
+
+/* Option cards */
+.optlist { display: flex; flex-direction: column; gap: 12px; max-width: 560px; }
+.optcard {
+  display: flex; align-items: center; gap: 14px;
+  border: 1px solid var(--border); border-radius: 12px;
+  background: var(--surface); padding: 17px 20px; cursor: pointer;
+  transition: border-color .15s ease, background-color .2s ease;
+}
+.optcard:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.optcard input { position: absolute; opacity: 0; pointer-events: none; }
+.optcard .lbl { font-weight: 600; font-size: 15px; }
+.optcard .aux { color: var(--text-muted); font-weight: 400; font-size: 13.5px; }
+.optcard.is-checked { border: 1.5px solid var(--primary); background: var(--primary-tint); }
+.radio-vis {
+  width: 20px; height: 20px; border-radius: 50%; flex: none;
+  border: 2px solid var(--border-strong); position: relative;
+  transition: border-color .15s ease;
+}
+.optcard.is-checked .radio-vis { border-color: var(--primary); }
+.optcard.is-checked .radio-vis::after {
+  content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--primary);
+}
+.check-vis {
+  width: 20px; height: 20px; border-radius: 6px; flex: none;
+  border: 2px solid var(--border-strong);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: transparent; transition: all .15s ease;
+}
+.optcard.is-checked .check-vis { background: var(--primary); border-color: var(--primary); color: var(--primary-contrast); }
+
+/* Chips de categoria */
+.chipgroup-title { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.catchip {
+  border-radius: 999px; height: 40px; padding: 0 18px; font-size: 14px;
+  cursor: pointer; transition: all .15s ease; font-weight: 500;
+  border: 1.5px solid var(--primary); color: var(--primary); background: var(--primary-tint);
+}
+.catchip:active { transform: scale(.96); }
+.catchip.off {
+  border: 1px solid var(--border); color: var(--text-subtle);
+  background: transparent; opacity: .75;
+}
+.chips-hint { font-size: 12.5px; color: var(--text-subtle); margin-top: 12px; }
+
+/* ============ Badges ============ */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 12px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 600; border: 1px solid;
+}
+.badge .sc { font-family: var(--font-mono); }
+.badge-verified { color: var(--success); background: var(--success-bg); border-color: var(--success-border); }
+.badge-caution { color: var(--warning); background: var(--warning-bg); border-color: var(--warning-border); }
+.badge-avoid { color: var(--danger); background: var(--danger-bg); border-color: var(--danger-border); }
+.badge-cache {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 8px; font-size: 12.5px;
+  color: var(--info); background: var(--info-bg); border: 1px solid var(--info-border);
+}
+.meta-mark { font-size: 12.5px; color: var(--text-subtle); font-style: italic; }
+
+/* ============ Alerts ============ */
+.banner-demo {
+  background: var(--warning-bg); border-bottom: 1px solid var(--warning-border);
+  color: var(--warning); font-size: 14px; text-align: center; padding: 10px 16px;
+  border-radius: 12px; border: 1px solid var(--warning-border);
+}
+.banner-demo code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: var(--text); }
+.callout {
+  border-radius: 12px; padding: 12px 16px; font-size: 14px; border: 1px solid;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.callout-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--text); }
+.callout-warning .ic { color: var(--warning); }
+.callout-block {
+  background: var(--warning-bg); border: none; border-left: 3px solid var(--warning);
+  border-radius: 8px; color: var(--text);
+}
+.callout-elim {
+  background: var(--danger-bg); border: none; border-left: 3px solid var(--danger);
+  border-radius: 8px; color: var(--text);
+}
+.privacy-note { font-size: 14px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+
+/* ============ Score bars ============ */
+.scorebars { display: flex; flex-direction: column; gap: 10px; }
+.scorebar { display: grid; grid-template-columns: 140px 1fr 34px; gap: 14px; align-items: center; }
+.scorebar .lb { font-size: 13.5px; color: var(--text-muted); }
+.scorebar .track { height: 8px; border-radius: 999px; background: var(--track); overflow: hidden; }
+.scorebar .fill { height: 100%; border-radius: 999px; background: var(--fill); width: 0; transition: width .6s cubic-bezier(.16,1,.3,1); }
+.scorebar .val { font-family: var(--font-mono); font-weight: 600; font-size: 13px; text-align: right; }
+
+/* ============ Supplier card ============ */
+.supplier {
+  border: 1px solid var(--border); border-radius: 16px; background: var(--surface);
+  padding: 22px 24px; box-shadow: var(--shadow-1);
+  display: flex; flex-direction: column; gap: 14px;
+  transition: border-color .15s ease;
+}
+.supplier:hover { border-color: var(--border-strong); }
+.supplier.is-rejected { border-color: var(--danger-border); }
+.supplier-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.supplier-head h3 { font-size: 18px; font-weight: 600; }
+.supplier-head .rank { color: var(--text-muted); }
+.supplier-contact { font-size: 13.5px; color: var(--text-muted); }
+.supplier-contact a { color: var(--link); }
+.supplier-summary { font-size: 15px; }
+.disclosure-btn {
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: var(--link); font-size: 14px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+}
+.disclosure-btn .chev { display: inline-block; transition: transform .2s ease; font-size: 11px; }
+.disclosure-btn[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.disclosure-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .32s cubic-bezier(.16,1,.3,1); }
+.disclosure-panel.open { grid-template-rows: 1fr; }
+.disclosure-panel > div { overflow: hidden; }
+.disclosure-content { border-top: 1px solid var(--border); padding-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+.evd-group { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-subtle); margin-top: 6px; }
+.evd { display: flex; gap: 10px; font-size: 14px; align-items: baseline; }
+.evd .ic { flex: none; font-size: 13px; }
+.evd .ic.ok { color: var(--success); }
+.evd .ic.warn { color: var(--warning); }
+.evd a { font-size: 13px; }
+.unverified-panel {
+  background: var(--surface-2); border-radius: 8px; padding: 14px 18px;
+}
+.unverified-panel .t { font-size: 13.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+.unverified-panel ul { margin: 0; padding-left: 18px; color: var(--text-muted); font-size: 13.5px; display: flex; flex-direction: column; gap: 4px; }
+
+.reject-header {
+  border-top: 2px solid var(--danger); padding-top: 14px; margin-top: 8px;
+  color: var(--text); font-weight: 700; font-size: 16.5px;
+  display: flex; align-items: center; gap: 8px;
+}
+.reject-header .x { color: var(--danger); }
+
+/* ============ Metodologia ============ */
+.panel-dashed {
+  border: 1px dashed var(--border-strong); border-radius: 12px;
+  padding: 16px 20px; font-size: 13.5px; color: var(--text-muted); background: var(--surface);
+}
+.panel-dashed b { color: var(--text); }
+
+/* ============ Progress wizard ============ */
+.wiz-progress { display: flex; flex-direction: column; gap: 8px; max-width: 560px; }
+.wiz-progress .lbl { font-size: 13.5px; color: var(--text-muted); }
+.wiz-track { height: 6px; border-radius: 999px; background: var(--track); overflow: hidden; }
+.wiz-fill { height: 100%; border-radius: 999px; background: var(--primary); width: 30%; transition: width .32s cubic-bezier(.16,1,.3,1); }
+
+/* ============ Pricing ============ */
+.paywall-stage {
+  background: var(--mesh-paywall); border: 1px solid var(--border);
+  border-radius: 16px; padding: 48px 24px; display: flex; justify-content: center;
+}
+.pricing {
+  width: 100%; max-width: 420px;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px; padding: 32px 28px; box-shadow: var(--shadow-3);
+  display: flex; flex-direction: column; gap: 16px; text-align: center;
+}
+.pricing h3 { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); font-size: 23px; }
+.pricing .price { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); font-size: 46px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.pricing .sub { font-size: 12.5px; color: var(--text-subtle); }
+.pricing hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; width: 100%; }
+.pricing .benefits { display: flex; flex-direction: column; gap: 10px; text-align: left; font-size: 14px; }
+.pricing .benefits .b { display: flex; gap: 10px; }
+.pricing .benefits .ok { color: var(--success); flex: none; }
+.pricing .scope {
+  background: var(--surface-2); border-radius: 8px; padding: 14px 16px;
+  font-size: 13px; color: var(--text-muted); text-align: left;
+}
+.pricing .scope b { color: var(--text); }
+.pricing .disclaimer { font-size: 12px; color: var(--text-subtle); }
+
+/* ============ Feedback ============ */
+.skeleton { border-radius: 8px; background: var(--surface-3); position: relative; overflow: hidden; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, var(--glass-bg), transparent);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { from { transform: translateX(-100%);} to { transform: translateX(100%);} }
+.sk-line { height: 12px; margin-bottom: 10px; }
+
+.emptystate { text-align: center; padding: 28px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.emptystate .ico {
+  width: 64px; height: 64px; border-radius: 50%; background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--text-subtle);
+}
+.emptystate h4 { font-size: 17px; font-weight: 600; }
+.emptystate p { font-size: 14px; color: var(--text-muted); max-width: 40ch; }
+
+.tooltip-wrap { position: relative; display: inline-flex; }
+.tooltip-wrap .tip {
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(4px);
+  background: var(--tooltip-bg); color: var(--tooltip-text);
+  font-size: 12.5px; padding: 6px 10px; border-radius: 8px; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity .15s ease .2s, transform .15s ease .2s;
+}
+.tooltip-wrap:hover .tip, .tooltip-wrap:focus-within .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Toast */
+.toast-region { position: fixed; bottom: 20px; right: 20px; z-index: 110; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--success); border-radius: 12px;
+  box-shadow: var(--shadow-3); padding: 12px 16px; min-width: 240px;
+  display: flex; gap: 10px; align-items: center; font-size: 14px;
+  animation: toast-in .3s cubic-bezier(.16,1,.3,1);
+}
+.toast.info-t { border-left-color: var(--info); }
+@keyframes toast-in { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+.toast .ok { color: var(--success); }
+.toast .ok-i { color: var(--info); }
+
+/* Modal */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal {
+  background: var(--surface); border-radius: 24px; box-shadow: var(--shadow-3);
+  max-width: 460px; width: 100%; padding: 32px;
+  display: flex; flex-direction: column; gap: 14px;
+  animation: modal-in .2s cubic-bezier(.16,1,.3,1);
+}
+@keyframes modal-in { from { transform: scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+.modal h3 { font-family: var(--font-display); font-weight: var(--display-weight); font-size: 22px; }
+.modal p { color: var(--text-muted); font-size: 15px; }
+.modal .actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+
+/* Search progress */
+.search-progress { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 0; text-align: center; }
+.search-progress .big-spin { width: 32px; height: 32px; border-width: 3px; color: var(--primary); }
+.search-progress h4 { font-size: 18px; font-weight: 600; }
+.search-progress .step { font-size: 14px; color: var(--text-muted); min-height: 22px; }
+.indeterminate { width: 260px; height: 6px; border-radius: 999px; background: var(--track); overflow: hidden; }
+.indeterminate .bar { width: 30%; height: 100%; border-radius: 999px; background: var(--primary); animation: indet 1.2s ease-in-out infinite; }
+@keyframes indet { 0% { transform: translateX(-110%);} 100% { transform: translateX(380%);} }
+
+/* Footer */
+.footer { border-top: 1px solid var(--border); margin-top: 72px; padding: 40px 0 56px; font-size: 12.5px; color: var(--text-subtle); }
+
+@media (max-width: 640px) {
+  .type-row { grid-template-columns: 1fr; gap: 6px; }
+  .scorebar { grid-template-columns: 110px 1fr 30px; }
+  .hero-inner { padding: 52px 0 44px; }
+}
+</style>
+
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="brand">Autopilot UI<span class="dot">.</span></div>
+    <div class="topbar-spacer"></div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema claro/escuro">🌙</button>
+  </div>
+</div>
+
+<div class="pairbar">
+  <div class="container pairbar-inner" role="group" aria-label="Combinação tipográfica">
+    <span class="pairbar-label">Fonte</span>
+    <button class="pair-chip" data-pair="inter" aria-pressed="true">Inter <span class="pf">· sistema</span></button>
+    <button class="pair-chip" data-pair="sora" aria-pressed="false"><span class="pf">Sora</span>&nbsp;+ Inter</button>
+    <button class="pair-chip" data-pair="fraunces" aria-pressed="false"><span class="pf">Fraunces</span>&nbsp;+ Inter</button>
+    <button class="pair-chip" data-pair="grotesk" aria-pressed="false"><span class="pf">Space Grotesk</span>&nbsp;+ Plex</button>
+    <button class="pair-chip" data-pair="jakarta" aria-pressed="false"><span class="pf">Jakarta Sans</span></button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="eyebrow">Design System · v1.0</div>
+      <h1>Monte a lista certa de fornecedores para seu evento</h1>
+      <p>Sistema de design do Autopilot de Eventos: tokens em par light/dark, componentes de verificação com evidência visível e a atmosfera premium das referências — gradiente mesh, glass e botões pill.</p>
+      <div class="hero-meta">
+        <span class="hero-tag">2 temas</span>
+        <span class="hero-tag">30 componentes</span>
+        <span class="hero-tag">5 pares tipográficos</span>
+        <span class="hero-tag">WCAG AA</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="container">
+
+  <!-- ==================== CORES ==================== -->
+  <section class="section" id="cores">
+    <div class="section-head">
+      <div class="eyebrow">Fundamentos</div>
+      <h2>Cor</h2>
+      <p class="desc">Paleta Maré (teal do produto) + tokens semânticos que trocam automaticamente com o tema. Clique num swatch para copiar o hex.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Maré — escala de marca</div>
+      <div class="swatch-grid" id="mareSwatches"></div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Accents de atmosfera — Aurora & Ember (somente gradientes)</div>
+      <div class="swatch-grid" id="accentSwatches"></div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Semânticas — status de verificação (par light/dark automático)</div>
+      <div class="sem-grid">
+        <div class="sem-card" style="background: var(--success-bg); border-color: var(--success-border);">
+          <div class="t" style="color: var(--success);">✓ Verificado</div>
+          <div class="s">score ≥ 75 · fornecedor aprovado</div>
+        </div>
+        <div class="sem-card" style="background: var(--warning-bg); border-color: var(--warning-border);">
+          <div class="t" style="color: var(--warning);">⚠ Atenção</div>
+          <div class="s">score 50–74 · exige checagem manual</div>
+        </div>
+        <div class="sem-card" style="background: var(--danger-bg); border-color: var(--danger-border);">
+          <div class="t" style="color: var(--danger);">✕ Evitar</div>
+          <div class="s">score &lt; 50 ou critério eliminatório</div>
+        </div>
+        <div class="sem-card" style="background: var(--info-bg); border-color: var(--info-border);">
+          <div class="t" style="color: var(--info);">ℹ Informação</div>
+          <div class="s">cache, notas de sistema</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TIPOGRAFIA ==================== -->
+  <section class="section" id="tipografia">
+    <div class="section-head">
+      <div class="eyebrow">Fundamentos</div>
+      <h2>Tipografia</h2>
+      <p class="desc">Escolha o par no seletor do topo ou nos cards abaixo — a página inteira re-tipografa ao vivo. O mono (scores e valores) acompanha cada par.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Combinações — clique para aplicar</div>
+      <div class="pair-cards">
+        <button class="pair-card" data-pair="inter" aria-pressed="true">
+          <div class="who">Inter · Inter · JetBrains Mono</div>
+          <div class="big">Ranking de fornecedores</div>
+          <div class="why">Uma família só, pesos fazendo a hierarquia. Máxima coesão, tom neutro de produto — a base atual do DS.</div>
+          <span class="rec">Recomendada</span>
+        </button>
+        <button class="pair-card" data-pair="sora" aria-pressed="false">
+          <div class="who">Sora · Inter · JetBrains Mono</div>
+          <div class="big">Ranking de fornecedores</div>
+          <div class="why">Display geométrico com personalidade tech — dá presença ao hero e ao preço do paywall sem perder a leitura do corpo em Inter.</div>
+        </button>
+        <button class="pair-card" data-pair="fraunces" aria-pressed="false">
+          <div class="who">Fraunces · Inter · JetBrains Mono</div>
+          <div class="big">Ranking de fornecedores</div>
+          <div class="why">Serifada de display (como na referência "Research") — contraste editorial premium. Ótima se o produto quiser soar consultoria, não ferramenta.</div>
+        </button>
+        <button class="pair-card" data-pair="grotesk" aria-pressed="false">
+          <div class="who">Space Grotesk · IBM Plex Sans · IBM Plex Mono</div>
+          <div class="big">Ranking de fornecedores</div>
+          <div class="why">Voz de engenharia: combina com o discurso de verificação, evidências e fontes públicas. Plex Sans mantém o corpo sóbrio.</div>
+        </button>
+        <button class="pair-card" data-pair="jakarta" aria-pressed="false">
+          <div class="who">Plus Jakarta Sans · Plus Jakarta Sans · JetBrains Mono</div>
+          <div class="big">Ranking de fornecedores</div>
+          <div class="why">Arredondada e acolhedora — aproxima o produto de quem organiza eventos, sem parecer infantil. Boa opção se o público for menos corporativo.</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Escala — atualiza com o par escolhido</div>
+      <div class="type-specimen">
+        <div class="type-row"><div class="type-meta">display · 44–48</div><div class="t-display">R$ 20,00</div></div>
+        <div class="type-row"><div class="type-meta">h1 · 30–34 </div><div class="t-h1">Que tipo de evento é?</div></div>
+        <div class="type-row"><div class="type-meta">h2 · 22–24</div><div class="t-h2">Desbloqueie a busca</div></div>
+        <div class="type-row"><div class="type-meta">h3 · 17–18 / 600</div><div class="t-h3">1º · Mesa Posta Recepções</div></div>
+        <div class="type-row"><div class="type-meta">body · 16</div><div class="t-body">Respondemos 10 perguntas rápidas, pesquisamos e verificamos a reputação de cada fornecedor em fontes públicas.</div></div>
+        <div class="type-row"><div class="type-meta">body-sm · 14</div><div class="t-bodysm">CNPJ ativo desde 2023; nota 4.8 em 320 avaliações no Google; contato consistente entre canais.</div></div>
+        <div class="type-row"><div class="type-meta">caption · 12.5</div><div class="t-caption">Pagamento ilustrativo — o checkout real entra na próxima versão.</div></div>
+        <div class="type-row"><div class="type-meta">eyebrow · 12 caps</div><div class="eyebrow">Cadastral (peso 30%)</div></div>
+        <div class="type-row"><div class="type-meta">score · mono 13</div><div class="t-score">93/100 · 4.8 ★ · CNPJ 99.996.273/0001-13</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== BOTÕES ==================== -->
+  <section class="section" id="botoes">
+    <div class="section-head">
+      <div class="eyebrow">Componentes</div>
+      <h2>Botões</h2>
+      <p class="desc">Pill em todas as variantes. Uma ação primária por tela; "Voltar" é sempre secundário.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-label">Variantes</div>
+      <div class="row">
+        <button class="btn btn-primary">Continuar →</button>
+        <button class="btn btn-secondary">← Voltar</button>
+        <button class="btn btn-outline">Ver detalhes</button>
+        <button class="btn btn-ghost">Cancelar</button>
+        <button class="btn btn-danger">Excluir pesquisa</button>
+        <button class="textlink">Já sei a categoria que preciso →</button>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stage-label">Tamanhos & estados</div>
+      <div class="row" style="margin-bottom: 16px;">
+        <button class="btn btn-primary btn-sm">📄 Baixar PDF</button>
+        <button class="btn btn-primary">Pesquisar fornecedores</button>
+        <button class="btn btn-primary btn-lg">Ir para pagamento →</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" disabled>Continuar →</button>
+        <button class="btn btn-primary" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Pesquisando…</button>
+        <button class="btn btn-secondary btn-sm">Nova pesquisa</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FORMULÁRIOS ==================== -->
+  <section class="section" id="forms">
+    <div class="section-head">
+      <div class="eyebrow">Componentes</div>
+      <h2>Formulários & Wizard</h2>
+      <p class="desc">Inputs, cards de opção (radio e checkbox) e o progresso do questionário — os cards inteiros são clicáveis.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Progresso do wizard</div>
+      <div class="wiz-progress">
+        <div class="lbl">Pergunta <span id="wizN">3</span> de 10</div>
+        <div class="wiz-track"><div class="wiz-fill" id="wizFill" role="progressbar" aria-valuenow="3" aria-valuemin="0" aria-valuemax="10"></div></div>
+        <div class="row" style="margin-top: 6px;">
+          <button class="btn btn-secondary btn-sm" id="wizPrev">← Voltar</button>
+          <button class="btn btn-primary btn-sm" id="wizNext">Continuar →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Input de texto</div>
+      <div class="col">
+        <div class="field">
+          <label for="city">Em que cidade?</label>
+          <input class="input" id="city" placeholder="Curitiba">
+          <span class="help">Pesquisamos fornecedores num raio de 40 km.</span>
+        </div>
+        <div class="field">
+          <label for="mail">E-mail para o relatório</label>
+          <input class="input is-error" id="mail" value="vitor@exemplo">
+          <span class="error-msg">⚠ Digite um e-mail válido — falta o domínio (ex.: .com).</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">OptionCard — escolha única (radio)</div>
+      <div class="optlist" role="radiogroup" aria-label="Que tipo de evento é?">
+        <label class="optcard" data-group="evt"><input type="radio" name="evt"><span class="radio-vis"></span><span class="lbl">Confraternização</span></label>
+        <label class="optcard is-checked" data-group="evt"><input type="radio" name="evt" checked><span class="radio-vis"></span><span class="lbl">Treinamento / workshop</span></label>
+        <label class="optcard" data-group="evt"><input type="radio" name="evt"><span class="radio-vis"></span><span class="lbl">Lançamento de produto</span></label>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">OptionCard — escolha múltipla (checkbox)</div>
+      <div class="optlist">
+        <label class="optcard"><input type="checkbox"><span class="check-vis">✓</span><span class="lbl">Palestras / apresentações <span class="aux">(som, telão, iluminação, palestrante)</span></span></label>
+        <label class="optcard is-checked"><input type="checkbox" checked><span class="check-vis">✓</span><span class="lbl">Público estrangeiro <span class="aux">(tradução simultânea)</span></span></label>
+        <label class="optcard"><input type="checkbox"><span class="check-vis">✓</span><span class="lbl">Participantes PCD <span class="aux">(intérprete de Libras / acessibilidade)</span></span></label>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Chips de categoria — toque para tirar / devolver</div>
+      <div class="chipgroup-title">Técnica & Conteúdo</div>
+      <div class="chips">
+        <button class="catchip">✓ Áudio e vídeo (som, projetor, telão)</button>
+        <button class="catchip">✓ Palestrante / facilitador / MC</button>
+        <button class="catchip">✓ Internet dedicada</button>
+        <button class="catchip off">Streaming / captação (híbrido)</button>
+        <button class="catchip">✓ Tradução simultânea</button>
+      </div>
+      <div class="chips-hint">Toque numa categoria para tirar ou devolver à pesquisa.</div>
+    </div>
+  </section>
+
+  <!-- ==================== BADGES & ALERTAS ==================== -->
+  <section class="section" id="badges">
+    <div class="section-head">
+      <div class="eyebrow">Componentes</div>
+      <h2>Badges & Alertas</h2>
+      <p class="desc">Status nunca é só cor: ícone + rótulo + score sempre juntos. Callouts têm três níveis de severidade.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Badges de status</div>
+      <div class="row">
+        <span class="badge badge-verified">✓ Verificado · <span class="sc">93/100</span></span>
+        <span class="badge badge-caution">⚠ Atenção · <span class="sc">52/100</span></span>
+        <span class="badge badge-avoid">✕ Evitar · <span class="sc">0/100</span></span>
+        <span class="badge-cache">📋 validado há menos de 30 dias — reaproveitado</span>
+        <span class="meta-mark">(inferência)</span>
+        <span class="meta-mark">(perfil simulado)</span>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Banner global · callouts</div>
+      <div class="col">
+        <div class="banner-demo">🖊 Modo demonstração — dados simulados. Conecte a chave de API no <code>.env</code> para pesquisar fornecedores reais.</div>
+        <div class="callout callout-warning"><span class="ic">⚠</span><span>Música ao vivo ou DJ aciona taxa do ECAD — é uma taxa a recolher, não um fornecedor a cotar.</span></div>
+        <div class="callout callout-block"><span>→ Não conseguimos confirmar o CNPJ desta empresa. Peça o CNPJ e a nota fiscal antes de pagar qualquer sinal.</span></div>
+        <div class="callout callout-elim"><span><b>Critério eliminatório:</b> CNPJ com situação BAIXADA na Receita Federal (<a href="#badges">fonte ↗</a>)</span></div>
+        <div class="privacy-note">🔒 Relatório privado — só você vê.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== RANKING ==================== -->
+  <section class="section" id="ranking">
+    <div class="section-head">
+      <div class="eyebrow">Padrões</div>
+      <h2>Card de fornecedor</h2>
+      <p class="desc">O componente central do relatório: rank, badge, evidências, barras de score animadas e verificação completa expansível.</p>
+    </div>
+
+    <div class="panel-dashed" style="margin-bottom: 16px;">
+      <b>Como pontuamos:</b> Cadastral 30% · Reputação 40% · Presença 20% · Verificabilidade 10%. Nota de corte: ✓ Verificado ≥75 · ⚠ Atenção 50–74 · ✕ Evitar &lt;50 ou critério eliminatório. Todo achado aponta para a fonte.
+    </div>
+
+    <div class="col">
+      <article class="supplier">
+        <div class="supplier-head">
+          <h3><span class="rank">1º ·</span> Mesa Posta Recepções</h3>
+          <span class="badge badge-verified">✓ Verificado · <span class="sc">93/100</span></span>
+        </div>
+        <div class="supplier-contact">(41) 5555-0268 · <a href="#ranking">mesa-posta-recepcoes.com</a> · @mesa-posta-recepcoes <span class="meta-mark">(perfil simulado)</span></div>
+        <div><span class="badge-cache">📋 validado há menos de 30 dias — reaproveitado</span></div>
+        <p class="supplier-summary">CNPJ ativo desde 2023; nota 4.8 em 320 avaliações no Google; Reclame Aqui 8.4 com reclamações respondidas; contato consistente entre canais.</p>
+        <div class="scorebars">
+          <div class="scorebar"><span class="lb">Cadastral (30%)</span><div class="track"><div class="fill" data-w="100"></div></div><span class="val">30</span></div>
+          <div class="scorebar"><span class="lb">Reputação (40%)</span><div class="track"><div class="fill" data-w="82"></div></div><span class="val">33</span></div>
+          <div class="scorebar"><span class="lb">Presença (20%)</span><div class="track"><div class="fill" data-w="100"></div></div><span class="val">20</span></div>
+          <div class="scorebar"><span class="lb">Verificabilidade (10%)</span><div class="track"><div class="fill" data-w="100"></div></div><span class="val">10</span></div>
+        </div>
+        <button class="disclosure-btn" aria-expanded="false" aria-controls="disc1"><span class="chev">▶</span> ver verificação completa</button>
+        <div class="disclosure-panel" id="disc1"><div>
+          <div class="disclosure-content">
+            <div class="evd-group">Cadastral (peso 30%)</div>
+            <div class="evd"><span class="ic ok">✓</span><span>CNPJ ativo na Receita Federal: CNPJ 99.996.273/0001-13 — situação ATIVA <a href="#ranking">fonte ↗</a></span></div>
+            <div class="evd"><span class="ic ok">✓</span><span>Idade da empresa: aberta em 2023 (3 anos) <a href="#ranking">fonte ↗</a></span></div>
+            <div class="evd"><span class="ic ok">✓</span><span>Sanções públicas (CEIS/CNEP): nenhuma sanção <a href="#ranking">fonte ↗</a></span></div>
+            <div class="evd-group">Reputação (peso 40%)</div>
+            <div class="evd"><span class="ic ok">✓</span><span>Nota 4.8 · 320 avaliações no Google <a href="#ranking">fonte ↗</a></span></div>
+            <div class="evd"><span class="ic ok">✓</span><span>Instagram ativo, posts nos últimos 30 dias <a href="#ranking">fonte ↗</a> <span class="meta-mark">(inferência)</span></span></div>
+          </div>
+        </div></div>
+      </article>
+
+      <article class="supplier">
+        <div class="supplier-head">
+          <h3><span class="rank">8º ·</span> Buffet Estação Gourmet</h3>
+          <span class="badge badge-caution">⚠ Atenção · <span class="sc">52/100</span></span>
+        </div>
+        <div class="supplier-contact">(41) 5555-0214 · @buffet-estacao-gourmet <span class="meta-mark">(perfil simulado)</span></div>
+        <p class="supplier-summary">Nota 4.7 em 150 avaliações no Google; Reclame Aqui 7.8 com reclamações respondidas; contato consistente entre canais.</p>
+        <div class="callout callout-block"><span>→ Não conseguimos confirmar o CNPJ desta empresa. Peça o CNPJ e a nota fiscal antes de pagar qualquer sinal.</span></div>
+        <div class="scorebars">
+          <div class="scorebar"><span class="lb">Cadastral (30%)</span><div class="track"><div class="fill" data-w="0"></div></div><span class="val">0</span></div>
+          <div class="scorebar"><span class="lb">Reputação (40%)</span><div class="track"><div class="fill" data-w="75"></div></div><span class="val">30</span></div>
+          <div class="scorebar"><span class="lb">Presença (20%)</span><div class="track"><div class="fill" data-w="75"></div></div><span class="val">15</span></div>
+          <div class="scorebar"><span class="lb">Verificabilidade (10%)</span><div class="track"><div class="fill" data-w="70"></div></div><span class="val">7</span></div>
+        </div>
+        <div class="unverified-panel">
+          <div class="t">O que não conseguimos verificar:</div>
+          <ul>
+            <li>CNPJ ativo na Receita Federal</li>
+            <li>Idade da empresa</li>
+            <li>CNAE compatível com o serviço</li>
+          </ul>
+        </div>
+      </article>
+
+      <div class="reject-header"><span class="x">✕</span> Encontramos, mas não recomendamos — veja por quê</div>
+
+      <article class="supplier is-rejected">
+        <div class="supplier-head">
+          <h3>Cozinha do Vale Buffet</h3>
+          <span class="badge badge-avoid">✕ Evitar · <span class="sc">0/100</span></span>
+        </div>
+        <div class="supplier-contact">(41) 5555-0950</div>
+        <p class="supplier-summary">Critério eliminatório não atendido: CNPJ com situação BAIXADA na Receita Federal. Evidência registrada na fonte citada.</p>
+        <div class="callout callout-elim"><span><b>Critério eliminatório:</b> CNPJ com situação BAIXADA na Receita Federal (<a href="#ranking">fonte ↗</a>)</span></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ==================== PAYWALL ==================== -->
+  <section class="section" id="paywall">
+    <div class="section-head">
+      <div class="eyebrow">Padrões</div>
+      <h2>Paywall</h2>
+      <p class="desc">Momento de conversão: mesh com toque de Ember (laranja) + card glass. Único lugar onde o accent quente aparece.</p>
+    </div>
+    <div class="paywall-stage">
+      <div class="pricing">
+        <div class="eyebrow" style="color: var(--primary);">Pesquisa completa</div>
+        <h3>Desbloqueie a busca</h3>
+        <div>
+          <div class="price">R$ 20,00</div>
+          <div class="sub">pagamento único por pesquisa</div>
+        </div>
+        <hr>
+        <div class="benefits">
+          <div class="b"><span class="ok">✓</span><span>10+ fornecedores pesquisados em fontes públicas</span></div>
+          <div class="b"><span class="ok">✓</span><span>Evidências clicáveis em cada critério</span></div>
+          <div class="b"><span class="ok">✓</span><span>Relatório em PDF para a política de compras</span></div>
+          <div class="b"><span class="ok">✓</span><span>Resultado reaproveitável por 30 dias</span></div>
+        </div>
+        <div class="scope"><b>O que vamos pesquisar:</b> Coffee break, Áudio e vídeo, Palestrante / MC, Espaço, Segurança, Streaming, Internet dedicada, Tradução simultânea · Curitiba</div>
+        <button class="btn btn-primary btn-lg btn-block">Ir para pagamento →</button>
+        <button class="textlink">‹ Voltar e revisar</button>
+        <div class="disclaimer">Pagamento ilustrativo — o checkout real entra na próxima versão.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FEEDBACK ==================== -->
+  <section class="section" id="feedback">
+    <div class="section-head">
+      <div class="eyebrow">Componentes</div>
+      <h2>Feedback & Estados</h2>
+      <p class="desc">Loading da pesquisa, skeleton, toast, modal, tooltip e estado vazio — os estados que o app ainda não tinha.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Loading da pesquisa (pós-pagamento)</div>
+      <div class="search-progress">
+        <span class="spinner big-spin" aria-hidden="true"></span>
+        <h4>Pesquisando fornecedores…</h4>
+        <div class="step" id="searchStep" aria-live="polite">Consultando Receita Federal…</div>
+        <div class="indeterminate"><div class="bar"></div></div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Skeleton do card de fornecedor</div>
+      <div style="max-width: 560px;">
+        <div class="skeleton sk-line" style="width: 45%; height: 16px;"></div>
+        <div class="skeleton sk-line" style="width: 70%;"></div>
+        <div class="skeleton sk-line" style="width: 95%;"></div>
+        <div class="skeleton sk-line" style="width: 88%;"></div>
+        <div class="skeleton sk-line" style="width: 92%;"></div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Toast · Modal · Tooltip</div>
+      <div class="row">
+        <button class="btn btn-secondary" id="toastBtn">Disparar toast</button>
+        <button class="btn btn-secondary" id="modalBtn">Abrir modal</button>
+        <span class="tooltip-wrap"><button class="btn btn-ghost">Reputação (40%) ⓘ</button><span class="tip" role="tooltip">Google, Reclame Aqui, notícias e processos visíveis</span></span>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Estado vazio</div>
+      <div class="emptystate">
+        <div class="ico">🔍</div>
+        <h4>Nenhum fornecedor verificável encontrado</h4>
+        <p>Não achamos fornecedores com dados públicos suficientes nesta cidade. Tente ampliar o raio ou revisar as categorias.</p>
+        <button class="btn btn-outline btn-sm">Ajustar pesquisa</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    Autopilot de Eventos · Design System v1.0 · tokens em <code>design-system/DESIGN-SYSTEM.md</code>
+  </div>
+</main>
+
+<div class="toast-region" id="toastRegion" aria-live="polite"></div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Refazer a pesquisa?</h3>
+    <p>Sua pesquisa atual de Curitiba (12 categorias) continua válida por 30 dias. Refazer agora gera uma nova cobrança de R$ 20,00.</p>
+    <div class="actions">
+      <button class="btn btn-secondary" id="modalCancel">Manter atual</button>
+      <button class="btn btn-primary" id="modalOk">Refazer pesquisa</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var body = document.body;
+
+  /* ---- Tema ---- */
+  var toggle = document.getElementById('themeToggle');
+  function currentTheme() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function paintToggle() {
+    toggle.textContent = currentTheme() === 'dark' ? '☀️' : '🌙';
+    toggle.setAttribute('aria-pressed', currentTheme() === 'dark' ? 'true' : 'false');
+  }
+  toggle.addEventListener('click', function () {
+    var next = currentTheme() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('ap-theme', next); } catch (e) {}
+    paintToggle();
+  });
+  try {
+    var saved = localStorage.getItem('ap-theme');
+    if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+  } catch (e) {}
+  paintToggle();
+
+  /* ---- Par tipográfico ---- */
+  function setPair(pair) {
+    if (pair === 'inter') body.removeAttribute('data-pair');
+    else body.setAttribute('data-pair', pair);
+    document.querySelectorAll('.pair-chip, .pair-card').forEach(function (el) {
+      el.setAttribute('aria-pressed', el.getAttribute('data-pair') === pair ? 'true' : 'false');
+    });
+    try { localStorage.setItem('ap-pair', pair); } catch (e) {}
+  }
+  document.querySelectorAll('.pair-chip, .pair-card').forEach(function (el) {
+    el.addEventListener('click', function () { setPair(el.getAttribute('data-pair')); });
+  });
+  try {
+    var savedPair = localStorage.getItem('ap-pair');
+    if (savedPair) setPair(savedPair);
+  } catch (e) {}
+
+  /* ---- Swatches ---- */
+  var mare = [
+    ['mare-50','#EFF9FA'],['mare-100','#DCF1F4'],['mare-200','#B9E3EA'],['mare-300','#8FD0DB'],
+    ['mare-400','#6BB9C6'],['mare-500','#4C9FAE'],['mare-600','#3B8494'],['mare-700','#316B7A'],
+    ['mare-800','#295361'],['mare-900','#1F3F4B']
+  ];
+  var accents = [
+    ['aurora-400','#60A5FA'],['aurora-500','#3B82F6'],['aurora-600','#2563EB'],
+    ['ember-400','#FB923C'],['ember-500','#F97316'],['ember-600','#EA580C']
+  ];
+  function buildSwatches(list, mount) {
+    var host = document.getElementById(mount);
+    list.forEach(function (s) {
+      var b = document.createElement('button');
+      b.className = 'swatch';
+      b.setAttribute('aria-label', 'Copiar ' + s[1]);
+      b.innerHTML = '<div class="chip-color" style="background:' + s[1] + '"></div>' +
+                    '<div class="nm">' + s[0] + '</div><div class="hx">' + s[1] + '</div>';
+      b.addEventListener('click', function () {
+        var done = function () { showToast('Copiado: ' + s[1], 'info'); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(s[1]).then(done, done);
+        } else { done(); }
+      });
+      host.appendChild(b);
+    });
+  }
+  buildSwatches(mare, 'mareSwatches');
+  buildSwatches(accents, 'accentSwatches');
+
+  /* ---- Score bars animam ao entrar na viewport ---- */
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) {
+        en.target.querySelectorAll('.fill').forEach(function (f, i) {
+          setTimeout(function () { f.style.width = f.getAttribute('data-w') + '%'; }, i * 60);
+        });
+        io.unobserve(en.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.scorebars').forEach(function (el) { io.observe(el); });
+
+  /* ---- Disclosure ---- */
+  document.querySelectorAll('.disclosure-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var panel = document.getElementById(btn.getAttribute('aria-controls'));
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      panel.classList.toggle('open', !open);
+      btn.innerHTML = '<span class="chev">▶</span> ' + (!open ? 'ocultar' : 'ver') + ' verificação completa';
+    });
+  });
+
+  /* ---- Option cards ---- */
+  document.querySelectorAll('.optcard').forEach(function (card) {
+    var input = card.querySelector('input');
+    input.addEventListener('change', function () {
+      if (input.type === 'radio') {
+        document.querySelectorAll('.optcard[data-group="' + card.getAttribute('data-group') + '"]')
+          .forEach(function (c) { c.classList.remove('is-checked'); });
+        card.classList.add('is-checked');
+      } else {
+        card.classList.toggle('is-checked', input.checked);
+      }
+    });
+  });
+
+  /* ---- Chips ---- */
+  document.querySelectorAll('.catchip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var off = chip.classList.toggle('off');
+      var txt = chip.textContent.replace(/^✓\s*/, '');
+      chip.textContent = off ? txt : '✓ ' + txt;
+    });
+  });
+
+  /* ---- Wizard demo ---- */
+  var wizN = 3;
+  function paintWiz() {
+    document.getElementById('wizN').textContent = wizN;
+    var fill = document.getElementById('wizFill');
+    fill.style.width = (wizN * 10) + '%';
+    fill.setAttribute('aria-valuenow', wizN);
+  }
+  document.getElementById('wizPrev').addEventListener('click', function () { if (wizN > 1) { wizN--; paintWiz(); } });
+  document.getElementById('wizNext').addEventListener('click', function () { if (wizN < 10) { wizN++; paintWiz(); } });
+  paintWiz();
+
+  /* ---- Toast ---- */
+  function showToast(msg, kind) {
+    var region = document.getElementById('toastRegion');
+    var t = document.createElement('div');
+    t.className = 'toast' + (kind === 'info' ? ' info-t' : '');
+    t.innerHTML = (kind === 'info' ? '<span class="ok-i">ℹ</span>' : '<span class="ok">✓</span>') + '<span>' + msg + '</span>';
+    region.appendChild(t);
+    setTimeout(function () { t.remove(); }, 4000);
+  }
+  document.getElementById('toastBtn').addEventListener('click', function () {
+    showToast('PDF gerado com sucesso.');
+  });
+
+  /* ---- Modal ---- */
+  var backdrop = document.getElementById('modalBackdrop');
+  var modalBtn = document.getElementById('modalBtn');
+  function openModal() { backdrop.hidden = false; document.getElementById('modalCancel').focus(); }
+  function closeModal() { backdrop.hidden = true; modalBtn.focus(); }
+  modalBtn.addEventListener('click', openModal);
+  document.getElementById('modalCancel').addEventListener('click', closeModal);
+  document.getElementById('modalOk').addEventListener('click', function () { closeModal(); showToast('Nova pesquisa iniciada.'); });
+  backdrop.addEventListener('click', function (e) { if (e.target === backdrop) closeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !backdrop.hidden) closeModal(); });
+
+  /* ---- Search progress steps ---- */
+  var steps = ['Consultando Receita Federal…', 'Verificando Reclame Aqui…', 'Cruzando avaliações do Google…', 'Checando presença digital…'];
+  var si = 0;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) {
+    setInterval(function () {
+      si = (si + 1) % steps.length;
+      document.getElementById('searchStep').textContent = steps[si];
+    }, 2200);
+  }
+})();
+</script>
