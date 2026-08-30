@@ -1,13 +1,17 @@
-# Autopilot de Eventos — Design System v1.1
+# Autopilot de Eventos — Design System v1.2 (final)
 
 > Sistema de design completo para o **Autopilot de Eventos** (autopilot-eventos-demo.vercel.app).
-> Direção visual baseada nas referências aprovadas: dark premium com gradientes mesh, glassmorphism,
-> botões pill e tipografia de hierarquia forte — adaptado para **dois temas: Light e Dark**.
+> Direção visual baseada nas referências aprovadas: dark premium com glassmorphism, degradês vivos,
+> botões pill e tipografia de hierarquia forte.
 >
-> **v1.1:** tipografia oficial **Sora + Inter**; cor de marca migrando da Maré (teal) para um accent
-> saturado — **Índigo `#4F46E5` é o padrão recomendado** (candidatas alternativas na §2.1);
-> glassmorphism promovido a tratamento padrão dos painéis (§2.7); nova família de
-> **Background Gradients** (§2.11) com FeaturedCard e header wash (§4.31–4.33).
+> **Decisões fechadas (v1.2):**
+> - **Cor de marca: Azul Elétrico** (`brand-600 #2563EB`) — decisão final.
+> - **Tipografia: Sora (display) + Inter (corpo)** + JetBrains Mono (dados) — decisão final.
+> - **Temas: Dark é o principal** (`:root`); Light é opcional via toggle (`[data-theme="light"]`).
+> - **Glassmorphism** é o tratamento padrão dos painéis (§2.7).
+> - **Fundo vivo:** degradê animado em movimento bem lento + parallax leve (§2.12) em todas as telas.
+> - **Background Gradients** (§2.11) com FeaturedCard, header wash e botão gradient (§4.31–4.33).
+>
 > Preview interativo: `design-system/preview.html`.
 
 ---
@@ -40,35 +44,26 @@
 
 ### 2.1 Cor — Paleta base
 
-#### Brand · Índigo (padrão recomendado — saturado e forte)
+#### Brand · Azul Elétrico (oficial — decisão final)
 
 | Token | Hex | Uso |
 |---|---|---|
-| `brand-300` | `#A5B4FC` | links (dark) |
-| `brand-400` | `#818CF8` | hover do primário (dark), barras de score (dark) |
-| `brand-500` | `#6366F1` | **botão primário (dark)** (texto branco), glow dos gradientes |
-| `brand-600` | `#4F46E5` | **botão primário (light)**, links (light) |
-| `brand-700` | `#4338CA` | hover do primário (light) |
+| `brand-300` | `#93C5FD` | links (dark) |
+| `brand-400` | `#60A5FA` | barras de score (dark) |
+| `brand-500` | `#3B82F6` | hover do primário (dark), `--accent-glow` dos degradês |
+| `brand-600` | `#2563EB` | **botão primário (dark E light)**, links (light) |
+| `brand-700` | `#1D4ED8` | hover do primário (light) |
 
-**Candidatas alternativas** (mesma mecânica de tokens; testáveis ao vivo no `preview.html`):
+#### Accent · Cyan (segundo glow dos degradês)
 
-| Candidata | 700 | 600 | 500 | 400 | 300 | Leitura |
-|---|---|---|---|---|---|---|
-| **Índigo** ✦ recomendada | `#4338CA` | `#4F46E5` | `#6366F1` | `#818CF8` | `#A5B4FC` | a vibração do roxo com leitura de confiança |
-| Azul Elétrico | `#1D4ED8` | `#2563EB` | `#3B82F6` | `#60A5FA` | `#93C5FD` | máxima confiança/energia (ref. Zentra) |
-| Violeta | `#6D28D9` | `#7C3AED` | `#8B5CF6` | `#A78BFA` | `#C4B5FD` | roxo pleno — diferenciação máxima, tom criativo |
-| Maré saturada | `#0E7490` | `#0891B2` | `#06B6D4` | `#22D3EE` | `#67E8F9` | mantém a identidade atual, 2× saturação (dark usa texto escuro `#083344` no primário) |
-
-> Sobre o roxo: funciona, mas o violeta puro é hoje a cor mais genérica de SaaS/IA. O **Índigo**
-> entrega a mesma sensação com mais credibilidade — por isso é o padrão. A decisão final troca
-> apenas os 5 hex de `brand-*`; nada mais no sistema muda.
+`cyan-400 #22D3EE` — usado apenas como `--accent-glow-2` (blob secundário do fundo vivo e mesh).
 
 #### Accent · Ember (laranja — exclusivo de conversão/paywall)
 
 `ember-400 #FB923C` · `ember-500 #F97316` · `ember-600 #EA580C`
 
-> **Regra:** Ember aparece só no gradiente do paywall e no `--grad-ember`. Ações e navegação são
-> sempre a cor de marca.
+> **Regra:** Ember aparece só no gradiente do paywall, no `--grad-ember` e no blob terciário do
+> fundo vivo (opacidade mínima). Ações e navegação são sempre o Elétrico.
 
 #### Neutros
 
@@ -98,107 +93,110 @@
 ### 2.2 Cor — Tokens semânticos de superfície
 
 ```css
-/* ============ LIGHT (default) ============ */
+/* ============ DARK — tema principal (:root) ============ */
 :root {
   /* Superfícies */
-  --bg:            #F7F8FA;   /* fundo da página */
-  --surface:       #FFFFFF;   /* cards, painéis */
-  --surface-2:     #F1F3F6;   /* painéis internos, inputs */
-  --surface-3:     #E4E8EE;   /* hover de superfícies */
-  --border:        #E4E8EE;
-  --border-strong: #D2D8E0;
+  --bg:            #0D1017;   /* fundo da página (o fundo vivo pinta por cima) */
+  --surface:       #141922;   /* superfícies sólidas (wizard, inputs) */
+  --surface-2:     #1A202C;   /* inputs, painéis internos sólidos */
+  --surface-3:     #242C3A;   /* hover de superfícies */
+  --border:        #242C3A;
+  --border-strong: #364154;
 
   /* Texto */
-  --text:          #14181D;
-  --text-muted:    #5B6572;
-  --text-subtle:   #7C8696;
-  --text-invert:   #F3F5F8;
+  --text:          #F3F5F8;
+  --text-muted:    #B7BFCC;
+  --text-subtle:   #8B94A3;
+  --text-invert:   #14181D;
 
-  /* Ação — accent Índigo (troque os 5 hex para outra candidata) */
-  --primary:          #4F46E5;
-  --primary-hover:    #4338CA;
+  /* Ação — Azul Elétrico (oficial) */
+  --primary:          #2563EB;
+  --primary-hover:    #3B82F6;
   --primary-contrast: #FFFFFF;
-  --primary-tint:     color-mix(in srgb, var(--primary) 10%, transparent);
-  --link:             #4F46E5;
-  --focus-ring:       color-mix(in srgb, var(--primary) 45%, transparent);
-  --accent-glow:      #6366F1;   /* alimenta mesh e gradientes */
-  --accent-glow-2:    #8B5CF6;
+  --primary-tint:     color-mix(in srgb, #3B82F6 16%, transparent);
+  --link:             #93C5FD;
+  --focus-ring:       color-mix(in srgb, #3B82F6 45%, transparent);
+  --accent-glow:      #3B82F6;   /* alimenta fundo vivo, mesh e gradientes */
+  --accent-glow-2:    #22D3EE;
 
   /* Status */
-  --success: #15803D;  --success-bg: #EAF7EF;  --success-border: #BBE5CB;
-  --warning: #A16207;  --warning-bg: #FBF3E0;  --warning-border: #EAD9A8;
-  --danger:  #B91C1C;  --danger-bg:  #FBEAEA;  --danger-border:  #F1C2C2;
-  --info:    #3B8494;  --info-bg:    #EFF9FA;  --info-border:    #B9E3EA;
+  --success: #4ADE80;  --success-bg: rgba(74,222,128,.10);  --success-border: rgba(74,222,128,.35);
+  --warning: #FACC15;  --warning-bg: rgba(250,204,21,.10);  --warning-border: rgba(250,204,21,.35);
+  --danger:  #F87171;  --danger-bg:  rgba(248,113,113,.10); --danger-border:  rgba(248,113,113,.35);
+  --info:    #93C5FD;  --info-bg:    rgba(147,197,253,.12); --info-border:    rgba(147,197,253,.35);
 
-  /* Glass (ref. Cannabis Lab / Creative.style) */
-  --glass-bg:           rgba(255,255,255,.58);
-  --glass-border:       rgba(255,255,255,.65);
-  --glass-panel-border: rgba(20,24,29,.10);
-  --glass-inner:        rgba(255,255,255,.45);
+  /* Glass (padrão dos painéis) */
+  --glass-bg:           rgba(255,255,255,.055);
+  --glass-border:       rgba(255,255,255,.12);
+  --glass-panel-border: rgba(255,255,255,.14);
+  --glass-inner:        rgba(255,255,255,.05);
   --glass-blur:         20px;
 
-  /* Gradiente mesh — derivado do accent (mesma definição nos 2 temas) */
-  --mesh-hero:    radial-gradient(120% 90% at 18% 8%, color-mix(in srgb, var(--accent-glow) 22%, transparent) 0%, transparent 55%),
-                  radial-gradient(100% 80% at 85% 18%, color-mix(in srgb, var(--accent-glow-2) 16%, transparent) 0%, transparent 50%),
-                  var(--bg);
+  /* Fundo vivo — opacidade dos blobs (§2.12) */
+  --blob-a-o: .26;   /* Elétrico */
+  --blob-b-o: .16;   /* Cyan */
+  --blob-c-o: .09;   /* Ember */
+
+  /* Mesh estático (paywall) */
   --mesh-paywall: radial-gradient(110% 90% at 82% 0%, rgba(249,115,22,.16) 0%, transparent 55%),
                   radial-gradient(100% 80% at 10% 32%, color-mix(in srgb, var(--accent-glow) 18%, transparent) 0%, transparent 50%),
                   var(--bg);
 
-  /* Background gradients (§2.11) — derivados do accent, iguais nos 2 temas */
+  /* Background gradients (§2.11) — derivados do Elétrico, iguais nos 2 temas */
   --grad-brand:  linear-gradient(135deg, color-mix(in srgb, var(--accent-glow) 60%, #FFFFFF) 0%, var(--accent-glow) 50%, color-mix(in srgb, var(--accent-glow) 55%, #000000) 100%);
   --grad-card:   radial-gradient(130% 130% at 15% 0%, color-mix(in srgb, var(--accent-glow) 52%, #FFFFFF) 0%, var(--accent-glow) 48%, color-mix(in srgb, var(--accent-glow) 55%, #000000) 112%);
   --grad-header: linear-gradient(to bottom, color-mix(in srgb, var(--accent-glow) 45%, transparent) 0%, color-mix(in srgb, var(--accent-glow) 12%, transparent) 55%, transparent 100%);
   --grad-btn:    linear-gradient(180deg, color-mix(in srgb, var(--accent-glow) 80%, #FFFFFF) 0%, var(--accent-glow) 100%);
   --grad-ember:  linear-gradient(135deg, #FB923C 0%, #F97316 45%, #EA580C 100%);
 
-  --shadow-1: 0 1px 2px rgba(20,24,29,.06);
-  --shadow-2: 0 4px 16px rgba(20,24,29,.08);
-  --shadow-3: 0 12px 40px rgba(20,24,29,.14);
-
-  color-scheme: light;
-}
-
-/* ============ DARK ============ */
-[data-theme="dark"] {
-  --bg:            #101318;
-  --surface:       #161A21;
-  --surface-2:     #1C212A;
-  --surface-3:     #262C37;
-  --border:        #262C37;
-  --border-strong: #39414F;
-
-  --text:          #F3F5F8;
-  --text-muted:    #B7BFCC;
-  --text-subtle:   #8B94A3;
-  --text-invert:   #14181D;
-
-  --primary:          #6366F1;
-  --primary-hover:    #818CF8;
-  --primary-contrast: #FFFFFF;
-  --primary-tint:     color-mix(in srgb, var(--primary) 14%, transparent);
-  --link:             #A5B4FC;
-  --focus-ring:       color-mix(in srgb, var(--primary) 45%, transparent);
-  --accent-glow:      #6366F1;
-  --accent-glow-2:    #8B5CF6;
-
-  --success: #4ADE80;  --success-bg: rgba(74,222,128,.10);  --success-border: rgba(74,222,128,.35);
-  --warning: #FACC15;  --warning-bg: rgba(250,204,21,.10);  --warning-border: rgba(250,204,21,.35);
-  --danger:  #F87171;  --danger-bg:  rgba(248,113,113,.10); --danger-border:  rgba(248,113,113,.35);
-  --info:    #8FD0DB;  --info-bg:    rgba(143,208,219,.10); --info-border:    rgba(143,208,219,.35);
-
-  --glass-bg:           rgba(255,255,255,.055);
-  --glass-border:       rgba(255,255,255,.12);
-  --glass-panel-border: rgba(255,255,255,.14);
-  --glass-inner:        rgba(255,255,255,.05);
-  --glass-blur:         20px;
-  /* mesh e gradientes herdam da definição light (usam var(--bg) e var(--accent-glow)) */
-
   --shadow-1: 0 1px 2px rgba(0,0,0,.40);
   --shadow-2: 0 4px 16px rgba(0,0,0,.45);
   --shadow-3: 0 12px 40px rgba(0,0,0,.55);
 
   color-scheme: dark;
+}
+
+/* ============ LIGHT — opcional, via toggle ============ */
+[data-theme="light"] {
+  --bg:            #F6F8FB;
+  --surface:       #FFFFFF;
+  --surface-2:     #F0F3F8;
+  --surface-3:     #E3E8F0;
+  --border:        #E3E8F0;
+  --border-strong: #CFD7E3;
+
+  --text:          #131822;
+  --text-muted:    #5A6474;
+  --text-subtle:   #7B8698;
+  --text-invert:   #F3F5F8;
+
+  --primary:          #2563EB;
+  --primary-hover:    #1D4ED8;
+  --primary-contrast: #FFFFFF;
+  --primary-tint:     color-mix(in srgb, #2563EB 9%, transparent);
+  --link:             #2563EB;
+  --focus-ring:       color-mix(in srgb, #2563EB 40%, transparent);
+
+  --success: #15803D;  --success-bg: #EAF7EF;  --success-border: #BBE5CB;
+  --warning: #A16207;  --warning-bg: #FBF3E0;  --warning-border: #EAD9A8;
+  --danger:  #B91C1C;  --danger-bg:  #FBEAEA;  --danger-border:  #F1C2C2;
+  --info:    #2563EB;  --info-bg:    #EBF2FE;  --info-border:    #C6DAFB;
+
+  --glass-bg:           rgba(255,255,255,.58);
+  --glass-border:       rgba(255,255,255,.65);
+  --glass-panel-border: rgba(19,24,34,.10);
+  --glass-inner:        rgba(255,255,255,.45);
+
+  --blob-a-o: .15;
+  --blob-b-o: .11;
+  --blob-c-o: .06;
+
+  --shadow-1: 0 1px 2px rgba(19,24,34,.06);
+  --shadow-2: 0 4px 16px rgba(19,24,34,.08);
+  --shadow-3: 0 12px 40px rgba(19,24,34,.14);
+  /* mesh e gradientes herdam do :root (usam var(--bg) e var(--accent-glow)) */
+
+  color-scheme: light;
 }
 ```
 
@@ -219,7 +217,7 @@
 
 | Token | Tamanho / Altura | Peso | Uso |
 |---|---|---|---|
-| `display`   | 40–48px / 1.1 | 800 | Preço do paywall ("R$ 20,00"), números hero |
+| `display`   | 40–48px / 1.1 | 700 (Sora) | Preço do paywall ("R$ 20,00"), números hero |
 | `h1`        | 30–34px / 1.2 | 700 | Título de página ("Ranking de fornecedores"), pergunta do wizard |
 | `h2`        | 22–24px / 1.25 | 700 | Título de card grande ("Desbloqueie a busca") |
 | `h3`        | 17–18px / 1.35 | 600 | Nome do fornecedor, título de seção de card |
@@ -346,16 +344,63 @@ Família de degradês de fundo (ref. app de futsal laranja). Todos derivam de `-
    translúcidos e o botão escuro `on-grad` (§4.31), nunca o botão primário normal.
 4. `--grad-header` fica **atrás** de conteúdo com texto em `--text` normal (é um glow, não uma superfície).
 
+### 2.12 Fundo vivo — degradê em movimento lento + parallax
+
+Fundo padrão de **todas as telas do app**: uma camada fixa atrás do conteúdo com três blobs
+desfocados derivando muito lentamente, mais um parallax sutil no scroll. É o que o glass (§2.7)
+desfoca.
+
+```css
+.ambient {
+  position: fixed; inset: -20% 0; z-index: -1;
+  overflow: hidden; pointer-events: none;
+  background: var(--bg);
+  will-change: transform;               /* recebe o parallax */
+}
+.ambient .blob { position: absolute; border-radius: 50%; filter: blur(90px); will-change: transform; }
+.blob-a { width: 58vmax; height: 58vmax; top: -18vmax; left: -14vmax;
+          background: var(--accent-glow);   opacity: var(--blob-a-o);
+          animation: drift-a 70s ease-in-out infinite alternate; }
+.blob-b { width: 44vmax; height: 44vmax; top: 6vmax; right: -16vmax;
+          background: var(--accent-glow-2); opacity: var(--blob-b-o);
+          animation: drift-b 95s ease-in-out infinite alternate; }
+.blob-c { width: 34vmax; height: 34vmax; bottom: -16vmax; left: 32vw;
+          background: #F97316;              opacity: var(--blob-c-o);
+          animation: drift-c 115s ease-in-out infinite alternate; }
+@keyframes drift-a { to { transform: translate(9vmax, 7vmax) scale(1.12); } }
+@keyframes drift-b { to { transform: translate(-8vmax, 10vmax) scale(0.94); } }
+@keyframes drift-c { to { transform: translate(6vmax, -9vmax) scale(1.08); } }
+```
+
+```js
+// Parallax leve (fator -0.05), rAF-throttled; pular se prefers-reduced-motion
+window.addEventListener('scroll', () => {
+  requestAnimationFrame(() => {
+    ambient.style.transform = `translateY(${window.scrollY * -0.05}px)`;
+  });
+}, { passive: true });
+```
+
+**Regras:**
+- Movimento **bem lento** (loops de 70–115s) e transform-only (GPU) — nunca animar
+  `background-position` ou `filter`.
+- Opacidades por tema via tokens `--blob-*-o` (dark ~2× light); Ember é o blob mais fraco.
+- `prefers-reduced-motion: reduce` congela drift e parallax (o fundo vira estático).
+- O conteúdo nunca depende do fundo para contraste — todo texto está sobre glass ou superfície.
+
 ---
 
 ## 3. Temas Light & Dark
 
-### 3.1 Estratégia
+### 3.1 Estratégia — Dark é o principal
 
-1. Tokens semânticos (`--surface`, `--text`, …) definidos em `:root` (light) e sobrescritos em `[data-theme="dark"]`.
-2. Padrão do sistema via `prefers-color-scheme`; escolha manual persiste em `localStorage("ap-theme")` e estampa `data-theme` no `<html>`.
-3. **Nenhum componente usa hex direto** — só tokens. Isso garante paridade total entre temas.
-4. Imagens/gradientes têm par por tema (`--mesh-*` já resolve isso).
+1. **`:root` = dark.** O app abre em dark para todo mundo, independente do sistema — é o tema
+   principal do produto. Light é opt-in: o toggle estampa `data-theme="light"` no `<html>`.
+2. Escolha manual persiste em `localStorage("ap-theme")` e é reaplicada antes do primeiro paint
+   (script inline no `<head>`, anti-FOUC).
+3. **Nenhum componente usa hex direto** — só tokens. O bloco light sobrescreve apenas tokens;
+   mesh e gradientes herdam do `:root` porque referenciam `var(--bg)` e `var(--accent-glow)`.
+4. `color-scheme` acompanha cada bloco (scrollbars e controles nativos corretos).
 
 ### 3.2 Theme Toggle (componente)
 
@@ -366,12 +411,13 @@ Família de degradês de fundo (ref. app de futsal laranja). Todos derivam de `-
 
 ### 3.3 Diferenças intencionais entre temas
 
-| Elemento | Light | Dark |
+| Elemento | Dark (principal) | Light (opcional) |
 |---|---|---|
-| Botão primário | fundo `brand-600`, texto branco | fundo `brand-500`, texto branco (exceção: Maré saturada usa texto escuro `#083344`) |
-| Card glass | `rgba(255,255,255,.58)` + blur sobre mesh pastel | `rgba(255,255,255,.055)` + blur sobre mesh profundo |
-| Mesh ambiente | glow pastel do accent sobre off-white | glow saturado do accent sobre near-black (ref. Zentra) |
-| Banner demo | `--warning-bg` sólido | `--warning-bg` translúcido sobre `--bg` |
+| Botão primário | `brand-600 #2563EB`, texto branco, hover clareia (`brand-500`) | `brand-600 #2563EB`, texto branco, hover escurece (`brand-700`) |
+| Links | `brand-300 #93C5FD` (legibilidade sobre escuro) | `brand-600 #2563EB` |
+| Card glass | `rgba(255,255,255,.055)` + blur sobre fundo vivo profundo | `rgba(255,255,255,.58)` + blur sobre fundo vivo pastel |
+| Fundo vivo | blobs a ~26/16/9% de opacidade | blobs a ~15/11/6% (pastéis) |
+| Banner demo | `--warning-bg` translúcido sobre `--bg` | `--warning-bg` sólido |
 
 ---
 
@@ -700,10 +746,11 @@ PageHeader → `panel-dashed` metodologia → por categoria: SectionHeader + Sup
 
 ## 7. Checklist de implementação
 
-- [ ] Colar bloco de tokens (2.2) num `tokens.css`; zero hex fora dele.
-- [ ] Confirmar a cor de marca no `preview.html` (Índigo recomendada) e fixar os 5 hex `brand-*`.
+- [ ] Colar bloco de tokens (2.2) num `tokens.css`; zero hex fora dele. Cor fechada: **Elétrico**.
 - [ ] Carregar Sora (600/700) + Inter (400/500/600/700) + JetBrains Mono (500/600) com `font-display: swap`.
-- [ ] Montar o mesh ambiente fixo + migrar painéis para glass (§2.7); manter wizard/inputs sólidos.
+- [ ] Dark como default (`:root`); toggle estampa `data-theme="light"`; script anti-FOUC no `<head>`.
+- [ ] Montar o fundo vivo (§2.12: blobs + parallax + reduced-motion) em todas as telas.
+- [ ] Migrar painéis para glass (§2.7); manter wizard/inputs sólidos.
 - [ ] Implementar os Background Gradients (§2.11) e o FeaturedCard no topo de cada categoria do ranking.
 - [ ] `<html data-theme>` + script anti-FOUC lendo `localStorage("ap-theme")` antes do paint.
 - [ ] ThemeToggle no header (4.27 / 3.2).
@@ -715,4 +762,4 @@ PageHeader → `panel-dashed` metodologia → por categoria: SectionHeader + Sup
 
 ---
 
-*Autopilot de Eventos DS v1.1 · 30/08/2026 · Base visual: referências Zentra / Creative.style / Cannabis Lab / app de futsal (gradients) + telas atuais do app.*
+*Autopilot de Eventos DS v1.2 (final) · 30/08/2026 · Azul Elétrico · Sora + Inter · Dark main · Base visual: referências Zentra / Creative.style / Cannabis Lab / app de futsal (gradients) + telas atuais do app.*

@@ -1,253 +1,132 @@
 <title>Autopilot UI</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&family=Sora:wght@600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&family=JetBrains+Mono:wght@500;600&display=swap">
 <style>
 /* ============================================================
-   AUTOPILOT UI · Design System Showcase
-   Tokens light (default) → dark via media query → toggles
+   AUTOPILOT UI · Design System v1.2
+   Cor oficial: Azul Elétrico · Fonte: Sora + Inter
+   Tema principal: DARK (:root) · Light: [data-theme="light"]
    ============================================================ */
 :root {
-  /* Superfícies */
-  --bg: #F7F8FA;
-  --surface: #FFFFFF;
-  --surface-2: #F1F3F6;
-  --surface-3: #E4E8EE;
-  --border: #E4E8EE;
-  --border-strong: #D2D8E0;
+  /* Superfícies — DARK (tema principal) */
+  --bg: #0D1017;
+  --surface: #141922;
+  --surface-2: #1A202C;
+  --surface-3: #242C3A;
+  --border: #242C3A;
+  --border-strong: #364154;
 
   /* Texto */
-  --text: #14181D;
-  --text-muted: #5B6572;
-  --text-subtle: #7C8696;
-  --text-invert: #F3F5F8;
+  --text: #F3F5F8;
+  --text-muted: #B7BFCC;
+  --text-subtle: #8B94A3;
+  --text-invert: #14181D;
 
-  /* Ação — accent padrão: Índigo (troca via data-accent) */
-  --primary: #4F46E5;
-  --primary-hover: #4338CA;
+  /* Ação — Azul Elétrico (oficial) */
+  --primary: #2563EB;
+  --primary-hover: #3B82F6;
   --primary-contrast: #FFFFFF;
-  --primary-tint: color-mix(in srgb, var(--primary) 10%, transparent);
-  --link: #4F46E5;
-  --focus-ring: color-mix(in srgb, var(--primary) 45%, transparent);
-  --accent-glow: #6366F1;
-  --accent-glow-2: #8B5CF6;
+  --primary-tint: color-mix(in srgb, #3B82F6 16%, transparent);
+  --link: #93C5FD;
+  --focus-ring: color-mix(in srgb, #3B82F6 45%, transparent);
+  --accent-glow: #3B82F6;
+  --accent-glow-2: #22D3EE;
 
   /* Status */
-  --success: #15803D; --success-bg: #EAF7EF; --success-border: #BBE5CB;
-  --warning: #A16207; --warning-bg: #FBF3E0; --warning-border: #EAD9A8;
-  --danger:  #B91C1C; --danger-bg:  #FBEAEA; --danger-border:  #F1C2C2;
-  --info:    #3B8494; --info-bg:    #EFF9FA; --info-border:    #B9E3EA;
+  --success: #4ADE80;  --success-bg: rgba(74,222,128,.10);  --success-border: rgba(74,222,128,.35);
+  --warning: #FACC15;  --warning-bg: rgba(250,204,21,.10);  --warning-border: rgba(250,204,21,.35);
+  --danger:  #F87171;  --danger-bg:  rgba(248,113,113,.10); --danger-border:  rgba(248,113,113,.35);
+  --info:    #93C5FD;  --info-bg:    rgba(147,197,253,.12); --info-border:    rgba(147,197,253,.35);
 
   /* Glass */
-  --glass-bg: rgba(255,255,255,.58);
-  --glass-border: rgba(255,255,255,.65);
-  --glass-panel-border: rgba(20,24,29,.10);
-  --glass-inner: rgba(255,255,255,.45);
+  --glass-bg: rgba(255,255,255,.055);
+  --glass-border: rgba(255,255,255,.12);
+  --glass-panel-border: rgba(255,255,255,.14);
+  --glass-inner: rgba(255,255,255,.05);
+  --glass-blur: 20px;
 
-  /* Mesh — derivado do accent ativo */
-  --mesh-hero: radial-gradient(120% 90% at 18% 8%, color-mix(in srgb, var(--accent-glow) 22%, transparent) 0%, transparent 55%),
-               radial-gradient(100% 80% at 85% 18%, color-mix(in srgb, var(--accent-glow-2) 16%, transparent) 0%, transparent 50%),
-               radial-gradient(90% 70% at 50% 95%, color-mix(in srgb, var(--accent-glow) 10%, transparent) 0%, transparent 55%),
-               var(--bg);
+  /* Fundo animado (blobs) */
+  --blob-a-o: .26;
+  --blob-b-o: .16;
+  --blob-c-o: .09;
+
+  /* Mesh estático (paywall) */
   --mesh-paywall: radial-gradient(110% 90% at 82% 0%, rgba(249,115,22,.16) 0%, transparent 55%),
                   radial-gradient(100% 80% at 10% 32%, color-mix(in srgb, var(--accent-glow) 18%, transparent) 0%, transparent 50%),
                   var(--bg);
 
-  /* Background gradients — derivados do accent ativo (iguais nos 2 temas) */
+  /* Background gradients — derivados do Elétrico, iguais nos 2 temas */
   --grad-brand: linear-gradient(135deg, color-mix(in srgb, var(--accent-glow) 60%, #FFFFFF) 0%, var(--accent-glow) 50%, color-mix(in srgb, var(--accent-glow) 55%, #000000) 100%);
   --grad-card: radial-gradient(130% 130% at 15% 0%, color-mix(in srgb, var(--accent-glow) 52%, #FFFFFF) 0%, var(--accent-glow) 48%, color-mix(in srgb, var(--accent-glow) 55%, #000000) 112%);
   --grad-header: linear-gradient(to bottom, color-mix(in srgb, var(--accent-glow) 45%, transparent) 0%, color-mix(in srgb, var(--accent-glow) 12%, transparent) 55%, transparent 100%);
   --grad-btn: linear-gradient(180deg, color-mix(in srgb, var(--accent-glow) 80%, #FFFFFF) 0%, var(--accent-glow) 100%);
   --grad-ember: linear-gradient(135deg, #FB923C 0%, #F97316 45%, #EA580C 100%);
 
-  --shadow-1: 0 1px 2px rgba(20,24,29,.06);
-  --shadow-2: 0 4px 16px rgba(20,24,29,.08);
-  --shadow-3: 0 12px 40px rgba(20,24,29,.14);
-
-  --track: #E4E8EE;
-  --fill: #6366F1;
-  --header-bg: rgba(247,248,250,.82);
-  --tooltip-bg: #252C35;
-  --tooltip-text: #F3F5F8;
-
-  /* Tipografia — trocada pelo seletor de pares */
-  --font-display: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-body: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
-  --display-weight: 800;
-  --display-tracking: -0.02em;
-
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #101318;
-    --surface: #161A21;
-    --surface-2: #1C212A;
-    --surface-3: #262C37;
-    --border: #262C37;
-    --border-strong: #39414F;
-
-    --text: #F3F5F8;
-    --text-muted: #B7BFCC;
-    --text-subtle: #8B94A3;
-    --text-invert: #14181D;
-
-    --primary: #6366F1;
-    --primary-hover: #818CF8;
-    --primary-contrast: #FFFFFF;
-    --primary-tint: color-mix(in srgb, var(--primary) 14%, transparent);
-    --link: #A5B4FC;
-    --focus-ring: color-mix(in srgb, var(--primary) 45%, transparent);
-    --accent-glow: #6366F1;
-    --accent-glow-2: #8B5CF6;
-
-    --success: #4ADE80; --success-bg: rgba(74,222,128,.10); --success-border: rgba(74,222,128,.35);
-    --warning: #FACC15; --warning-bg: rgba(250,204,21,.10); --warning-border: rgba(250,204,21,.35);
-    --danger:  #F87171; --danger-bg:  rgba(248,113,113,.10); --danger-border: rgba(248,113,113,.35);
-    --info:    #8FD0DB; --info-bg:    rgba(143,208,219,.10); --info-border:   rgba(143,208,219,.35);
-
-    --glass-bg: rgba(255,255,255,.055);
-    --glass-border: rgba(255,255,255,.12);
-    --glass-panel-border: rgba(255,255,255,.14);
-    --glass-inner: rgba(255,255,255,.05);
-
-    --shadow-1: 0 1px 2px rgba(0,0,0,.40);
-    --shadow-2: 0 4px 16px rgba(0,0,0,.45);
-    --shadow-3: 0 12px 40px rgba(0,0,0,.55);
-
-    --track: #262C37;
-    --fill: #818CF8;
-    --header-bg: rgba(16,19,24,.82);
-    --tooltip-bg: #DBE0E8;
-    --tooltip-text: #14181D;
-
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme="dark"] {
-  --bg: #101318;
-  --surface: #161A21;
-  --surface-2: #1C212A;
-  --surface-3: #262C37;
-  --border: #262C37;
-  --border-strong: #39414F;
-
-  --text: #F3F5F8;
-  --text-muted: #B7BFCC;
-  --text-subtle: #8B94A3;
-  --text-invert: #14181D;
-
-  --primary: #6366F1;
-  --primary-hover: #818CF8;
-  --primary-contrast: #FFFFFF;
-  --primary-tint: color-mix(in srgb, var(--primary) 14%, transparent);
-  --link: #A5B4FC;
-  --focus-ring: color-mix(in srgb, var(--primary) 45%, transparent);
-  --accent-glow: #6366F1;
-  --accent-glow-2: #8B5CF6;
-
-  --success: #4ADE80; --success-bg: rgba(74,222,128,.10); --success-border: rgba(74,222,128,.35);
-  --warning: #FACC15; --warning-bg: rgba(250,204,21,.10); --warning-border: rgba(250,204,21,.35);
-  --danger:  #F87171; --danger-bg:  rgba(248,113,113,.10); --danger-border: rgba(248,113,113,.35);
-  --info:    #8FD0DB; --info-bg:    rgba(143,208,219,.10); --info-border:   rgba(143,208,219,.35);
-
-  --glass-bg: rgba(255,255,255,.055);
-  --glass-border: rgba(255,255,255,.12);
-  --glass-panel-border: rgba(255,255,255,.14);
-  --glass-inner: rgba(255,255,255,.05);
-
   --shadow-1: 0 1px 2px rgba(0,0,0,.40);
   --shadow-2: 0 4px 16px rgba(0,0,0,.45);
   --shadow-3: 0 12px 40px rgba(0,0,0,.55);
 
-  --track: #262C37;
-  --fill: #818CF8;
-  --header-bg: rgba(16,19,24,.82);
+  --track: #242C3A;
+  --fill: #60A5FA;
+  --header-bg: rgba(13,16,23,.78);
   --tooltip-bg: #DBE0E8;
   --tooltip-text: #14181D;
+
+  /* Tipografia oficial */
+  --font-display: 'Sora', 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  --display-weight: 700;
+  --display-tracking: -0.025em;
 
   color-scheme: dark;
 }
 
-/* ---- Accents candidatos (data-accent no <html>; ausente = Índigo) ---- */
-:root[data-accent="eletrico"] {
-  --primary: #2563EB; --primary-hover: #1D4ED8; --primary-contrast: #FFFFFF;
-  --link: #2563EB; --fill: #3B82F6;
-  --accent-glow: #3B82F6; --accent-glow-2: #22D3EE;
-}
-@media (prefers-color-scheme: dark) {
-  :root[data-accent="eletrico"]:not([data-theme="light"]) {
-    --primary: #2563EB; --primary-hover: #3B82F6; --primary-contrast: #FFFFFF;
-    --link: #93C5FD; --fill: #60A5FA;
-    --accent-glow: #3B82F6; --accent-glow-2: #22D3EE;
-  }
-}
-:root[data-accent="eletrico"][data-theme="dark"] {
-  --primary: #2563EB; --primary-hover: #3B82F6; --primary-contrast: #FFFFFF;
-  --link: #93C5FD; --fill: #60A5FA;
-  --accent-glow: #3B82F6; --accent-glow-2: #22D3EE;
-}
+/* ---- Tema LIGHT (opcional, via toggle) ---- */
+:root[data-theme="light"] {
+  --bg: #F6F8FB;
+  --surface: #FFFFFF;
+  --surface-2: #F0F3F8;
+  --surface-3: #E3E8F0;
+  --border: #E3E8F0;
+  --border-strong: #CFD7E3;
 
-:root[data-accent="violeta"] {
-  --primary: #7C3AED; --primary-hover: #6D28D9; --primary-contrast: #FFFFFF;
-  --link: #7C3AED; --fill: #8B5CF6;
-  --accent-glow: #8B5CF6; --accent-glow-2: #EC4899;
-}
-@media (prefers-color-scheme: dark) {
-  :root[data-accent="violeta"]:not([data-theme="light"]) {
-    --primary: #7C3AED; --primary-hover: #8B5CF6; --primary-contrast: #FFFFFF;
-    --link: #C4B5FD; --fill: #A78BFA;
-    --accent-glow: #8B5CF6; --accent-glow-2: #EC4899;
-  }
-}
-:root[data-accent="violeta"][data-theme="dark"] {
-  --primary: #7C3AED; --primary-hover: #8B5CF6; --primary-contrast: #FFFFFF;
-  --link: #C4B5FD; --fill: #A78BFA;
-  --accent-glow: #8B5CF6; --accent-glow-2: #EC4899;
-}
+  --text: #131822;
+  --text-muted: #5A6474;
+  --text-subtle: #7B8698;
+  --text-invert: #F3F5F8;
 
-:root[data-accent="mare"] {
-  --primary: #0E7490; --primary-hover: #155E75; --primary-contrast: #FFFFFF;
-  --link: #0E7490; --fill: #0891B2;
-  --accent-glow: #06B6D4; --accent-glow-2: #3B82F6;
-}
-@media (prefers-color-scheme: dark) {
-  :root[data-accent="mare"]:not([data-theme="light"]) {
-    --primary: #22D3EE; --primary-hover: #67E8F9; --primary-contrast: #083344;
-    --link: #67E8F9; --fill: #22D3EE;
-    --accent-glow: #06B6D4; --accent-glow-2: #3B82F6;
-  }
-}
-:root[data-accent="mare"][data-theme="dark"] {
-  --primary: #22D3EE; --primary-hover: #67E8F9; --primary-contrast: #083344;
-  --link: #67E8F9; --fill: #22D3EE;
-  --accent-glow: #06B6D4; --accent-glow-2: #3B82F6;
-}
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-contrast: #FFFFFF;
+  --primary-tint: color-mix(in srgb, #2563EB 9%, transparent);
+  --link: #2563EB;
+  --focus-ring: color-mix(in srgb, #2563EB 40%, transparent);
 
-/* ---- Pares tipográficos ---- */
-body[data-pair="sora"] {
-  --font-display: 'Sora', 'Inter', sans-serif;
-  --display-weight: 700;
-  --display-tracking: -0.025em;
-}
-body[data-pair="fraunces"] {
-  --font-display: 'Fraunces', Georgia, serif;
-  --display-weight: 600;
-  --display-tracking: -0.01em;
-}
-body[data-pair="grotesk"] {
-  --font-display: 'Space Grotesk', 'Inter', sans-serif;
-  --font-body: 'IBM Plex Sans', 'Inter', sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --display-weight: 700;
-  --display-tracking: -0.02em;
-}
-body[data-pair="jakarta"] {
-  --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  --font-body: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  --display-weight: 800;
-  --display-tracking: -0.02em;
+  --success: #15803D;  --success-bg: #EAF7EF;  --success-border: #BBE5CB;
+  --warning: #A16207;  --warning-bg: #FBF3E0;  --warning-border: #EAD9A8;
+  --danger:  #B91C1C;  --danger-bg:  #FBEAEA;  --danger-border:  #F1C2C2;
+  --info:    #2563EB;  --info-bg:    #EBF2FE;  --info-border:    #C6DAFB;
+
+  --glass-bg: rgba(255,255,255,.58);
+  --glass-border: rgba(255,255,255,.65);
+  --glass-panel-border: rgba(19,24,34,.10);
+  --glass-inner: rgba(255,255,255,.45);
+
+  --blob-a-o: .15;
+  --blob-b-o: .11;
+  --blob-c-o: .06;
+
+  --shadow-1: 0 1px 2px rgba(19,24,34,.06);
+  --shadow-2: 0 4px 16px rgba(19,24,34,.08);
+  --shadow-3: 0 12px 40px rgba(19,24,34,.14);
+
+  --track: #E3E8F0;
+  --fill: #3B82F6;
+  --header-bg: rgba(246,248,251,.80);
+  --tooltip-bg: #232B39;
+  --tooltip-text: #F3F5F8;
+
+  color-scheme: light;
 }
 
 /* ============ Base ============ */
@@ -260,12 +139,6 @@ body {
   font-size: 16px;
   line-height: 1.55;
   transition: background-color .2s ease, color .2s ease;
-}
-/* Mesh ambiente fixo — o que o glass desfoca */
-.ambient {
-  position: fixed; inset: 0; z-index: -1;
-  background: var(--mesh-hero);
-  pointer-events: none;
 }
 h1,h2,h3,h4 { margin: 0; text-wrap: balance; }
 p { margin: 0; }
@@ -285,6 +158,38 @@ code, .mono { font-family: var(--font-mono); }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
+/* ============ Fundo animado — degradê em movimento lento + parallax ============ */
+.ambient {
+  position: fixed; inset: -20% 0; z-index: -1;
+  overflow: hidden; pointer-events: none;
+  background: var(--bg);
+  transition: background-color .2s ease;
+  will-change: transform;
+}
+.ambient .blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+}
+.blob-a {
+  width: 58vmax; height: 58vmax; top: -18vmax; left: -14vmax;
+  background: var(--accent-glow); opacity: var(--blob-a-o);
+  animation: drift-a 70s ease-in-out infinite alternate;
+}
+.blob-b {
+  width: 44vmax; height: 44vmax; top: 6vmax; right: -16vmax;
+  background: var(--accent-glow-2); opacity: var(--blob-b-o);
+  animation: drift-b 95s ease-in-out infinite alternate;
+}
+.blob-c {
+  width: 34vmax; height: 34vmax; bottom: -16vmax; left: 32vw;
+  background: #F97316; opacity: var(--blob-c-o);
+  animation: drift-c 115s ease-in-out infinite alternate;
+}
+@keyframes drift-a { to { transform: translate(9vmax, 7vmax) scale(1.12); } }
+@keyframes drift-b { to { transform: translate(-8vmax, 10vmax) scale(0.94); } }
+@keyframes drift-c { to { transform: translate(6vmax, -9vmax) scale(1.08); } }
+
 /* ============ Top bar ============ */
 .topbar {
   position: sticky; top: 0; z-index: 50;
@@ -298,7 +203,7 @@ code, .mono { font-family: var(--font-mono); }
   height: 60px;
 }
 .brand { font-family: var(--font-display); font-weight: var(--display-weight); font-size: 17px; letter-spacing: var(--display-tracking); white-space: nowrap; }
-.brand .dot { color: var(--primary); }
+.brand .dot { color: var(--primary-hover); }
 .topbar-spacer { flex: 1; }
 
 .theme-toggle {
@@ -310,44 +215,6 @@ code, .mono { font-family: var(--font-mono); }
 }
 .theme-toggle:hover { background: var(--surface-3); }
 
-/* ---- Seletor de par tipográfico ---- */
-.pairbar {
-  border-bottom: 1px solid var(--border);
-  background: var(--header-bg);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-}
-.pairbar-inner { display: flex; align-items: center; gap: 10px; padding: 12px 0; flex-wrap: wrap; }
-.pairbar-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-subtle); margin-right: 4px; }
-.pair-chip {
-  border: 1px solid var(--border-strong); background: transparent; color: var(--text-muted);
-  border-radius: 999px; padding: 7px 16px; font-size: 13.5px; font-weight: 500;
-  cursor: pointer; transition: border-color .15s ease, background-color .15s ease, color .15s ease;
-}
-.pair-chip:hover { border-color: var(--primary); color: var(--text); }
-.pair-chip[aria-pressed="true"] {
-  border: 1.5px solid var(--primary); color: var(--primary);
-  background: var(--primary-tint); font-weight: 600;
-}
-.pair-chip .pf { font-size: 12px; opacity: .75; font-weight: 400; }
-.pair-chip .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; margin-right: 7px; vertical-align: -1px; }
-.pairbar-sep { width: 1px; height: 22px; background: var(--border-strong); margin: 0 6px; }
-
-/* Candidatas de cor */
-.cand-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); }
-.cand-row:last-child { border-bottom: none; padding-bottom: 0; }
-.cand-info { min-width: 210px; flex: 1; }
-.cand-info .nm { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-.cand-info .nm .rec-mini { font-size: 10.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--success); background: var(--success-bg); border: 1px solid var(--success-border); padding: 2px 8px; border-radius: 999px; }
-.cand-info .note { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; max-width: 40ch; }
-.cand-scale { display: flex; gap: 6px; }
-.cand-scale button { width: 44px; height: 40px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; padding: 0; }
-.cand-scale button:hover { transform: translateY(-2px); }
-.cand-apply { flex: none; }
-.pair-chip[data-pair="sora"] .pf { font-family: 'Sora', sans-serif; }
-.pair-chip[data-pair="fraunces"] .pf { font-family: 'Fraunces', serif; }
-.pair-chip[data-pair="grotesk"] .pf { font-family: 'Space Grotesk', sans-serif; }
-.pair-chip[data-pair="jakarta"] .pf { font-family: 'Plus Jakarta Sans', sans-serif; }
-
 /* ============ Hero ============ */
 .hero { border-bottom: 1px solid var(--border); }
 .hero-inner { padding: 72px 0 64px; max-width: 720px; }
@@ -358,7 +225,7 @@ code, .mono { font-family: var(--font-mono); }
 .hero h1 {
   font-family: var(--font-display); font-weight: var(--display-weight);
   letter-spacing: var(--display-tracking);
-  font-size: clamp(34px, 5.4vw, 52px); line-height: 1.08; margin: 14px 0 18px;
+  font-size: clamp(34px, 5.4vw, 50px); line-height: 1.08; margin: 14px 0 18px;
 }
 .hero p { color: var(--text-muted); max-width: 54ch; font-size: 17px; }
 .hero-meta { display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
@@ -394,11 +261,11 @@ code, .mono { font-family: var(--font-mono); }
 .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
 .swatch { cursor: pointer; border: none; background: none; padding: 0; text-align: left; }
 .swatch .chip-color {
-  height: 56px; border-radius: 10px; border: 1px solid var(--border);
+  height: 56px; border-radius: 10px; border: 1px solid var(--glass-panel-border);
   transition: transform .12s ease;
 }
 .swatch:hover .chip-color { transform: translateY(-2px); }
-.swatch .nm { font-size: 12px; font-weight: 600; margin-top: 7px; }
+.swatch .nm { font-size: 12px; font-weight: 600; margin-top: 7px; color: var(--text); }
 .swatch .hx { font-family: var(--font-mono); font-size: 11px; color: var(--text-subtle); }
 
 .sem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
@@ -420,30 +287,17 @@ code, .mono { font-family: var(--font-mono); }
 .t-caption { font-size: 12.5px; color: var(--text-subtle); }
 .t-score { font-family: var(--font-mono); font-weight: 600; font-size: 13px; }
 
-.pair-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
-.pair-card {
-  border: 1px solid var(--border); border-radius: 12px; padding: 20px;
-  background: var(--surface-2); cursor: pointer; text-align: left;
-  transition: border-color .15s ease, background-color .15s ease;
+.font-roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+.font-role {
+  border: 1px solid var(--glass-panel-border); border-radius: 12px; padding: 20px;
+  background: var(--glass-inner);
 }
-.pair-card:hover { border-color: var(--border-strong); }
-.pair-card[aria-pressed="true"] { border: 1.5px solid var(--primary); background: var(--primary-tint); }
-.pair-card .big { font-size: 24px; line-height: 1.15; margin-bottom: 8px; font-weight: 700; }
-.pair-card[data-pair="inter"] .big { font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.02em; }
-.pair-card[data-pair="sora"] .big { font-family: 'Sora', sans-serif; letter-spacing: -0.025em; }
-.pair-card[data-pair="fraunces"] .big { font-family: 'Fraunces', serif; font-weight: 600; }
-.pair-card[data-pair="grotesk"] .big { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
-.pair-card[data-pair="jakarta"] .big { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; letter-spacing: -0.02em; }
-.pair-card .who { font-size: 12px; font-family: var(--font-mono); color: var(--text-subtle); margin-bottom: 10px; }
-.pair-card[data-pair="grotesk"] .who + .why { font-family: 'IBM Plex Sans', sans-serif; }
-.pair-card[data-pair="jakarta"] .why { font-family: 'Plus Jakarta Sans', sans-serif; }
-.pair-card .why { font-size: 13.5px; color: var(--text-muted); }
-.pair-card .rec {
-  display: inline-block; margin-top: 12px; font-size: 11px; font-weight: 600;
-  letter-spacing: .06em; text-transform: uppercase; color: var(--success);
-  background: var(--success-bg); border: 1px solid var(--success-border);
-  padding: 3px 10px; border-radius: 999px;
-}
+.font-role .sample { font-size: 26px; line-height: 1.15; margin-bottom: 10px; }
+.font-role.fr-display .sample { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.025em; }
+.font-role.fr-body .sample { font-family: var(--font-body); font-weight: 400; font-size: 22px; }
+.font-role.fr-mono .sample { font-family: var(--font-mono); font-weight: 600; font-size: 20px; }
+.font-role .who { font-size: 12px; font-family: var(--font-mono); color: var(--text-subtle); margin-bottom: 6px; }
+.font-role .why { font-size: 13px; color: var(--text-muted); }
 
 /* ============ Botões ============ */
 .btn {
@@ -451,7 +305,7 @@ code, .mono { font-family: var(--font-mono); }
   border-radius: 999px; font-weight: 600; cursor: pointer;
   border: 1px solid transparent; font-size: 15px;
   height: 44px; padding: 0 24px;
-  transition: background-color .15s ease, border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+  transition: background-color .15s ease, border-color .15s ease, transform .12s ease, box-shadow .15s ease, filter .15s ease;
 }
 .btn:active { transform: scale(.98); }
 .btn-sm { height: 36px; padding: 0 20px; font-size: 14px; }
@@ -461,7 +315,7 @@ code, .mono { font-family: var(--font-mono); }
 .btn-primary:active { transform: scale(.98); }
 .btn-secondary { background: var(--surface-2); border-color: var(--border-strong); color: var(--text); }
 .btn-secondary:hover { background: var(--surface-3); }
-.btn-outline { background: transparent; border-color: var(--primary); color: var(--primary); }
+.btn-outline { background: transparent; border-color: var(--primary-hover); color: var(--link); }
 .btn-outline:hover { background: var(--primary-tint); }
 .btn-ghost { background: transparent; color: var(--text-muted); }
 .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
@@ -491,12 +345,12 @@ code, .mono { font-family: var(--font-mono); }
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .input::placeholder { color: var(--text-subtle); }
-.input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--focus-ring); }
+.input:focus { outline: none; border-color: var(--primary-hover); box-shadow: 0 0 0 3px var(--focus-ring); }
 .input.is-error { border-color: var(--danger); }
 .field .help { font-size: 12.5px; color: var(--text-subtle); }
 .field .error-msg { font-size: 13.5px; color: var(--danger); display: flex; gap: 6px; align-items: center; }
 
-/* Option cards */
+/* Option cards — sólidos por legibilidade */
 .optlist { display: flex; flex-direction: column; gap: 12px; max-width: 560px; }
 .optcard {
   display: flex; align-items: center; gap: 14px;
@@ -508,15 +362,15 @@ code, .mono { font-family: var(--font-mono); }
 .optcard input { position: absolute; opacity: 0; pointer-events: none; }
 .optcard .lbl { font-weight: 600; font-size: 15px; }
 .optcard .aux { color: var(--text-muted); font-weight: 400; font-size: 13.5px; }
-.optcard.is-checked { border: 1.5px solid var(--primary); background: var(--primary-tint); }
+.optcard.is-checked { border: 1.5px solid var(--primary-hover); background: var(--primary-tint); }
 .radio-vis {
   width: 20px; height: 20px; border-radius: 50%; flex: none;
   border: 2px solid var(--border-strong); position: relative;
   transition: border-color .15s ease;
 }
-.optcard.is-checked .radio-vis { border-color: var(--primary); }
+.optcard.is-checked .radio-vis { border-color: var(--primary-hover); }
 .optcard.is-checked .radio-vis::after {
-  content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--primary);
+  content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--primary-hover);
 }
 .check-vis {
   width: 20px; height: 20px; border-radius: 6px; flex: none;
@@ -532,7 +386,7 @@ code, .mono { font-family: var(--font-mono); }
 .catchip {
   border-radius: 999px; height: 40px; padding: 0 18px; font-size: 14px;
   cursor: pointer; transition: all .15s ease; font-weight: 500;
-  border: 1.5px solid var(--primary); color: var(--primary); background: var(--primary-tint);
+  border: 1.5px solid var(--primary-hover); color: var(--link); background: var(--primary-tint);
 }
 .catchip:active { transform: scale(.96); }
 .catchip.off {
@@ -560,8 +414,8 @@ code, .mono { font-family: var(--font-mono); }
 
 /* ============ Alerts ============ */
 .banner-demo {
-  background: var(--warning-bg); border-bottom: 1px solid var(--warning-border);
-  color: var(--warning); font-size: 14px; text-align: center; padding: 10px 16px;
+  background: var(--warning-bg); color: var(--warning);
+  font-size: 14px; text-align: center; padding: 10px 16px;
   border-radius: 12px; border: 1px solid var(--warning-border);
 }
 .banner-demo code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 12.5px; color: var(--text); }
@@ -589,7 +443,7 @@ code, .mono { font-family: var(--font-mono); }
 .scorebar .fill { height: 100%; border-radius: 999px; background: var(--fill); width: 0; transition: width .6s cubic-bezier(.16,1,.3,1); }
 .scorebar .val { font-family: var(--font-mono); font-weight: 600; font-size: 13px; text-align: right; }
 
-/* ============ Supplier card ============ */
+/* ============ Supplier card — glass ============ */
 .supplier {
   border: 1px solid var(--glass-panel-border); border-radius: 16px;
   background: var(--glass-bg);
@@ -654,7 +508,7 @@ code, .mono { font-family: var(--font-mono); }
 
 /* ============ Pricing ============ */
 .paywall-stage {
-  background: var(--mesh-paywall); border: 1px solid var(--border);
+  background: var(--mesh-paywall); border: 1px solid var(--glass-panel-border);
   border-radius: 16px; padding: 48px 24px; display: flex; justify-content: center;
 }
 .pricing {
@@ -708,9 +562,7 @@ code, .mono { font-family: var(--font-mono); }
 .card-featured h3 { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--display-tracking); font-size: 21px; color: #fff; }
 .card-featured .score-big { font-family: var(--font-mono); font-weight: 600; font-size: 19px; }
 .card-featured .meta { font-size: 13px; color: rgba(255,255,255,.85); }
-.btn-onGrad {
-  background: rgba(10,10,14,.82); color: #fff; border: none;
-}
+.btn-onGrad { background: rgba(10,10,14,.82); color: #fff; border: none; }
 .btn-onGrad:hover { background: rgba(10,10,14,.95); }
 .btn-gradient { background: var(--grad-btn); color: #fff; border: none; }
 .btn-gradient:hover { filter: brightness(1.08); box-shadow: var(--shadow-2); transform: translateY(-1px); }
@@ -771,7 +623,7 @@ code, .mono { font-family: var(--font-mono); }
 /* Modal */
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 90;
-  background: rgba(0,0,0,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  background: rgba(0,0,0,.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center; padding: 20px;
 }
 .modal {
@@ -790,7 +642,7 @@ code, .mono { font-family: var(--font-mono); }
 
 /* Search progress */
 .search-progress { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 0; text-align: center; }
-.search-progress .big-spin { width: 32px; height: 32px; border-width: 3px; color: var(--primary); }
+.search-progress .big-spin { width: 32px; height: 32px; border-width: 3px; color: var(--primary-hover); }
 .search-progress h4 { font-size: 18px; font-weight: 600; }
 .search-progress .step { font-size: 14px; color: var(--text-muted); min-height: 22px; }
 .indeterminate { width: 260px; height: 6px; border-radius: 999px; background: var(--track); overflow: hidden; }
@@ -807,47 +659,31 @@ code, .mono { font-family: var(--font-mono); }
 }
 </style>
 
-<div class="ambient" aria-hidden="true"></div>
+<div class="ambient" aria-hidden="true" id="ambient">
+  <div class="blob blob-a"></div>
+  <div class="blob blob-b"></div>
+  <div class="blob blob-c"></div>
+</div>
+
 <div class="topbar">
   <div class="container topbar-inner">
     <div class="brand">Autopilot UI<span class="dot">.</span></div>
     <div class="topbar-spacer"></div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema claro/escuro">🌙</button>
-  </div>
-</div>
-
-<div class="pairbar">
-  <div class="container pairbar-inner">
-    <span class="pairbar-label" role="presentation">Cor</span>
-    <span role="group" aria-label="Cor de marca" style="display:contents">
-      <button class="pair-chip accent-chip" data-accent="indigo" aria-pressed="true"><span class="dot" style="background:#6366F1"></span>Índigo</button>
-      <button class="pair-chip accent-chip" data-accent="eletrico" aria-pressed="false"><span class="dot" style="background:#3B82F6"></span>Elétrico</button>
-      <button class="pair-chip accent-chip" data-accent="violeta" aria-pressed="false"><span class="dot" style="background:#8B5CF6"></span>Violeta</button>
-      <button class="pair-chip accent-chip" data-accent="mare" aria-pressed="false"><span class="dot" style="background:#06B6D4"></span>Maré+</button>
-    </span>
-    <span class="pairbar-sep" role="presentation"></span>
-    <span class="pairbar-label" role="presentation">Fonte</span>
-    <span role="group" aria-label="Combinação tipográfica" style="display:contents">
-      <button class="pair-chip" data-pair="sora" aria-pressed="true"><span class="pf">Sora</span>&nbsp;+ Inter</button>
-      <button class="pair-chip" data-pair="inter" aria-pressed="false">Inter <span class="pf">· sistema</span></button>
-      <button class="pair-chip" data-pair="fraunces" aria-pressed="false"><span class="pf">Fraunces</span>&nbsp;+ Inter</button>
-      <button class="pair-chip" data-pair="grotesk" aria-pressed="false"><span class="pf">Space Grotesk</span>&nbsp;+ Plex</button>
-      <button class="pair-chip" data-pair="jakarta" aria-pressed="false"><span class="pf">Jakarta Sans</span></button>
-    </span>
+    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema claro/escuro">☀️</button>
   </div>
 </div>
 
 <div class="hero">
   <div class="container">
     <div class="hero-inner">
-      <div class="eyebrow">Design System · v1.0</div>
+      <div class="eyebrow">Design System · v1.2 · Final</div>
       <h1>Monte a lista certa de fornecedores para seu evento</h1>
-      <p>Sistema de design do Autopilot de Eventos: tokens em par light/dark, componentes de verificação com evidência visível e a atmosfera premium das referências — gradiente mesh, glass e botões pill.</p>
+      <p>Sistema de design do Autopilot de Eventos. Cor oficial Azul Elétrico, tipografia Sora + Inter, tema principal dark com light opcional, glass sobre um fundo em movimento lento com parallax.</p>
       <div class="hero-meta">
-        <span class="hero-tag">2 temas</span>
-        <span class="hero-tag">30 componentes</span>
+        <span class="hero-tag">Azul Elétrico</span>
         <span class="hero-tag">Sora + Inter</span>
-        <span class="hero-tag">4 cores candidatas</span>
+        <span class="hero-tag">Dark main · Light opcional</span>
+        <span class="hero-tag">33 componentes</span>
         <span class="hero-tag">WCAG AA</span>
       </div>
     </div>
@@ -861,16 +697,21 @@ code, .mono { font-family: var(--font-mono); }
     <div class="section-head">
       <div class="eyebrow">Fundamentos</div>
       <h2>Cor</h2>
-      <p class="desc">Quatro candidatas a cor de marca, mais saturadas que a Maré original. Clique em "Aplicar" para ver a página inteira na cor (o mesh de fundo acompanha) e num swatch para copiar o hex. Índigo é a recomendação: dá a vibração do roxo mantendo a leitura de confiança.</p>
+      <p class="desc">Azul Elétrico é a cor de marca oficial. Ember (laranja) é exclusivo de conversão. Semânticas trocam automaticamente com o tema. Clique num swatch para copiar o hex.</p>
     </div>
 
     <div class="stage">
-      <div class="stage-label">Candidatas — aplicam ao vivo em toda a página</div>
-      <div id="candidates"></div>
+      <div class="stage-label">Elétrico — escala de marca oficial</div>
+      <div class="swatch-grid" id="brandSwatches"></div>
     </div>
 
     <div class="stage">
-      <div class="stage-label">Semânticas — status de verificação (par light/dark automático)</div>
+      <div class="stage-label">Ember — exclusivo de conversão (paywall) · Cyan — segundo glow dos degradês</div>
+      <div class="swatch-grid" id="accentSwatches"></div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Semânticas — status de verificação (par dark/light automático)</div>
       <div class="sem-grid">
         <div class="sem-card" style="background: var(--success-bg); border-color: var(--success-border);">
           <div class="t" style="color: var(--success);">✓ Verificado</div>
@@ -897,49 +738,38 @@ code, .mono { font-family: var(--font-mono); }
     <div class="section-head">
       <div class="eyebrow">Fundamentos</div>
       <h2>Tipografia</h2>
-      <p class="desc">Par oficial: <b>Sora</b> (display) + <b>Inter</b> (corpo) + JetBrains Mono (scores). O seletor continua ativo para comparação — a página inteira re-tipografa ao vivo.</p>
+      <p class="desc">Par oficial: Sora no display (títulos, preço, marca — peso 700, tracking −0.025em), Inter no corpo e componentes, JetBrains Mono nos scores e valores.</p>
     </div>
 
     <div class="stage">
-      <div class="stage-label">Combinações — clique para aplicar</div>
-      <div class="pair-cards">
-        <button class="pair-card" data-pair="sora" aria-pressed="true">
-          <div class="who">Sora · Inter · JetBrains Mono</div>
-          <div class="big">Ranking de fornecedores</div>
-          <div class="why">Display geométrico com personalidade tech — dá presença ao hero e ao preço do paywall sem perder a leitura do corpo em Inter.</div>
-          <span class="rec">Escolhida ✓</span>
-        </button>
-        <button class="pair-card" data-pair="inter" aria-pressed="false">
-          <div class="who">Inter · Inter · JetBrains Mono</div>
-          <div class="big">Ranking de fornecedores</div>
-          <div class="why">Uma família só, pesos fazendo a hierarquia. Máxima coesão, tom neutro de produto.</div>
-        </button>
-        <button class="pair-card" data-pair="fraunces" aria-pressed="false">
-          <div class="who">Fraunces · Inter · JetBrains Mono</div>
-          <div class="big">Ranking de fornecedores</div>
-          <div class="why">Serifada de display (como na referência "Research") — contraste editorial premium. Ótima se o produto quiser soar consultoria, não ferramenta.</div>
-        </button>
-        <button class="pair-card" data-pair="grotesk" aria-pressed="false">
-          <div class="who">Space Grotesk · IBM Plex Sans · IBM Plex Mono</div>
-          <div class="big">Ranking de fornecedores</div>
-          <div class="why">Voz de engenharia: combina com o discurso de verificação, evidências e fontes públicas. Plex Sans mantém o corpo sóbrio.</div>
-        </button>
-        <button class="pair-card" data-pair="jakarta" aria-pressed="false">
-          <div class="who">Plus Jakarta Sans · Plus Jakarta Sans · JetBrains Mono</div>
-          <div class="big">Ranking de fornecedores</div>
-          <div class="why">Arredondada e acolhedora — aproxima o produto de quem organiza eventos, sem parecer infantil. Boa opção se o público for menos corporativo.</div>
-        </button>
+      <div class="stage-label">Papéis</div>
+      <div class="font-roles">
+        <div class="font-role fr-display">
+          <div class="who">Sora · 600/700 · display</div>
+          <div class="sample">Ranking de fornecedores</div>
+          <div class="why">h1, h2, display, preço do paywall e marca. Nunca em corpo de texto.</div>
+        </div>
+        <div class="font-role fr-body">
+          <div class="who">Inter · 400–700 · corpo</div>
+          <div class="sample">Pesquisamos e verificamos cada fornecedor.</div>
+          <div class="why">Corpo, labels, botões, formulários — todo o resto da UI.</div>
+        </div>
+        <div class="font-role fr-mono">
+          <div class="who">JetBrains Mono · 500/600 · dados</div>
+          <div class="sample">93/100 · R$ 20,00</div>
+          <div class="why">Scores, pesos e valores tabulares. Nunca em texto corrido.</div>
+        </div>
       </div>
     </div>
 
     <div class="stage">
-      <div class="stage-label">Escala — atualiza com o par escolhido</div>
+      <div class="stage-label">Escala</div>
       <div class="type-specimen">
-        <div class="type-row"><div class="type-meta">display · 44–48</div><div class="t-display">R$ 20,00</div></div>
-        <div class="type-row"><div class="type-meta">h1 · 30–34 </div><div class="t-h1">Que tipo de evento é?</div></div>
-        <div class="type-row"><div class="type-meta">h2 · 22–24</div><div class="t-h2">Desbloqueie a busca</div></div>
-        <div class="type-row"><div class="type-meta">h3 · 17–18 / 600</div><div class="t-h3">1º · Mesa Posta Recepções</div></div>
-        <div class="type-row"><div class="type-meta">body · 16</div><div class="t-body">Respondemos 10 perguntas rápidas, pesquisamos e verificamos a reputação de cada fornecedor em fontes públicas.</div></div>
+        <div class="type-row"><div class="type-meta">display · 44–48 · Sora</div><div class="t-display">R$ 20,00</div></div>
+        <div class="type-row"><div class="type-meta">h1 · 30–34 · Sora</div><div class="t-h1">Que tipo de evento é?</div></div>
+        <div class="type-row"><div class="type-meta">h2 · 22–24 · Sora</div><div class="t-h2">Desbloqueie a busca</div></div>
+        <div class="type-row"><div class="type-meta">h3 · 17–18 · Inter 600</div><div class="t-h3">1º · Mesa Posta Recepções</div></div>
+        <div class="type-row"><div class="type-meta">body · 16 · Inter</div><div class="t-body">Respondemos 10 perguntas rápidas, pesquisamos e verificamos a reputação de cada fornecedor em fontes públicas.</div></div>
         <div class="type-row"><div class="type-meta">body-sm · 14</div><div class="t-bodysm">CNPJ ativo desde 2023; nota 4.8 em 320 avaliações no Google; contato consistente entre canais.</div></div>
         <div class="type-row"><div class="type-meta">caption · 12.5</div><div class="t-caption">Pagamento ilustrativo — o checkout real entra na próxima versão.</div></div>
         <div class="type-row"><div class="type-meta">eyebrow · 12 caps</div><div class="eyebrow">Cadastral (peso 30%)</div></div>
@@ -953,7 +783,7 @@ code, .mono { font-family: var(--font-mono); }
     <div class="section-head">
       <div class="eyebrow">Componentes</div>
       <h2>Botões</h2>
-      <p class="desc">Pill em todas as variantes. Uma ação primária por tela; "Voltar" é sempre secundário.</p>
+      <p class="desc">Pill em todas as variantes. Uma ação primária por tela; o gradient só existe no CTA hero e no paywall.</p>
     </div>
     <div class="stage">
       <div class="stage-label">Variantes</div>
@@ -962,6 +792,7 @@ code, .mono { font-family: var(--font-mono); }
         <button class="btn btn-secondary">← Voltar</button>
         <button class="btn btn-outline">Ver detalhes</button>
         <button class="btn btn-ghost">Cancelar</button>
+        <button class="btn btn-gradient">Ir para pagamento →</button>
         <button class="btn btn-danger">Excluir pesquisa</button>
         <button class="textlink">Já sei a categoria que preciso →</button>
       </div>
@@ -971,7 +802,7 @@ code, .mono { font-family: var(--font-mono); }
       <div class="row" style="margin-bottom: 16px;">
         <button class="btn btn-primary btn-sm">📄 Baixar PDF</button>
         <button class="btn btn-primary">Pesquisar fornecedores</button>
-        <button class="btn btn-primary btn-lg">Ir para pagamento →</button>
+        <button class="btn btn-gradient btn-lg">Começar pelo meu evento</button>
       </div>
       <div class="row">
         <button class="btn btn-primary" disabled>Continuar →</button>
@@ -986,7 +817,7 @@ code, .mono { font-family: var(--font-mono); }
     <div class="section-head">
       <div class="eyebrow">Componentes</div>
       <h2>Formulários & Wizard</h2>
-      <p class="desc">Inputs, cards de opção (radio e checkbox) e o progresso do questionário — os cards inteiros são clicáveis.</p>
+      <p class="desc">Inputs, cards de opção (radio e checkbox) e o progresso do questionário. Estes ficam sólidos — conteúdo interativo denso pede fundo estável.</p>
     </div>
 
     <div class="stage">
@@ -1081,12 +912,69 @@ code, .mono { font-family: var(--font-mono); }
     </div>
   </section>
 
+  <!-- ==================== DEGRADÊS ==================== -->
+  <section class="section" id="degrades">
+    <div class="section-head">
+      <div class="eyebrow">Componentes</div>
+      <h2>Background Gradients</h2>
+      <p class="desc">Degradês construídos sobre o Elétrico via color-mix (funcionam nos dois temas) + Ember fixo para conversão. Regras: 1 FeaturedCard por lista; degradê nunca comunica status.</p>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Tokens de degradê</div>
+      <div class="grad-tiles">
+        <div class="grad-tile g-brand"><span class="tag">--grad-brand</span></div>
+        <div class="grad-tile g-card"><span class="tag">--grad-card</span></div>
+        <div class="grad-tile g-btn"><span class="tag">--grad-btn</span></div>
+        <div class="grad-tile g-header-tile"><span class="tag">--grad-header</span></div>
+        <div class="grad-tile g-ember"><span class="tag">--grad-ember</span></div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">FeaturedCard — destaque do ranking (1 por lista)</div>
+      <article class="card-featured">
+        <div class="toprow">
+          <span class="chip-onGrad">Melhor da categoria</span>
+          <span class="chip-onGrad lite">✓ Verificado</span>
+        </div>
+        <div class="midrow">
+          <h3>Mesa Posta Recepções</h3>
+          <span class="score-big">93/100</span>
+        </div>
+        <div class="meta">Buffet completo (almoço/jantar) · Curitiba · 1,8 km</div>
+        <button class="btn btn-onGrad btn-block">Ver verificação completa</button>
+      </article>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Header wash — topo de tela com brilho da marca</div>
+      <div class="header-wash-demo">
+        <div class="wash">
+          <div class="avatar" aria-hidden="true"></div>
+          <div>
+            <div class="hi">Olá, Vitor</div>
+            <div class="sub">Sua pesquisa de Curitiba vence em 12 dias</div>
+          </div>
+        </div>
+        <div class="body-mock">
+          <input class="input" placeholder="Buscar nos seus relatórios" aria-label="Buscar nos seus relatórios">
+        </div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-label">Fundo animado — o degradê vivo desta própria página</div>
+      <p class="t-bodysm" style="max-width: 68ch;">Três blobs desfocados (Elétrico, Cyan e um toque de Ember) derivam lentamente em loops de 70–115s (transform-only, GPU) e a camada inteira desce com parallax suave (fator −0.05) conforme o scroll. Com <code>prefers-reduced-motion</code>, tudo congela. É o fundo padrão de todas as telas do app.</p>
+    </div>
+  </section>
+
   <!-- ==================== RANKING ==================== -->
   <section class="section" id="ranking">
     <div class="section-head">
       <div class="eyebrow">Padrões</div>
       <h2>Card de fornecedor</h2>
-      <p class="desc">O componente central do relatório: rank, badge, evidências, barras de score animadas e verificação completa expansível.</p>
+      <p class="desc">O componente central do relatório: rank, badge, evidências, barras de score animadas e verificação completa expansível — em glass sobre o fundo vivo.</p>
     </div>
 
     <div class="panel-dashed" style="margin-bottom: 16px;">
@@ -1165,11 +1053,11 @@ code, .mono { font-family: var(--font-mono); }
     <div class="section-head">
       <div class="eyebrow">Padrões</div>
       <h2>Paywall</h2>
-      <p class="desc">Momento de conversão: mesh com toque de Ember (laranja) + card glass. Único lugar onde o accent quente aparece.</p>
+      <p class="desc">Momento de conversão: mesh com toque de Ember + card glass + botão gradient. Único lugar onde o laranja aparece.</p>
     </div>
     <div class="paywall-stage">
       <div class="pricing">
-        <div class="eyebrow" style="color: var(--primary);">Pesquisa completa</div>
+        <div class="eyebrow" style="color: var(--link);">Pesquisa completa</div>
         <h3>Desbloqueie a busca</h3>
         <div>
           <div class="price">R$ 20,00</div>
@@ -1183,69 +1071,9 @@ code, .mono { font-family: var(--font-mono); }
           <div class="b"><span class="ok">✓</span><span>Resultado reaproveitável por 30 dias</span></div>
         </div>
         <div class="scope"><b>O que vamos pesquisar:</b> Coffee break, Áudio e vídeo, Palestrante / MC, Espaço, Segurança, Streaming, Internet dedicada, Tradução simultânea · Curitiba</div>
-        <button class="btn btn-primary btn-lg btn-block">Ir para pagamento →</button>
+        <button class="btn btn-gradient btn-lg btn-block">Ir para pagamento →</button>
         <button class="textlink">‹ Voltar e revisar</button>
         <div class="disclaimer">Pagamento ilustrativo — o checkout real entra na próxima versão.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ==================== DEGRADÊS ==================== -->
-  <section class="section" id="degrades">
-    <div class="section-head">
-      <div class="eyebrow">Componentes</div>
-      <h2>Background Gradients</h2>
-      <p class="desc">Quatro degradês derivados da cor de marca ativa (trocam junto com o accent) + Ember fixo para conversão. Regras: 1 card em destaque por lista, no máximo; degradê nunca comunica status — Verificado/Atenção/Evitar seguem sempre nas cores semânticas.</p>
-    </div>
-
-    <div class="stage">
-      <div class="stage-label">Tokens de degradê</div>
-      <div class="grad-tiles">
-        <div class="grad-tile g-brand"><span class="tag">--grad-brand</span></div>
-        <div class="grad-tile g-card"><span class="tag">--grad-card</span></div>
-        <div class="grad-tile g-btn"><span class="tag">--grad-btn</span></div>
-        <div class="grad-tile g-header-tile"><span class="tag">--grad-header</span></div>
-        <div class="grad-tile g-ember"><span class="tag">--grad-ember</span></div>
-      </div>
-    </div>
-
-    <div class="stage">
-      <div class="stage-label">FeaturedCard — destaque do ranking (1 por lista)</div>
-      <article class="card-featured">
-        <div class="toprow">
-          <span class="chip-onGrad">Melhor da categoria</span>
-          <span class="chip-onGrad lite">✓ Verificado</span>
-        </div>
-        <div class="midrow">
-          <h3>Mesa Posta Recepções</h3>
-          <span class="score-big">93/100</span>
-        </div>
-        <div class="meta">Buffet completo (almoço/jantar) · Curitiba · 1,8 km</div>
-        <button class="btn btn-onGrad btn-block">Ver verificação completa</button>
-      </article>
-    </div>
-
-    <div class="stage">
-      <div class="stage-label">Header wash — topo de tela com brilho da marca</div>
-      <div class="header-wash-demo">
-        <div class="wash">
-          <div class="avatar" aria-hidden="true"></div>
-          <div>
-            <div class="hi">Olá, Vitor</div>
-            <div class="sub">Sua pesquisa de Curitiba vence em 12 dias</div>
-          </div>
-        </div>
-        <div class="body-mock">
-          <input class="input" placeholder="Buscar nos seus relatórios" aria-label="Buscar nos seus relatórios">
-        </div>
-      </div>
-    </div>
-
-    <div class="stage">
-      <div class="stage-label">Botão gradient — só para o CTA hero e o paywall</div>
-      <div class="row">
-        <button class="btn btn-gradient btn-lg">Começar pelo meu evento</button>
-        <button class="btn btn-gradient">Ir para pagamento →</button>
       </div>
     </div>
   </section>
@@ -1255,7 +1083,7 @@ code, .mono { font-family: var(--font-mono); }
     <div class="section-head">
       <div class="eyebrow">Componentes</div>
       <h2>Feedback & Estados</h2>
-      <p class="desc">Loading da pesquisa, skeleton, toast, modal, tooltip e estado vazio — os estados que o app ainda não tinha.</p>
+      <p class="desc">Loading da pesquisa, skeleton, toast, modal, tooltip e estado vazio.</p>
     </div>
 
     <div class="stage">
@@ -1300,7 +1128,7 @@ code, .mono { font-family: var(--font-mono); }
   </section>
 
   <div class="footer">
-    Autopilot de Eventos · Design System v1.0 · tokens em <code>design-system/DESIGN-SYSTEM.md</code>
+    Autopilot de Eventos · Design System v1.2 · Azul Elétrico · Sora + Inter · tokens em <code>design-system/DESIGN-SYSTEM.md</code>
   </div>
 </main>
 
@@ -1321,18 +1149,16 @@ code, .mono { font-family: var(--font-mono); }
 (function () {
   'use strict';
   var root = document.documentElement;
-  var body = document.body;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---- Tema ---- */
+  /* ---- Tema (main: dark) ---- */
   var toggle = document.getElementById('themeToggle');
   function currentTheme() {
-    var t = root.getAttribute('data-theme');
-    if (t) return t;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
   }
   function paintToggle() {
     toggle.textContent = currentTheme() === 'dark' ? '☀️' : '🌙';
-    toggle.setAttribute('aria-pressed', currentTheme() === 'dark' ? 'true' : 'false');
+    toggle.setAttribute('aria-pressed', currentTheme() === 'light' ? 'true' : 'false');
   }
   toggle.addEventListener('click', function () {
     var next = currentTheme() === 'dark' ? 'light' : 'dark';
@@ -1346,90 +1172,46 @@ code, .mono { font-family: var(--font-mono); }
   } catch (e) {}
   paintToggle();
 
-  /* ---- Par tipográfico ---- */
-  function setPair(pair) {
-    if (pair === 'inter') body.removeAttribute('data-pair');
-    else body.setAttribute('data-pair', pair);
-    document.querySelectorAll('.pair-chip, .pair-card').forEach(function (el) {
-      el.setAttribute('aria-pressed', el.getAttribute('data-pair') === pair ? 'true' : 'false');
-    });
-    try { localStorage.setItem('ap-pair', pair); } catch (e) {}
-  }
-  document.querySelectorAll('.pair-chip[data-pair], .pair-card').forEach(function (el) {
-    el.addEventListener('click', function () { setPair(el.getAttribute('data-pair')); });
-  });
-  var savedPair = null;
-  try { savedPair = localStorage.getItem('ap-pair'); } catch (e) {}
-  setPair(savedPair || 'sora');
-
-  /* ---- Accent de marca ---- */
-  function setAccent(name) {
-    if (name === 'indigo') root.removeAttribute('data-accent');
-    else root.setAttribute('data-accent', name);
-    document.querySelectorAll('[data-accent-btn]').forEach(function (el) {
-      el.setAttribute('aria-pressed', el.getAttribute('data-accent-btn') === name ? 'true' : 'false');
-      if (el.classList.contains('cand-apply')) {
-        el.textContent = el.getAttribute('data-accent-btn') === name ? 'Aplicada ✓' : 'Aplicar';
+  /* ---- Parallax leve do fundo ---- */
+  var ambient = document.getElementById('ambient');
+  if (!reduce) {
+    var ticking = false;
+    window.addEventListener('scroll', function () {
+      if (!ticking) {
+        window.requestAnimationFrame(function () {
+          ambient.style.transform = 'translateY(' + (window.scrollY * -0.05) + 'px)';
+          ticking = false;
+        });
+        ticking = true;
       }
-    });
-    document.querySelectorAll('.accent-chip').forEach(function (el) {
-      el.setAttribute('aria-pressed', el.getAttribute('data-accent') === name ? 'true' : 'false');
-    });
-    try { localStorage.setItem('ap-accent', name); } catch (e) {}
+    }, { passive: true });
   }
-  document.querySelectorAll('.accent-chip').forEach(function (el) {
-    el.addEventListener('click', function () { setAccent(el.getAttribute('data-accent')); });
-  });
 
-  /* ---- Candidatas de cor ---- */
-  var candidates = [
-    { id: 'indigo', name: 'Índigo', rec: true,
-      note: 'A vibração do roxo com leitura de confiança — o meio-termo ideal.',
-      scale: ['#4338CA','#4F46E5','#6366F1','#818CF8','#A5B4FC'] },
-    { id: 'eletrico', name: 'Azul Elétrico', rec: false,
-      note: 'Máxima confiança e energia — o azul das referências Zentra.',
-      scale: ['#1D4ED8','#2563EB','#3B82F6','#60A5FA','#93C5FD'] },
-    { id: 'violeta', name: 'Violeta', rec: false,
-      note: 'O roxo pleno — diferenciação máxima, tom mais criativo.',
-      scale: ['#6D28D9','#7C3AED','#8B5CF6','#A78BFA','#C4B5FD'] },
-    { id: 'mare', name: 'Maré saturada', rec: false,
-      note: 'Mantém a identidade atual do app, com o dobro de saturação.',
-      scale: ['#0E7490','#0891B2','#06B6D4','#22D3EE','#67E8F9'] }
-  ];
-  var candHost = document.getElementById('candidates');
-  candidates.forEach(function (c) {
-    var row = document.createElement('div');
-    row.className = 'cand-row';
-    var info = document.createElement('div');
-    info.className = 'cand-info';
-    info.innerHTML = '<div class="nm">' + c.name + (c.rec ? ' <span class="rec-mini">Recomendada</span>' : '') + '</div>' +
-                     '<div class="note">' + c.note + '</div>';
-    var scale = document.createElement('div');
-    scale.className = 'cand-scale';
-    c.scale.forEach(function (hex) {
-      var s = document.createElement('button');
-      s.style.background = hex;
-      s.title = hex;
-      s.setAttribute('aria-label', 'Copiar ' + hex);
-      s.addEventListener('click', function () {
-        var done = function () { showToast('Copiado: ' + hex, 'info'); };
+  /* ---- Swatches ---- */
+  function buildSwatches(list, mount) {
+    var host = document.getElementById(mount);
+    list.forEach(function (s) {
+      var b = document.createElement('button');
+      b.className = 'swatch';
+      b.setAttribute('aria-label', 'Copiar ' + s[1]);
+      b.innerHTML = '<div class="chip-color" style="background:' + s[1] + '"></div>' +
+                    '<div class="nm">' + s[0] + '</div><div class="hx">' + s[1] + '</div>';
+      b.addEventListener('click', function () {
+        var done = function () { showToast('Copiado: ' + s[1], 'info'); };
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(hex).then(done, done);
+          navigator.clipboard.writeText(s[1]).then(done, done);
         } else { done(); }
       });
-      scale.appendChild(s);
+      host.appendChild(b);
     });
-    var apply = document.createElement('button');
-    apply.className = 'btn btn-outline btn-sm cand-apply';
-    apply.setAttribute('data-accent-btn', c.id);
-    apply.textContent = 'Aplicar';
-    apply.addEventListener('click', function () { setAccent(c.id); });
-    row.appendChild(info); row.appendChild(scale); row.appendChild(apply);
-    candHost.appendChild(row);
-  });
-  var savedAccent = null;
-  try { savedAccent = localStorage.getItem('ap-accent'); } catch (e) {}
-  setAccent(savedAccent || 'indigo');
+  }
+  buildSwatches([
+    ['brand-700','#1D4ED8'],['brand-600','#2563EB'],['brand-500','#3B82F6'],
+    ['brand-400','#60A5FA'],['brand-300','#93C5FD']
+  ], 'brandSwatches');
+  buildSwatches([
+    ['ember-400','#FB923C'],['ember-500','#F97316'],['ember-600','#EA580C'],['cyan-400','#22D3EE']
+  ], 'accentSwatches');
 
   /* ---- Score bars animam ao entrar na viewport ---- */
   var io = new IntersectionObserver(function (entries) {
@@ -1517,7 +1299,6 @@ code, .mono { font-family: var(--font-mono); }
   /* ---- Search progress steps ---- */
   var steps = ['Consultando Receita Federal…', 'Verificando Reclame Aqui…', 'Cruzando avaliações do Google…', 'Checando presença digital…'];
   var si = 0;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!reduce) {
     setInterval(function () {
       si = (si + 1) % steps.length;
