@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"LOBO MOTION HARNESS ativo. Antes de construir ou mexer em qualquer efeito visual (shader, partículas, canvas, three.js, motion): leia ${CLAUDE_PLUGIN_ROOT}/vault/workflows/ai-agent-guide.md (as hard rules) e consulte ${CLAUDE_PLUGIN_ROOT}/vault/effect-catalog.md antes de começar do zero. Todo efeito nasce de um CONFIG; cores, contagens e intensidades nunca ficam literais no shader. Rode ${CLAUDE_PLUGIN_ROOT}/scripts/verify-motion.sh antes de reportar done.\"}}'",
+            "statusMessage": "Carregando o Lobo Motion Harness"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.glsl|*.frag|*.vert) if command -v glslangValidator >/dev/null 2>&1; then glslangValidator \"$f\" >/tmp/lobo-glsl.log 2>&1 || { echo \"GLSL inválido em $f:\"; cat /tmp/lobo-glsl.log; }; fi;; esac; exit 0"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "M=\"${TMPDIR:-/tmp}/lobo-motion-stop-$(jq -r '.session_id // \"x\"')\"; if [ -f \"$M\" ]; then rm -f \"$M\"; exit 0; fi; if git diff --name-only HEAD 2>/dev/null | grep -qiE 'effects?/|shader|scene|preset|config\\.json|\\.glsl|\\.frag|\\.vert'; then touch \"$M\"; echo '{\"decision\":\"block\",\"reason\":\"Antes de encerrar: este turno mudou um efeito, preset ou shader. Atualize vault/effect-catalog.md (CONFIG, screenshot, prompt, tags) e, se algo foi medido, vault/fix-catalog.md. Se o catálogo já reflete tudo, pode encerrar.\"}'; fi; exit 0",
+            "statusMessage": "Conferindo se o catálogo de efeitos está em dia"
+          }
+        ]
+      }
+    ]
+  }
+}

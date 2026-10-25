@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Particle Forms · Lobo Motion</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #05060a; }
+  .scene { position: relative; width: 100%; height: 100lvh; overflow: hidden; transform: translateZ(0); }
+  .scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .fallback { position: absolute; inset: 0; display: none; background: radial-gradient(60% 60% at 50% 50%, var(--ca, #25B8FF) 0%, var(--cb, #B04DFF) 35%, #05060a 75%); opacity: 0.6; }
+  .scene.static .fallback { display: block; }
+  .scene.static canvas { display: none; }
+</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+</head>
+<body>
+<div class="scene" data-lobo-scene>
+  <canvas id="pf" aria-hidden="true"></canvas>
+  <div class="fallback" aria-hidden="true"></div>
+</div>
+<script type="module">
+// ============================================================================
+// CONFIG: a fonte da verdade. Schema em ../references/config-schema.md; formas em ../references/shapes.md
+// Simulação stateless no vertex shader (curl noise + ponteiro); GPGPU em ../references/gpgpu.md quando precisar de memória.
+// ============================================================================
+const PRESETS = {
+  "nebula-drift": { shape: "hopf",      seed: 4821, count: 180000, size: 1.95, speed: 0.45, flow: 0.35, flowScale: 1.6, pointer: 0.7, colorA: "#25B8FF", colorB: "#B04DFF", glow: 0.75, glowSpread: 0.08, glowCutoff: 0.21, autoRotate: true },
+  "ember-knot":   { shape: "torusKnot", seed: 77,   count: 160000, size: 1.8,  speed: 0.6,  flow: 0.35, flowScale: 2.2, pointer: 0.8, colorA: "#FF8A1F", colorB: "#C8320E", glow: 0.9, glowSpread: 0.12, glowCutoff: 0.18, autoRotate: true },
+  "frost-galaxy": { shape: "galaxy",    seed: 1203, count: 220000, size: 1.5,  speed: 0.3,  flow: 0.25, flowScale: 1.2, pointer: 0.5, colorA: "#8AE9C1", colorB: "#F6FFF8", glow: 0.6, glowSpread: 0.06, glowCutoff: 0.3, autoRotate: true },
+  "abyss-lorenz": { shape: "lorenz",    seed: 9,    count: 150000, size: 1.6,  speed: 0.5,  flow: 0.45, flowScale: 1.0, pointer: 0.6, colorA: "#3A0CA3", colorB: "#F72585", glow: 0.8, glowSpread: 0.1,  glowCutoff: 0.2, autoRotate: true }
+};
+const CONFIG = {
+  preset: "nebula-drift",
+  shape: "hopf",            // torusKnot | hopf | lotus | galaxy | sphere | lorenz | aizawa | thomas
+  seed: 4821, count: 180000, size: 1.95, speed: 0.45,
+  flow: 0.35, flowScale: 1.6, pointer: 0.7, pointerRadius: 1.2,
+  colorA: "#25B8FF", colorB: "#B04DFF",
+  glow: 0.75, glowSpread: 0.08, glowCutoff: 0.21,
+  autoRotate: true, rotateSpeed: 0.08, dprMax: 1.5
+};
+
+const scene = document.querySelector("[data-lobo-scene]");
+const canvas = document.getElementById("pf");
+const motionOff = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const coarse = matchMedia("(hover: none) and (pointer: coarse)").matches;
+const isBot = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed/i.test(navigator.userAgent);
+const stats = { frames: 0, draws: 0, links: 0, lost: 0, restored: 0, resizes: 0, tier: "" };
+const cfg = Object.assign({}, CONFIG);
+let dirty = true;
+function setConfig(changes) { const ignored = []; for (const k in changes) { if (k in cfg) cfg[k] = changes[k]; else ignored.push(k); } dirty = true; if (ready) { applyConfig(); schedule(); } return { ignored }; }
+const params = new URLSearchParams(location.search);
+if (params.get("preset") && PRESETS[params.get("preset")]) { cfg.preset = params.get("preset"); setConfig(PRESETS[cfg.preset]); }
+if (params.get("s")) { try { setConfig(JSON.parse(atob(params.get("s").replace(/-/g, "+").replace(/_/g, "/")))); } catch (e) {} }
+function exportState() { return location.origin + location.pathname + "?s=" + btoa(JSON.stringify(cfg)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+window.__lobo = { config: cfg, presets: PRESETS, stats, setConfig, exportState, family: "particle-forms" };
+scene.style.setProperty("--ca", cfg.colorA); scene.style.setProperty("--cb", cfg.colorB);
+let ready = false;
+
+if (isBot) { scene.classList.add("static"); }
+else { boot().catch((e) => { console.error(e); scene.classList.add("static"); }); }
+
+// ---------------------------------------------------------------------------
+// Formas por fórmula, com seed (ver references/shapes.md)
+// ---------------------------------------------------------------------------
+function rng(seed) { let a = seed >>> 0; return () => { a += 0x6D2B79F5; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const gauss = (r) => { const u = 1 - r(), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(6.28318 * v); };
+const SHAPES = {
+  torusKnot(N, seed) { const r0 = rng(seed), o = new Float32Array(N * 3), p = 2, q = 3, R = 1.0, r = 0.42, tube = 0.08;
+    for (let i = 0; i < N; i++) { const t = r0() * 6.28318, s = r0() * 6.28318, k = tube * Math.sqrt(r0()); const cx = (R + r * Math.cos(q * t)) * Math.cos(p * t), cy = (R + r * Math.cos(q * t)) * Math.sin(p * t), cz = r * Math.sin(q * t); o.set([cx + k * Math.cos(s), cy + k * Math.sin(s), cz + k * Math.sin(s) * 0.7], i * 3); } return o; },
+  hopf(N, seed) { const r0 = rng(seed), o = new Float32Array(N * 3), rings = 7, scale = 0.55;
+    for (let i = 0; i < N; i++) { const ring = Math.floor(r0() * rings), eta = ((ring + 0.5) / rings) * 1.5708 * 0.92 + 0.04, xi1 = r0() * 6.28318, xi2 = r0() * 6.28318;
+      const x1 = Math.cos(eta) * Math.cos(xi1), x2 = Math.cos(eta) * Math.sin(xi1), x3 = Math.sin(eta) * Math.cos(xi2), x4 = Math.sin(eta) * Math.sin(xi2), d = 1 / (1.001 - x4 * 0.85);
+      o.set([x1 * d * scale, x2 * d * scale, x3 * d * scale], i * 3); } return o; },
+  lotus(N, seed) { const r0 = rng(seed), o = new Float32Array(N * 3), petals = 6;
+    for (let i = 0; i < N; i++) { const a = r0() * 6.28318, u = Math.sqrt(r0()), rad = Math.abs(Math.cos(petals * a * 0.5)) * 1.2 * u + 0.05; o.set([rad * Math.cos(a), rad * Math.sin(a), 0.6 * u * u * (0.5 + 0.5 * Math.cos(petals * a)) - 0.2], i * 3); } return o; },
+  galaxy(N, seed) { const r0 = rng(seed), o = new Float32Array(N * 3), arms = 3, twist = 2.4;
+    for (let i = 0; i < N; i++) { if (r0() < 0.15) { const g = gauss(r0) * 0.12, a = r0() * 6.28318; o.set([g * Math.cos(a), g * Math.sin(a), gauss(r0) * 0.08], i * 3); continue; }
+      const arm = Math.floor(r0() * arms), d = Math.pow(r0(), 0.7) * 1.4, a = (arm / arms) * 6.28318 + d * twist + gauss(r0) * 0.12 * (0.3 + d);
+      o.set([d * Math.cos(a) + gauss(r0) * 0.03, d * Math.sin(a) + gauss(r0) * 0.03, gauss(r0) * 0.03 / (0.3 + d)], i * 3); } return o; },
+  sphere(N, seed) { const r0 = rng(seed), o = new Float32Array(N * 3); for (let i = 0; i < N; i++) { const z = r0() * 2 - 1, a = r0() * 6.28318, rr = Math.sqrt(1 - z * z), k = 1 + (r0() - 0.5) * 0.1; o.set([rr * Math.cos(a) * k, rr * Math.sin(a) * k, z * k], i * 3); } return o; },
+  lorenz: (N, seed) => integrate(N, seed, (x, y, z, dt) => [x + 10 * (y - x) * dt, y + (x * (28 - z) - y) * dt, z + (x * y - 2.6667 * z) * dt], { dt: 0.004, scale: [0.045, 0.045, 0.04], zOff: -1.0, start: (r) => [r() * 2 - 1, r() * 2 - 1, 20 + r() * 10] }),
+  aizawa: (N, seed) => integrate(N, seed, (x, y, z, dt) => [x + ((z - 0.7) * x - 3.5 * y) * dt, y + (3.5 * x + (z - 0.7) * y) * dt, z + (0.6 + 0.95 * z - z * z * z / 3 - (x * x + y * y) * (1 + 0.25 * z) + 0.1 * z * x * x * x) * dt], { dt: 0.01, scale: [0.6, 0.6, 0.6], zOff: 0, start: (r) => [0.1 + r() * 0.1, r() * 0.1, r() * 0.1] }),
+  thomas: (N, seed) => integrate(N, seed, (x, y, z, dt) => [x + (Math.sin(y) - 0.208186 * x) * dt, y + (Math.sin(z) - 0.208186 * y) * dt, z + (Math.sin(x) - 0.208186 * z) * dt], { dt: 0.05, scale: [0.25, 0.25, 0.25], zOff: 0, start: (r) => [r() * 2 - 1, r() * 2 - 1, r() * 2 - 1] })
+};
+function integrate(N, seed, f, { dt, scale, zOff, start, burn = 2000, stride = 2, trails = 24 }) {
+  const r0 = rng(seed), o = new Float32Array(N * 3), per = Math.ceil(N / trails); let k = 0;
+  for (let t = 0; t < trails && k < N; t++) { let [x, y, z] = start(r0); for (let i = 0; i < burn; i++) [x, y, z] = f(x, y, z, dt);
+    for (let i = 0; i < per && k < N; i++) { for (let s = 0; s < stride; s++) [x, y, z] = f(x, y, z, dt); o.set([x * scale[0], y * scale[1], z * scale[2] + zOff], k * 3); k++; } }
+  return o;
+}
+
+// ---------------------------------------------------------------------------
+// Shaders: curl noise (Ashima simplex 3D) no vertex, disco suave aditivo no fragment
+// ---------------------------------------------------------------------------
+const NOISE = `
+vec4 mod289(vec4 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; } vec3 mod289(vec3 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec4 permute(vec4 x){ return mod289(((x * 34.0) + 1.0) * x); } vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314 * r; }
+float snoise(vec3 v){ const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0); const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+  vec3 i = floor(v + dot(v, C.yyy)); vec3 x0 = v - i + dot(i, C.xxx); vec3 g = step(x0.yzx, x0.xyz); vec3 l = 1.0 - g; vec3 i1 = min(g.xyz, l.zxy); vec3 i2 = max(g.xyz, l.zxy);
+  vec3 x1 = x0 - i1 + C.xxx; vec3 x2 = x0 - i2 + C.yyy; vec3 x3 = x0 - D.yyy; i = mod289(i);
+  vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+  float n_ = 0.142857142857; vec3 ns = n_ * D.wyz - D.xzx; vec4 j = p - 49.0 * floor(p * ns.z * ns.z); vec4 x_ = floor(j * ns.z); vec4 y_ = floor(j - 7.0 * x_);
+  vec4 x = x_ * ns.x + ns.yyyy; vec4 y = y_ * ns.x + ns.yyyy; vec4 h = 1.0 - abs(x) - abs(y); vec4 b0 = vec4(x.xy, y.xy); vec4 b1 = vec4(x.zw, y.zw);
+  vec4 s0 = floor(b0) * 2.0 + 1.0; vec4 s1 = floor(b1) * 2.0 + 1.0; vec4 sh = -step(h, vec4(0.0)); vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy; vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+  vec3 p0 = vec3(a0.xy, h.x); vec3 p1 = vec3(a0.zw, h.y); vec3 p2 = vec3(a1.xy, h.z); vec3 p3 = vec3(a1.zw, h.w);
+  vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3))); p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+  vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0); m = m * m; return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3))); }
+vec3 pot(vec3 p){ return vec3(snoise(p), snoise(p + vec3(31.416)), snoise(p - vec3(47.853))); }
+vec3 curlNoise(vec3 p){ const float e = 0.1; vec3 dx = vec3(e, 0.0, 0.0), dy = vec3(0.0, e, 0.0), dz = vec3(0.0, 0.0, e);
+  vec3 px0 = pot(p - dx), px1 = pot(p + dx), py0 = pot(p - dy), py1 = pot(p + dy), pz0 = pot(p - dz), pz1 = pot(p + dz);
+  return vec3((py1.z - py0.z) - (pz1.y - pz0.y), (pz1.x - pz0.x) - (px1.z - px0.z), (px1.y - px0.y) - (py1.x - py0.x)) / (2.0 * e); }`;
+const VERT = NOISE + `
+uniform float uTime, uFlow, uFlowScale, uSize, uPixelScale, uPointer, uPointerRadius; uniform vec3 uPointerPos;
+attribute float aRandom; varying float vMix, vFade;
+void main(){
+  vec3 c = curlNoise(position * uFlowScale + uTime * 0.15 + aRandom * 0.05);
+  vec3 p = position + c * uFlow * 0.25 * (0.5 + aRandom);
+  vec3 d = p - uPointerPos; float l = length(d);
+  float push = uPointer * smoothstep(uPointerRadius, 0.0, l) * 0.6;
+  p += normalize(d + 1e-4) * push;
+  vMix = clamp(length(c) * 0.45 + push * 1.5, 0.0, 1.0);
+  vFade = 0.35 + 0.65 * aRandom;
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_PointSize = uSize * uPixelScale * (0.5 + 0.5 * aRandom) * (3.0 / -mv.z);
+  gl_Position = projectionMatrix * mv;
+}`;
+const FRAG = `
+uniform vec3 uColorA, uColorB; varying float vMix, vFade;
+void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.12, d) * vFade; if (a < 0.01) discard; gl_FragColor = vec4(mix(uColorA, uColorB, vMix) * a, a); }`;
+
+// ---------------------------------------------------------------------------
+// Cena
+// ---------------------------------------------------------------------------
+let THREE, renderer, composer, bloom, camera, points, material, geometry, stage;
+let raf = 0, last = performance.now(), time = 0, visible = !document.hidden, inView = true, w = 0, h = 0, dpr = 0;
+const pointerTarget = { x: 0, y: 0, z: 0, active: false }, pointerPos = { x: 99, y: 99, z: 99 };
+
+function tier() { const t = coarse ? "phone" : (window.innerWidth < 1024 ? "tablet" : "desktop"); stats.tier = t; return { name: t, countMul: t === "phone" ? 0.33 : t === "tablet" ? 0.6 : 1, dprMax: t === "phone" ? 1.25 : 1.5, bloomMul: t === "phone" ? 0.5 : 1, pointer: t === "desktop" }; }
+
+async function boot() {
+  THREE = await import("three");
+  const [{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }] = await Promise.all([
+    import("three/addons/postprocessing/EffectComposer.js"), import("three/addons/postprocessing/RenderPass.js"),
+    import("three/addons/postprocessing/UnrealBloomPass.js"), import("three/addons/postprocessing/OutputPass.js")]);
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, depth: false, stencil: false, powerPreference: coarse ? "default" : "high-performance" });
+  renderer.setClearColor(0x05060a, 1); renderer.debug.checkShaderErrors = false;
+  stage = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 50); camera.position.set(0, 0, 3.4);
+  // buffer alocado no tier maior; o tier só muda o drawRange
+  geometry = new THREE.BufferGeometry();
+  material = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+    uniforms: { uTime: { value: 0 }, uFlow: { value: 1 }, uFlowScale: { value: 1 }, uSize: { value: 1 }, uPixelScale: { value: 1 }, uPointer: { value: 0 }, uPointerRadius: { value: 1 }, uPointerPos: { value: new THREE.Vector3(99, 99, 99) }, uColorA: { value: new THREE.Color() }, uColorB: { value: new THREE.Color() } } });
+  points = new THREE.Points(geometry, material); points.frustumCulled = false; stage.add(points);
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(stage, camera));
+  bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 1, 0.1, 0.2); composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+  applyConfig();
+  canvas.addEventListener("webglcontextlost", () => { stats.lost++; if (raf) cancelAnimationFrame(raf); raf = 0; });   // three já faz preventDefault
+  canvas.addEventListener("webglcontextrestored", () => { stats.restored++; w = h = dpr = 0; dirty = true; schedule(); });
+  new IntersectionObserver((es) => { inView = es[0].isIntersecting; if (inView) schedule(); }, { rootMargin: "100% 0px" }).observe(scene);
+  document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });
+  window.addEventListener("resize", () => { dirty = true; schedule(); }, { passive: true });
+  if (tier().pointer) {
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), hit = new THREE.Vector3();
+    window.addEventListener("pointermove", (e) => {
+      const r = scene.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, camera); if (ray.ray.intersectPlane(plane, hit)) { points.worldToLocal(hit); pointerTarget.x = hit.x; pointerTarget.y = hit.y; pointerTarget.z = hit.z; pointerTarget.active = true; schedule(); }
+    }, { passive: true });
+  }
+  resize(); composer.render(); stats.links = renderer.info.programs.length;   // pré-aquece: tudo compila antes do primeiro frame visível
+  ready = true; schedule();
+}
+
+function applyConfig() {
+  const T = tier(), N = Math.max(1000, Math.floor(cfg.count));
+  if (!geometry.getAttribute("position") || geometry.getAttribute("position").count !== N || geometry.userData.key !== cfg.shape + ":" + cfg.seed) {
+    const gen = SHAPES[cfg.shape] || SHAPES.hopf, base = gen(N, cfg.seed), r0 = rng(cfg.seed + 1), rnd = new Float32Array(N); for (let i = 0; i < N; i++) rnd[i] = r0();
+    geometry.setAttribute("position", new THREE.BufferAttribute(base, 3)); geometry.setAttribute("aRandom", new THREE.BufferAttribute(rnd, 1)); geometry.userData.key = cfg.shape + ":" + cfg.seed;
+  }
+  geometry.setDrawRange(0, Math.floor(N * T.countMul));
+  const u = material.uniforms; u.uFlow.value = cfg.flow; u.uFlowScale.value = cfg.flowScale; u.uSize.value = cfg.size; u.uPointer.value = T.pointer ? cfg.pointer : 0; u.uPointerRadius.value = cfg.pointerRadius;
+  u.uColorA.value.set(cfg.colorA); u.uColorB.value.set(cfg.colorB);
+  bloom.strength = cfg.glow * T.bloomMul; bloom.radius = cfg.glowSpread * T.bloomMul; bloom.threshold = cfg.glowCutoff; bloom.enabled = bloom.strength > 0.001;
+  scene.style.setProperty("--ca", cfg.colorA); scene.style.setProperty("--cb", cfg.colorB);
+}
+function resize() {
+  const r = scene.getBoundingClientRect(), T = tier();
+  const d = Math.min(cfg.dprMax, T.dprMax, window.devicePixelRatio || 1), nw = Math.max(1, Math.round(r.width)), nh = Math.max(1, Math.round(r.height));
+  if (nw === w && nh === h && d === dpr) return false;
+  w = nw; h = nh; dpr = d; stats.resizes++;
+  renderer.setPixelRatio(d); renderer.setSize(w, h, false); composer.setPixelRatio(d); composer.setSize(w, h);
+  camera.aspect = w / h; camera.updateProjectionMatrix(); material.uniforms.uPixelScale.value = d;
+  return true;
+}
+function frame(now) {
+  raf = 0;
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (!motionOff) { time += dt * cfg.speed; if (cfg.autoRotate) points.rotation.y += cfg.rotateSpeed * dt; }
+  const k = 1 - Math.pow(1 - 0.15, dt * 60);   // easing independente do refresh rate
+  if (pointerTarget.active) { pointerPos.x += (pointerTarget.x - pointerPos.x) * k; pointerPos.y += (pointerTarget.y - pointerPos.y) * k; pointerPos.z += (pointerTarget.z - pointerPos.z) * k; material.uniforms.uPointerPos.value.set(pointerPos.x, pointerPos.y, pointerPos.z); }
+  const resized = resize();
+  if (motionOff && !dirty && !resized && !pointerTarget.active) return;
+  material.uniforms.uTime.value = time;
+  composer.render(); stats.frames++; stats.drawCallsPerFrame = renderer.info.render.calls; stats.draws += renderer.info.render.calls; stats.links = renderer.info.programs.length; dirty = false;
+  if (visible && inView && (!motionOff || pointerTarget.active)) raf = requestAnimationFrame(frame);
+}
+function schedule() { if (!raf && visible && inView && ready) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+</script>
+</body>
+</html>

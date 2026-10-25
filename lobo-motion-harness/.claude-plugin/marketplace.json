@@ -1,0 +1,17 @@
+{
+  "name": "lobo-motion-harness",
+  "owner": { "name": "Vítor Lobo", "url": "https://github.com/vitorthelobo" },
+  "metadata": {
+    "description": "Harness de Claude Code para efeitos visuais de interface no nível GetLayers: shaders, partículas, orbs, materiais, texto e cursores, com QA medido e exportação como prompt."
+  },
+  "plugins": [
+    {
+      "name": "lobo-motion",
+      "source": "./plugins/lobo-motion",
+      "description": "Skills, agents, commands, rules, hooks e ferramentas de QA para construir efeitos visuais (WebGL, three.js, springs) com CONFIG-first e exportação como build prompt.",
+      "version": "0.1.0",
+      "author": { "name": "Vítor Lobo" },
+      "keywords": ["webgl", "three", "shaders", "particles", "motion", "ui-effects", "getlayers"]
+    }
+  ]
+}
