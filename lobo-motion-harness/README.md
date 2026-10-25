@@ -28,7 +28,8 @@ lobo-motion-harness/
 | `shader-background` | **Pronta.** Template WebGL2 testado pelas 4 sondas (1 programa, reduced motion assenta, bot sem WebGL, contexto volta). 4 presets. Cookbook GLSL e schema. |
 | `particle-forms` | **Pronta.** Template three.js testado, 8 formas com seed, curl noise, bloom por knobs, tiers. 4 presets. Geradores e GPGPU documentados. |
 | `effect-tool-ui`, `build-prompt`, `qa-motion`, `optimize-3d-scene`, `catalog-entry` | **Prontas** como procedimento; o contrato `window.__lobo` já está nos dois templates. |
-| `orb-reactive`, `holo-material`, `text-motion`, `cursor-fx`, `post-image-fx` | **Procedurais.** SKILL.md completo com CONFIG, algoritmo e verificação; o template de cada uma entra quando o primeiro preset passar pelo `visual-judge` e pelo `qa-motion`. |
+| `orb-reactive` | **Pronta.** Template WebGL2 testado: 5 presets, 6 estados com transição, áudio por microfone ou `setLevel`, modo widget (264 px) e hero (`size: 0`), fundo transparente opcional. |
+| `holo-material`, `text-motion`, `cursor-fx`, `post-image-fx` | **Procedurais.** SKILL.md completo com CONFIG, algoritmo e verificação; o template de cada uma entra quando o primeiro preset passar pelo `visual-judge` e pelo `qa-motion`. |
 | Sondas `tools/qa` | **Testadas** nos dois templates neste ambiente (Chromium headless com SwiftShader). |
 
 ## Instalar
@@ -98,7 +99,7 @@ __lobo.exportState()                // URL com ?s= que reproduz exatamente este 
 __lobo.stats                        // frames, draws, programas linkados, contextos perdidos
 ```
 
-Também dá pra abrir `standalone.html?preset=molten`.
+Também dá pra abrir `standalone.html?preset=molten`. No orb: `__lobo.setState("thinking")`, `__lobo.setLevel(0.7)` ou `__lobo.startMic()` num clique.
 
 ### 4. Derive um preset
 
@@ -142,7 +143,7 @@ Quatro agents `effect-builder` constroem quatro variações (seeds e paletas dif
 | --- | --- | --- |
 | shader-background | WebGL2 cru, CONFIG map, OKLab, grain, shapes | sim, testado |
 | particle-forms | three.js Points, formas com seed, curl noise, bloom, tiers | sim, testado |
-| orb-reactive | SDF de esfera, fbm em camadas, Web Audio, 6 estados | não |
+| orb-reactive | SDF de esfera, fbm em camadas, Web Audio, 6 estados | sim, testado |
 | holo-material | thin-film no especular, cloth verlet, DOF | não |
 | text-motion | split letra/palavra/linha, 28 presets, scroll grammar | não |
 | cursor-fx | pointer, trail, field; off em touch | não |
@@ -209,7 +210,7 @@ Todas aceitam `--url http://localhost:3000/rota` pra uma build servida. SwiftSha
 
 ## Roadmap
 
-1. Templates de `orb-reactive`, `text-motion` e `cursor-fx` (mais baratos) e depois `holo-material` e `post-image-fx`.
+1. Templates de `text-motion` e `cursor-fx` (mais baratos) e depois `holo-material` e `post-image-fx`.
 2. `effect-tool-ui` implementado no Motion Labs como Recipe com Leva, usando `window.__lobo` dos templates.
 3. Efeitos empilháveis no shader-background (luz, glass, blobs, dither, halftone), um bloco opcional do CONFIG cada.
 4. `catalog/` com 30 presets → repo próprio `lobo-layers` → MCP próprio com `search`, `tool_look` e `reproduce`.

@@ -38,5 +38,29 @@ Renderer: `skills/particle-forms/templates/standalone.html` (three.js por import
 - CONFIG: `{ "shape": "hopf", "seed": 4821, "count": 180000, "size": 1.95, "speed": 0.45, "flow": 0.35, "flowScale": 1.6, "pointer": 0.7, "pointerRadius": 1.2, "colorA": "#25B8FF", "colorB": "#B04DFF", "glow": 0.75, "glowSpread": 0.08, "glowCutoff": 0.21, "autoRotate": true, "rotateSpeed": 0.08, "dprMax": 1.5 }`
 - Presets irmãos no template: `ember-knot` (torusKnot), `frost-galaxy` (galaxy), `abyss-lorenz` (lorenz). Abra com `?preset=<nome>`.
 
+## orb-reactive
+
+Renderer: `skills/orb-reactive/templates/standalone.html`. Abra com `?preset=<nome>`, `?state=<estado>`, `?level=0.8` (teste) ou `?s=`. API: `setState`, `setLevel`, `startMic`.
+
+### core-teal
+- Eixos: 2.5d · calm · dark · motionEnergy 0.4 · density 0.4
+- CONFIG: `{ "colorBase": "#07262B", "colorInterior": "#050809", "accentDust": "#00C2A8", "accentStars": "#38E1FF", "accentAurora": "#FFC65C", "errorColor": "#FF3B30", "intensity": 0.95, "detail": 0.8, "glass": 0.35, "glow": 0.9, "speed": 0.8, "drift": 0.6, "audioBrightness": 1.2, "audioMotion": 0.55, "audioPulse": 0.85, "state": "idle", "quality": "balanced", "size": 264, "transparent": false, "grain": 0.03, "seed": 0, "dprMax": 1.5 }`
+
+### ember-core
+- Eixos: 2.5d · dramatic · dark · motionEnergy 0.5 · density 0.5
+- CONFIG: core-teal com `{ "colorBase": "#1A0A05", "colorInterior": "#0B0302", "accentDust": "#FF8A1F", "accentStars": "#FFE6A7", "accentAurora": "#C8320E", "intensity": 1.05, "detail": 0.7, "glass": 0.3, "glow": 1.0, "speed": 0.9, "drift": 0.5 }`
+
+### cyan-spiral
+- Eixos: 2.5d · electric · dark · motionEnergy 0.6 · density 0.5
+- CONFIG: core-teal com `{ "colorBase": "#04101C", "colorInterior": "#02070D", "accentDust": "#01BAEF", "accentStars": "#8AE9C1", "accentAurora": "#3A0CA3", "intensity": 1.0, "detail": 1.0, "glass": 0.4, "glow": 0.8, "speed": 1.0, "drift": 0.8 }`
+
+### violet-nebula
+- Eixos: 2.5d · dreamy · dark · motionEnergy 0.4 · density 0.6
+- CONFIG: core-teal com `{ "colorBase": "#0A0014", "colorInterior": "#06000C", "accentDust": "#7209B7", "accentStars": "#F72585", "accentAurora": "#4CC9F0", "intensity": 1.1, "detail": 0.9, "glass": 0.35, "glow": 1.1, "speed": 0.7, "drift": 0.7 }`
+
+### aurora-field
+- Eixos: 2.5d · calm · dark · motionEnergy 0.3 · density 0.4
+- CONFIG: core-teal com `{ "colorBase": "#061410", "colorInterior": "#03090A", "accentDust": "#19B5A8", "accentStars": "#C5F2E6", "accentAurora": "#9D4EDD", "intensity": 0.9, "detail": 0.6, "glass": 0.45, "glow": 0.85, "speed": 0.6, "drift": 0.9 }`
+
 ## Famílias sem preset ainda
-orb-reactive · holo-material · text-motion · cursor-fx · post-image-fx. Cada uma tem SKILL.md com o procedimento; o primeiro preset de cada entra aqui quando passar pelo `visual-judge` e pelo `qa-motion`.
+holo-material · text-motion · cursor-fx · post-image-fx. Cada uma tem SKILL.md com o procedimento; o primeiro preset de cada entra aqui quando passar pelo `visual-judge` e pelo `qa-motion`.

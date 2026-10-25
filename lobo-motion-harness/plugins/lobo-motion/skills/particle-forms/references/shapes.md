@@ -16,7 +16,7 @@ const gauss = (r) => { const u = 1 - r(), v = r(); return Math.sqrt(-2 * Math.lo
 
 ```js
 // nó tórico (p, q): a forma mais reconhecível; tube espalha a seção
-export function torusKnot(N, seed, { p = 2, q = 3, R = 1.0, r = 0.42, tube = 0.08 } = {}) {
+export function torusKnot(N, seed, { p = 2, q = 3, R = 0.78, r = 0.33, tube = 0.07 } = {}) {
   const r0 = rng(seed), out = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
     const t = r0() * Math.PI * 2, s = r0() * Math.PI * 2, k = tube * Math.sqrt(r0());
@@ -33,7 +33,7 @@ export function hopf(N, seed, { rings = 7, scale = 0.55 } = {}) {
     const ring = Math.floor(r0() * rings), eta = ((ring + 0.5) / rings) * (Math.PI / 2) * 0.92 + 0.04;
     const xi1 = r0() * Math.PI * 2, xi2 = r0() * Math.PI * 2;
     const x1 = Math.cos(eta) * Math.cos(xi1), x2 = Math.cos(eta) * Math.sin(xi1), x3 = Math.sin(eta) * Math.cos(xi2), x4 = Math.sin(eta) * Math.sin(xi2);
-    const d = 1 / (1.001 - x4 * 0.85);   // projeção estereográfica amortecida (evita fibras no infinito)
+    const d = 1 / (1.05 - x4 * 0.6);   // projeção estereográfica amortecida: raio máximo ~1.2, nada vai pro infinito
     out.set([x1 * d * scale, x2 * d * scale, x3 * d * scale], i * 3);
   }
   return out;

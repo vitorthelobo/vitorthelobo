@@ -47,7 +47,7 @@ const coarse = matchMedia("(hover: none) and (pointer: coarse)").matches;
 const isBot = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed/i.test(navigator.userAgent);
 const stats = { frames: 0, draws: 0, links: 0, lost: 0, restored: 0, resizes: 0, tier: "" };
 const cfg = Object.assign({}, CONFIG);
-let dirty = true;
+let dirty = true, ready = false;   // antes de setConfig: evita TDZ quando a URL traz ?preset= ou ?s=
 function setConfig(changes) { const ignored = []; for (const k in changes) { if (k in cfg) cfg[k] = changes[k]; else ignored.push(k); } dirty = true; if (ready) { applyConfig(); schedule(); } return { ignored }; }
 const params = new URLSearchParams(location.search);
 if (params.get("preset") && PRESETS[params.get("preset")]) { cfg.preset = params.get("preset"); setConfig(PRESETS[cfg.preset]); }
@@ -55,7 +55,6 @@ if (params.get("s")) { try { setConfig(JSON.parse(atob(params.get("s").replace(/
 function exportState() { return location.origin + location.pathname + "?s=" + btoa(JSON.stringify(cfg)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
 window.__lobo = { config: cfg, presets: PRESETS, stats, setConfig, exportState, family: "particle-forms" };
 scene.style.setProperty("--ca", cfg.colorA); scene.style.setProperty("--cb", cfg.colorB);
-let ready = false;
 
 if (isBot) { scene.classList.add("static"); }
 else { boot().catch((e) => { console.error(e); scene.classList.add("static"); }); }
@@ -66,11 +65,11 @@ else { boot().catch((e) => { console.error(e); scene.classList.add("static"); })
 function rng(seed) { let a = seed >>> 0; return () => { a += 0x6D2B79F5; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const gauss = (r) => { const u = 1 - r(), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(6.28318 * v); };
 const SHAPES = {
-  torusKnot(N, seed) { const r0 = rng(seed), o = new Float32Array(N * 3), p = 2, q = 3, R = 1.0, r = 0.42, tube = 0.08;
+  torusKnot(N, seed) { const r0 = rng(seed), o = new Float32Array(N * 3), p = 2, q = 3, R = 0.78, r = 0.33, tube = 0.07;
     for (let i = 0; i < N; i++) { const t = r0() * 6.28318, s = r0() * 6.28318, k = tube * Math.sqrt(r0()); const cx = (R + r * Math.cos(q * t)) * Math.cos(p * t), cy = (R + r * Math.cos(q * t)) * Math.sin(p * t), cz = r * Math.sin(q * t); o.set([cx + k * Math.cos(s), cy + k * Math.sin(s), cz + k * Math.sin(s) * 0.7], i * 3); } return o; },
   hopf(N, seed) { const r0 = rng(seed), o = new Float32Array(N * 3), rings = 7, scale = 0.55;
     for (let i = 0; i < N; i++) { const ring = Math.floor(r0() * rings), eta = ((ring + 0.5) / rings) * 1.5708 * 0.92 + 0.04, xi1 = r0() * 6.28318, xi2 = r0() * 6.28318;
-      const x1 = Math.cos(eta) * Math.cos(xi1), x2 = Math.cos(eta) * Math.sin(xi1), x3 = Math.sin(eta) * Math.cos(xi2), x4 = Math.sin(eta) * Math.sin(xi2), d = 1 / (1.001 - x4 * 0.85);
+      const x1 = Math.cos(eta) * Math.cos(xi1), x2 = Math.cos(eta) * Math.sin(xi1), x3 = Math.sin(eta) * Math.cos(xi2), x4 = Math.sin(eta) * Math.sin(xi2), d = 1 / (1.05 - x4 * 0.6);
       o.set([x1 * d * scale, x2 * d * scale, x3 * d * scale], i * 3); } return o; },
   lotus(N, seed) { const r0 = rng(seed), o = new Float32Array(N * 3), petals = 6;
     for (let i = 0; i < N; i++) { const a = r0() * 6.28318, u = Math.sqrt(r0()), rad = Math.abs(Math.cos(petals * a * 0.5)) * 1.2 * u + 0.05; o.set([rad * Math.cos(a), rad * Math.sin(a), 0.6 * u * u * (0.5 + 0.5 * Math.cos(petals * a)) - 0.2], i * 3); } return o; },
@@ -115,11 +114,12 @@ uniform float uTime, uFlow, uFlowScale, uSize, uPixelScale, uPointer, uPointerRa
 attribute float aRandom; varying float vMix, vFade;
 void main(){
   vec3 c = curlNoise(position * uFlowScale + uTime * 0.15 + aRandom * 0.05);
+  c = normalize(c + 1e-5) * min(length(c), 1.0);                       // curl limitado a 1: o flow respira em volta da forma, nunca a dissolve
   vec3 p = position + c * uFlow * 0.25 * (0.5 + aRandom);
   vec3 d = p - uPointerPos; float l = length(d);
   float push = uPointer * smoothstep(uPointerRadius, 0.0, l) * 0.6;
   p += normalize(d + 1e-4) * push;
-  vMix = clamp(length(c) * 0.45 + push * 1.5, 0.0, 1.0);
+  vMix = clamp(length(c) * 0.9 + push * 1.5, 0.0, 1.0);
   vFade = 0.35 + 0.65 * aRandom;
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_PointSize = uSize * uPixelScale * (0.5 + 0.5 * aRandom) * (3.0 / -mv.z);
@@ -146,7 +146,7 @@ async function boot() {
   renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, depth: false, stencil: false, powerPreference: coarse ? "default" : "high-performance" });
   renderer.setClearColor(0x05060a, 1); renderer.debug.checkShaderErrors = false;
   stage = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 50); camera.position.set(0, 0, 3.4);
+  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 50); camera.position.set(0, 0, 3.8);
   // buffer alocado no tier maior; o tier só muda o drawRange
   geometry = new THREE.BufferGeometry();
   material = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,

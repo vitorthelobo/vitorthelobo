@@ -12,7 +12,8 @@ uniform vec3 uPointerPos;
 attribute vec3 aBase; attribute float aRandom;
 varying float vMix;
 void main(){
-  vec3 p = aBase + curlNoise(aBase * uFlowScale + uTime * 0.12) * uFlow * (0.6 + 0.4 * aRandom);
+  vec3 c = curlNoise(aBase * uFlowScale + uTime * 0.12); c = normalize(c + 1e-5) * min(length(c), 1.0);   // limite o curl a 1 ou a forma se dissolve
+  vec3 p = aBase + c * uFlow * 0.25 * (0.6 + 0.4 * aRandom);
   vec3 d = p - uPointerPos; float l = length(d);
   p += normalize(d + 1e-4) * uPointer * smoothstep(uPointerRadius, 0.0, l);     // repulsão suave
   vMix = clamp(length(p - aBase) * 2.5, 0.0, 1.0);                                // cor pela velocidade aparente

@@ -22,7 +22,7 @@ export function args(spec = {}) {
     if (a[i].startsWith("--")) { const k = a[i].slice(2); const v = a[i + 1] && !a[i + 1].startsWith("--") ? a[++i] : "true"; out[k] = v; }
   }
   if (!out.url) { console.error("uso: --url <http://... | arquivo.html> [--out dir] [--seconds n]"); process.exit(2); }
-  if (!/^https?:/.test(out.url)) out.url = pathToFileURL(resolve(out.url)).href;
+  if (!/^https?:/.test(out.url)) { const [path, query] = out.url.split("?"); out.url = pathToFileURL(resolve(path)).href + (query ? "?" + query : ""); }
   return out;
 }
 
