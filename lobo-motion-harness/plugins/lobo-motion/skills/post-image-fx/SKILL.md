@@ -6,7 +6,9 @@ allowed-tools: Bash, Read, Grep, Glob, Edit, Write
 
 # Post image FX
 
-Três famílias, uma casca: um quad WebGL2 com a mídia como textura (`texImage2D` do `<video>` por frame, `texSubImage2D` quando o tamanho não muda) e um fragment que aplica a cadeia de efeitos na ordem do CONFIG. Dither simples pode ser Canvas 2D (é o que o GetLayers faz); ASCII e refract são shader.
+Três famílias, uma casca. um quad WebGL2 com a mídia como textura (`texImage2D` do `<video>` por frame, `texSubImage2D` quando o tamanho não muda) e um fragment que aplica a cadeia de efeitos na ordem do CONFIG. Dither simples pode ser Canvas 2D (é o que o GetLayers faz); ASCII e refract são shader.
+
+`templates/standalone.html` é a implementação de referência: um shader WebGL2 com três modos (ASCII por atlas de glifos, dither ordenado, refração por vidro procedural com dispersão por canal e parallax) e pós-efeitos single-pass; mídia por drag and drop, clique ou `loadFile`; amostra procedural quando não há arquivo. Schema em `references/config-schema.md`.
 
 ## 0. Intake
 Fonte (imagem, vídeo, webcam, ou a própria cena de outra skill), tamanho de saída, se exporta frame ou vídeo, paleta.

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cursor FX · Lobo Motion</title>
+<style>
+  :root { --bg: #0c0d12; --ink: #ece9e1; --muted: #8f93a1; --accent: #c8ff5a; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif; }
+  body.lm-hide-native, body.lm-hide-native a, body.lm-hide-native button { cursor: none; }
+  .stage { min-height: 100lvh; padding: 10vh 7vw; display: grid; align-content: center; gap: 1.4rem; position: relative; z-index: 1; }
+  .eyebrow { font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin: 0; }
+  h1 { font-size: clamp(2.2rem, 6vw, 5rem); line-height: 1.05; margin: 0; letter-spacing: -.02em; max-width: 16ch; }
+  p { color: var(--muted); max-width: 48ch; margin: 0; font-size: 1.1rem; line-height: 1.5; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: .6rem; }
+  .btn { padding: 12px 20px; border-radius: 999px; border: 1px solid #2a2d38; background: #15171d; color: var(--ink); font: 600 .95rem inherit; }
+  .btn.primary { background: var(--accent); color: #141a00; border-color: var(--accent); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 1rem; max-width: 760px; }
+  .card { padding: 18px; border-radius: 14px; border: 1px solid #2a2d38; background: #13151b; font-size: .9rem; color: var(--muted); }
+  .card b { display: block; color: var(--ink); margin-bottom: 4px; }
+  .touch-note { display: none; color: var(--muted); font-size: .85rem; }
+  body.lm-touch .touch-note { display: block; }
+  /* camadas do cursor: nunca recebem eventos, sempre acima do conteúdo */
+  #lobo-fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+  #lobo-cursor { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 60; }
+  #lobo-cursor > * { position: absolute; left: 0; top: 0; will-change: transform; }
+</style>
+</head>
+<body>
+<main class="stage" data-lobo-stage>
+  <p class="eyebrow">Lobo Motion · cursor-fx</p>
+  <h1>Mova o mouse. O cursor é parte da marca.</h1>
+  <p>Dezessete efeitos em três grupos: pointer substitui o cursor, trail deixa rastro, field faz o fundo reagir. Passe sobre os botões e cartões pra ver o hover.</p>
+  <div class="row"><button class="btn primary" type="button">Começar projeto</button><button class="btn" type="button">Ver portfólio</button><a class="btn" href="#demo">Falar com o Lobo</a></div>
+  <div class="cards" id="demo">
+    <div class="card" data-cursor="hover"><b>Branding</b>Identidade visual completa, do naming ao manual.</div>
+    <div class="card" data-cursor="hover"><b>Motion</b>Efeitos de interface que viram assinatura.</div>
+    <div class="card" data-cursor="hover"><b>IA aplicada</b>Pipelines que entregam 30 mockups em 30 minutos.</div>
+  </div>
+  <p class="touch-note">Em telas de toque o cursor custom fica desligado; o efeito demo roda sozinho só pra preview.</p>
+</main>
+<canvas id="lobo-fx" aria-hidden="true"></canvas>
+<div id="lobo-cursor" aria-hidden="true"></div>
+<script>
+// ============================================================================
+// CONFIG: a fonte da verdade. Schema em ../references/config-schema.md; presets em ../references/presets.md
+// ============================================================================
+const PRESETS = {
+  // pointer (7)
+  "dot-ring":        { group: "pointer", follow: 0.14, ringSize: 36, dotSize: 6, hoverScale: 1.9 },
+  "velocity-squish": { group: "pointer", follow: 0.18, ringSize: 30, dotSize: 0, hoverScale: 1.6 },
+  "crosshair-hud":   { group: "pointer", follow: 0.3, ringSize: 18, dotSize: 2, hoverScale: 1.4 },
+  "custom-pointer":  { group: "pointer", follow: 0.35, ringSize: 22, dotSize: 0, hoverScale: 1.3 },
+  "figma-cursor":    { group: "pointer", follow: 0.25, ringSize: 22, dotSize: 0, hoverScale: 1.2 },
+  "eyes":            { group: "pointer", follow: 0.12, ringSize: 44, dotSize: 10, hoverScale: 1.3 },
+  "butterfly":       { group: "pointer", follow: 0.08, ringSize: 40, dotSize: 0, hoverScale: 1.2 },
+  // trail (7)
+  "trail":           { group: "trail", follow: 1, trailLength: 28, trailDecay: 0.82 },
+  "cascading-dots":  { group: "trail", follow: 0.3, trailLength: 14, trailDecay: 0.9 },
+  "swirl":           { group: "trail", follow: 0.2, trailLength: 8, trailDecay: 0.86 },
+  "silky-ribbon":    { group: "trail", follow: 1, trailLength: 40, trailDecay: 0.78 },
+  "pixel-trail":     { group: "trail", follow: 1, trailLength: 1, trailDecay: 0.93, fieldSpacing: 24 },
+  "fluid-smoke":     { group: "trail", follow: 1, trailLength: 1, trailDecay: 0.9 },
+  "cursor-ghost":    { group: "trail", follow: 0.06, trailLength: 1, trailDecay: 0.7 },
+  // field (3)
+  "magnet-lines":    { group: "field", follow: 0.2, fieldSpacing: 34, fieldStrength: 0.9 },
+  "ascii-field":     { group: "field", follow: 0.2, fieldSpacing: 18, fieldStrength: 0.8 },
+  "dot-grid-warp":   { group: "field", follow: 0.2, fieldSpacing: 26, fieldStrength: 0.9 }
+};
+const CONFIG = {
+  preset: "dot-ring", group: "pointer",
+  follow: 0.14, ringSize: 36, dotSize: 6, hoverScale: 1.9,
+  colorMode: "solid",          // solid | gradient | difference
+  color: "#FFFFFF", color2: "#C8FF5A",
+  trailLength: 24, trailDecay: 0.85,
+  fieldSpacing: 28, fieldStrength: 0.8,
+  hideNative: true, demo: true,   // demo: um ponteiro fantasma anda sozinho até o primeiro movimento real (preview e touch)
+  seed: 0, dprMax: 1.5
+};
+
+(function () {
+  const motionOff = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const coarse = matchMedia("(hover: none) and (pointer: coarse)").matches;
+  const isBot = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed/i.test(navigator.userAgent);
+  const stats = { frames: 0, moves: 0, demo: true, preset: "", particles: 0 };
+  const cfg = Object.assign({}, CONFIG);
+  const params = new URLSearchParams(location.search);
+  let fx = null, ready = false;
+  function setConfig(changes) { const ignored = []; for (const k in changes) { if (k in cfg) cfg[k] = changes[k]; else ignored.push(k); } if (ready) mount(); return { ignored }; }
+  function usePreset(name) { if (!PRESETS[name]) return false; cfg.preset = name; Object.assign(cfg, PRESETS[name]); return true; }
+  if (params.get("preset")) usePreset(params.get("preset")); else usePreset(cfg.preset);
+  if (params.get("s")) { try { setConfig(JSON.parse(atob(params.get("s").replace(/-/g, "+").replace(/_/g, "/")))); } catch (e) {} }
+  if (params.get("demo") === "0") cfg.demo = false;
+  function exportState() { return location.origin + location.pathname + "?s=" + btoa(JSON.stringify(cfg)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+  window.__lobo = { config: cfg, presets: PRESETS, stats, setConfig, setPreset: (n) => { if (usePreset(n)) { mount(); return true; } return false; }, exportState, family: "cursor-fx" };
+  if (isBot) return;
+  if (coarse) document.body.classList.add("lm-touch");
+
+  const layer = document.getElementById("lobo-cursor"), canvas = document.getElementById("lobo-fx"), ctx = canvas.getContext("2d");
+  const ptr = { x: innerWidth / 2, y: innerHeight / 2, lx: innerWidth / 2, ly: innerHeight / 2, vx: 0, vy: 0, moved: false, hover: false, lastMove: 0, down: false };
+  const hist = [];
+  let w = 0, h = 0, dpr = 1, raf = 0, last = performance.now(), time = 0;
+  function resize() { const d = Math.min(cfg.dprMax, 1.5, devicePixelRatio || 1); const nw = Math.round(innerWidth * d), nh = Math.round(innerHeight * d); if (nw === w && nh === h && d === dpr) return false; w = nw; h = nh; dpr = d; canvas.width = w; canvas.height = h; ctx.setTransform(d, 0, 0, d, 0, 0); return true; }
+  const hash = (n) => { const s = Math.sin(n * 127.1 + cfg.seed) * 43758.5453; return s - Math.floor(s); };
+  const col = (t) => cfg.colorMode === "gradient" ? mixHex(cfg.color, cfg.color2, t) : cfg.color;
+  function mixHex(a, b, t) { const A = parseInt(a.slice(1), 16), B = parseInt(b.slice(1), 16); const r = ((A >> 16) & 255) + (((B >> 16) & 255) - ((A >> 16) & 255)) * t, g = ((A >> 8) & 255) + (((B >> 8) & 255) - ((A >> 8) & 255)) * t, bl = (A & 255) + ((B & 255) - (A & 255)) * t; return `rgb(${r | 0},${g | 0},${bl | 0})`; }
+  const fade = () => { ctx.globalCompositeOperation = "destination-out"; ctx.fillStyle = `rgba(0,0,0,${1 - cfg.trailDecay})`; ctx.fillRect(0, 0, innerWidth, innerHeight); ctx.globalCompositeOperation = "source-over"; };
+  const clear = () => ctx.clearRect(0, 0, innerWidth, innerHeight);
+  const el = (tag, css) => { const e = document.createElementNS(tag === "svg" ? "http://www.w3.org/2000/svg" : "http://www.w3.org/1999/xhtml", tag); if (css) e.style.cssText = css; return e; };
+
+  // ---- os 17 efeitos: cada um expõe init(), frame(dt) e destroy() ----
+  const FX = {
+    "dot-ring": () => { const dot = el("div"), ring = el("div"); return {
+      init() { layer.append(dot, ring); },
+      frame() { const s = ptr.hover ? cfg.hoverScale : 1, R = cfg.ringSize; dot.style.cssText = `width:${cfg.dotSize}px;height:${cfg.dotSize}px;border-radius:50%;background:${col(0)};transform:translate3d(${ptr.x - cfg.dotSize / 2}px,${ptr.y - cfg.dotSize / 2}px,0)`;
+        ring.style.cssText = `width:${R}px;height:${R}px;border-radius:50%;border:1.5px solid ${col(1)};mix-blend-mode:${cfg.colorMode === "difference" ? "difference" : "normal"};transform:translate3d(${ptr.lx - R / 2}px,${ptr.ly - R / 2}px,0) scale(${s});transition:scale .15s`; },
+      destroy() { dot.remove(); ring.remove(); } }; },
+    "velocity-squish": () => { const ring = el("div"); return {
+      init() { layer.append(ring); },
+      frame() { const sp = Math.hypot(ptr.vx, ptr.vy), sx = 1 + Math.min(sp / 900, 0.9), ang = Math.atan2(ptr.vy, ptr.vx), R = cfg.ringSize * (ptr.hover ? cfg.hoverScale : 1);
+        ring.style.cssText = `width:${R}px;height:${R}px;border-radius:50%;background:${col(Math.min(1, sp / 1200))};opacity:.9;transform:translate3d(${ptr.lx - R / 2}px,${ptr.ly - R / 2}px,0) rotate(${ang}rad) scale(${sx},${1 / sx})`; },
+      destroy() { ring.remove(); } }; },
+    "crosshair-hud": () => { const hx = el("div"), vy = el("div"), box = el("div"), txt = el("div"); return {
+      init() { layer.append(hx, vy, box, txt); },
+      frame() { const R = cfg.ringSize * (ptr.hover ? cfg.hoverScale : 1), c = col(0);
+        hx.style.cssText = `width:100vw;height:1px;background:${c};opacity:.35;transform:translate3d(0,${ptr.ly}px,0)`; vy.style.cssText = `width:1px;height:100vh;background:${c};opacity:.35;transform:translate3d(${ptr.lx}px,0,0)`;
+        box.style.cssText = `width:${R}px;height:${R}px;border:1px solid ${c};transform:translate3d(${ptr.lx - R / 2}px,${ptr.ly - R / 2}px,0)`;
+        txt.textContent = `${ptr.x | 0} · ${ptr.y | 0}`; txt.style.cssText = `font:10px ui-monospace,monospace;letter-spacing:.08em;color:${c};transform:translate3d(${ptr.lx + R / 2 + 8}px,${ptr.ly + R / 2 + 4}px,0)`; },
+      destroy() { hx.remove(); vy.remove(); box.remove(); txt.remove(); } }; },
+    "custom-pointer": () => { const s = el("svg"); s.setAttribute("viewBox", "0 0 24 24"); s.innerHTML = `<path d="M3 2l18 8-8 2-3 9z" fill="${cfg.color}" stroke="${cfg.color2}" stroke-width="1" stroke-linejoin="round"/>`; return {
+      init() { layer.append(s); },
+      frame() { const R = cfg.ringSize * (ptr.hover ? cfg.hoverScale : 1), tilt = Math.max(-25, Math.min(25, ptr.vx * 0.03)); s.style.cssText = `width:${R}px;height:${R}px;transform:translate3d(${ptr.lx - R * 0.12}px,${ptr.ly - R * 0.08}px,0) rotate(${tilt}deg)`; },
+      destroy() { s.remove(); } }; },
+    "figma-cursor": () => { const s = el("svg"), tag = el("div"); s.setAttribute("viewBox", "0 0 24 24"); s.innerHTML = `<path d="M3 2l18 8-8 2-3 9z" fill="${cfg.color2}" stroke="#000" stroke-width="1"/>`; tag.textContent = "vitorthelobo"; return {
+      init() { layer.append(s, tag); },
+      frame() { const R = cfg.ringSize; s.style.cssText = `width:${R}px;height:${R}px;transform:translate3d(${ptr.lx - R * 0.12}px,${ptr.ly - R * 0.08}px,0)`;
+        tag.style.cssText = `font:600 12px system-ui;padding:3px 8px;border-radius:4px;background:${cfg.color2};color:#141a00;white-space:nowrap;transform:translate3d(${ptr.lx + R * 0.7}px,${ptr.ly + R * 0.8}px,0) scale(${ptr.hover ? cfg.hoverScale * 0.6 : 1})`; },
+      destroy() { s.remove(); tag.remove(); } }; },
+    "eyes": () => { const L = el("div"), Rr = el("div"), pl = el("div"), pr = el("div"); return {
+      init() { layer.append(L, Rr, pl, pr); },
+      frame() { const R = cfg.ringSize * (ptr.hover ? cfg.hoverScale : 1), gap = R * 0.55, dx = ptr.x - ptr.lx, dy = ptr.y - ptr.ly, m = Math.hypot(dx, dy) || 1, k = Math.min(R * 0.22, m * 0.4);
+        const eye = (e, cx) => e.style.cssText = `width:${R}px;height:${R}px;border-radius:50%;background:${cfg.color};transform:translate3d(${cx - R / 2}px,${ptr.ly - R / 2}px,0)`;
+        const pup = (e, cx) => e.style.cssText = `width:${cfg.dotSize}px;height:${cfg.dotSize}px;border-radius:50%;background:#000;transform:translate3d(${cx - cfg.dotSize / 2 + dx / m * k}px,${ptr.ly - cfg.dotSize / 2 + dy / m * k}px,0)`;
+        eye(L, ptr.lx - gap); eye(Rr, ptr.lx + gap); pup(pl, ptr.lx - gap); pup(pr, ptr.lx + gap); },
+      destroy() { L.remove(); Rr.remove(); pl.remove(); pr.remove(); } }; },
+    "butterfly": () => { const a = el("div"), b = el("div"); return {
+      init() { layer.append(a, b); },
+      frame() { const R = cfg.ringSize * (ptr.hover ? cfg.hoverScale : 1), flap = 0.35 + 0.65 * Math.abs(Math.sin(time * 9)), bob = Math.sin(time * 3) * 3, c = col(0.5 + 0.5 * Math.sin(time));
+        a.style.cssText = `width:${R * 0.6}px;height:${R}px;border-radius:60% 60% 40% 40%;background:${c};opacity:.85;transform-origin:100% 50%;transform:translate3d(${ptr.lx - R * 0.6}px,${ptr.ly - R / 2 + bob}px,0) scaleX(${flap})`;
+        b.style.cssText = `width:${R * 0.6}px;height:${R}px;border-radius:60% 60% 40% 40%;background:${c};opacity:.85;transform-origin:0 50%;transform:translate3d(${ptr.lx}px,${ptr.ly - R / 2 + bob}px,0) scaleX(${flap})`; },
+      destroy() { a.remove(); b.remove(); } }; },
+    "trail": () => ({ init() {}, frame() { fade(); if (hist.length < 2) return; ctx.lineCap = "round"; for (let i = 1; i < hist.length; i++) { const t = i / hist.length; ctx.strokeStyle = col(t); ctx.globalAlpha = t; ctx.lineWidth = 1 + t * cfg.dotSize * 1.5; ctx.beginPath(); ctx.moveTo(hist[i - 1].x, hist[i - 1].y); ctx.lineTo(hist[i].x, hist[i].y); ctx.stroke(); } ctx.globalAlpha = 1; }, destroy: clear }),
+    "cascading-dots": () => { const pts = Array.from({ length: cfg.trailLength }, () => ({ x: ptr.x, y: ptr.y })); return { init() {}, frame(dt) { clear(); const k = 1 - Math.pow(1 - 0.35, dt * 60); let px = ptr.x, py = ptr.y; pts.forEach((p, i) => { p.x += (px - p.x) * k; p.y += (py - p.y) * k; px = p.x; py = p.y; const r = (cfg.dotSize + 6) * (1 - i / pts.length) + 1; ctx.fillStyle = col(i / pts.length); ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.2832); ctx.fill(); }); stats.particles = pts.length; }, destroy: clear }; },
+    "swirl": () => ({ init() {}, frame() { fade(); const n = cfg.trailLength; for (let i = 0; i < n; i++) { const a = time * 3 + i * 6.2832 / n, r = cfg.ringSize * 0.6 + Math.sin(time * 2 + i) * 6; ctx.fillStyle = col(i / n); ctx.beginPath(); ctx.arc(ptr.lx + Math.cos(a) * r, ptr.ly + Math.sin(a) * r, 2.5, 0, 6.2832); ctx.fill(); } }, destroy: clear }),
+    "silky-ribbon": () => ({ init() {}, frame() { clear(); if (hist.length < 3 || ![hist[0].x, hist[0].y, ptr.x, ptr.y].every(Number.isFinite)) return; const Wd = cfg.ringSize * 0.5; ctx.beginPath(); const L = [], Rr = []; for (let i = 1; i < hist.length; i++) { const a = hist[i - 1], b = hist[i], dx = b.x - a.x, dy = b.y - a.y, m = Math.hypot(dx, dy) || 1, t = i / hist.length, wd = Wd * Math.sin(t * Math.PI); L.push([b.x - dy / m * wd, b.y + dx / m * wd]); Rr.push([b.x + dy / m * wd, b.y - dx / m * wd]); }
+      ctx.moveTo(L[0][0], L[0][1]); L.forEach((p) => ctx.lineTo(p[0], p[1])); Rr.reverse().forEach((p) => ctx.lineTo(p[0], p[1])); ctx.closePath(); const g = ctx.createLinearGradient(hist[0].x, hist[0].y, ptr.x, ptr.y); g.addColorStop(0, "transparent"); g.addColorStop(1, col(1)); ctx.fillStyle = g; ctx.fill(); }, destroy: clear }),
+    "pixel-trail": () => { const cells = new Map(); return { init() {}, frame(dt) { clear(); const s = cfg.fieldSpacing, key = `${Math.floor(ptr.x / s)},${Math.floor(ptr.y / s)}`; if (ptr.moved || cfg.demo) cells.set(key, 1); for (const [k, v] of cells) { const [cx, cy] = k.split(",").map(Number); ctx.fillStyle = col(1 - v); ctx.globalAlpha = v; ctx.fillRect(cx * s + 1, cy * s + 1, s - 2, s - 2); const nv = v * Math.pow(cfg.trailDecay, dt * 60); if (nv < 0.02) cells.delete(k); else cells.set(k, nv); } ctx.globalAlpha = 1; stats.particles = cells.size; }, destroy: clear }; },
+    "fluid-smoke": () => { const ps = []; return { init() {}, frame(dt) { fade(); const sp = Math.hypot(ptr.vx, ptr.vy); const n = Math.min(6, sp / 120 | 0); for (let i = 0; i < n; i++) ps.push({ x: ptr.x, y: ptr.y, vx: ptr.vx * 0.05 + (hash(time * 1000 + i) - 0.5) * 60, vy: ptr.vy * 0.05 + (hash(time * 777 + i) - 0.5) * 60 - 20, life: 1, r: 6 + hash(i + time) * 10 });
+      ctx.globalCompositeOperation = "lighter"; for (let i = ps.length - 1; i >= 0; i--) { const p = ps[i]; p.life -= dt * 0.9; if (p.life <= 0) { ps.splice(i, 1); continue; } p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= Math.pow(0.9, dt * 60); p.vy *= Math.pow(0.9, dt * 60); p.r += 28 * dt; const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r); g.addColorStop(0, col(1 - p.life)); g.addColorStop(1, "transparent"); ctx.globalAlpha = p.life * 0.35; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill(); } ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; stats.particles = ps.length; }, destroy: clear }; },
+    "cursor-ghost": () => ({ init() {}, frame() { clear(); const R = cfg.ringSize * 1.2, n = 28; ctx.beginPath(); for (let i = 0; i <= n; i++) { const a = i / n * 6.2832, r = R * (1 + 0.18 * Math.sin(a * 3 + time * 2.2) + 0.1 * Math.sin(a * 5 - time * 1.7)); const x = ptr.lx + Math.cos(a) * r, y = ptr.ly + Math.sin(a) * r; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.closePath(); ctx.fillStyle = col(0.5); ctx.globalAlpha = 0.35; ctx.fill(); ctx.globalAlpha = 1; }, destroy: clear }),
+    "magnet-lines": () => ({ init() {}, frame() { clear(); const s = cfg.fieldSpacing, len = s * 0.55; ctx.lineWidth = 1.2; for (let y = s / 2; y < innerHeight; y += s) for (let x = s / 2; x < innerWidth; x += s) { const dx = ptr.lx - x, dy = ptr.ly - y, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx), inf = Math.max(0, 1 - d / 320) * cfg.fieldStrength; ctx.strokeStyle = col(inf); ctx.globalAlpha = 0.25 + inf * 0.75; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * len / 2, y - Math.sin(a) * len / 2); ctx.lineTo(x + Math.cos(a) * len / 2, y + Math.sin(a) * len / 2); ctx.stroke(); } ctx.globalAlpha = 1; }, destroy: clear }),
+    "ascii-field": () => ({ init() {}, frame() { clear(); const s = cfg.fieldSpacing, G = " .:-=+*#%@"; ctx.font = `${s * 0.8}px ui-monospace, monospace`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; for (let y = s / 2; y < innerHeight; y += s) for (let x = s / 2; x < innerWidth; x += s) { const d = Math.hypot(ptr.lx - x, ptr.ly - y), v = Math.max(0, 1 - d / 260) * cfg.fieldStrength + 0.08 * hash(x * 0.37 + y * 1.13); const ch = G[Math.min(G.length - 1, (v * G.length) | 0)]; if (ch === " ") continue; ctx.fillStyle = col(v); ctx.globalAlpha = 0.25 + v * 0.75; ctx.fillText(ch, x, y); } ctx.globalAlpha = 1; }, destroy: clear }),
+    "dot-grid-warp": () => ({ init() {}, frame() { clear(); const s = cfg.fieldSpacing; for (let y = s / 2; y < innerHeight; y += s) for (let x = s / 2; x < innerWidth; x += s) { const dx = x - ptr.lx, dy = y - ptr.ly, d = Math.hypot(dx, dy) || 1, push = Math.max(0, 1 - d / 220); const k = push * push * 48 * cfg.fieldStrength; ctx.fillStyle = col(push); ctx.globalAlpha = 0.3 + push * 0.7; ctx.beginPath(); ctx.arc(x + dx / d * k, y + dy / d * k, 1.5 + push * 2.5, 0, 6.2832); ctx.fill(); } ctx.globalAlpha = 1; }, destroy: clear })
+  };
+
+  function mount() {
+    if (fx) { fx.destroy(); fx = null; } layer.textContent = ""; clear(); hist.length = 0;
+    document.body.classList.toggle("lm-hide-native", !!cfg.hideNative && !coarse && cfg.group === "pointer");
+    if (motionOff && cfg.group !== "pointer") { cfg.preset = "dot-ring"; Object.assign(cfg, PRESETS["dot-ring"]); }
+    fx = FX[cfg.preset](); fx.init(); stats.preset = cfg.preset; stats.demo = cfg.demo && !ptr.moved; schedule();
+  }
+  function frame(now) {
+    raf = 0; const dt = Math.min(0.05, (now - last) / 1000); last = now; time += dt; resize();
+    if (cfg.demo && !ptr.moved) { const cx = innerWidth * 0.55, cy = innerHeight * 0.5; ptr.x = cx + Math.sin(time * 0.9) * innerWidth * 0.3; ptr.y = cy + Math.sin(time * 1.3 + 1) * innerHeight * 0.28; ptr.lastMove = now; }
+    const k = motionOff ? 1 : 1 - Math.pow(1 - cfg.follow, dt * 60);
+    const nx = ptr.lx + (ptr.x - ptr.lx) * k, ny = ptr.ly + (ptr.y - ptr.ly) * k; ptr.vx = (nx - ptr.lx) / Math.max(dt, 1e-3); ptr.vy = (ny - ptr.ly) / Math.max(dt, 1e-3); ptr.lx = nx; ptr.ly = ny;
+    hist.push({ x: ptr.lx, y: ptr.ly }); while (hist.length > cfg.trailLength) hist.shift();
+    fx.frame(dt); stats.frames++;
+    const idle = now - ptr.lastMove > 2000 && Math.hypot(ptr.x - ptr.lx, ptr.y - ptr.ly) < 0.2 && (stats.particles | 0) === 0 && cfg.group !== "trail";
+    if (!idle || (cfg.demo && !ptr.moved)) raf = requestAnimationFrame(frame);
+  }
+  function schedule() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+  if (!coarse) {
+    window.addEventListener("pointermove", (e) => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.moved = true; stats.demo = false; ptr.lastMove = performance.now(); stats.moves++; schedule(); }, { passive: true });
+    document.addEventListener("mouseover", (e) => { ptr.hover = !!e.target.closest("a, button, [data-cursor]"); });
+  }
+  window.addEventListener("resize", schedule, { passive: true });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) schedule(); else if (raf) { cancelAnimationFrame(raf); raf = 0; } });
+  mount(); ready = true;
+})();
+</script>
+</body>
+</html>

@@ -70,5 +70,26 @@ Renderer: `skills/text-motion/templates/standalone.html`. Abra com `?preset=<nom
 - Eixos: 2d · calm · dark · motionEnergy 0.4 · density 0.3
 - Composição: h1 `rise-settle`, eyebrow `fade-letters`, lead `fade-cascade` com delay 500, h2 abaixo da dobra `stagger-reveal-lines`, parágrafo `unblur-lines` com delay 150.
 
-## Famílias sem preset ainda
-holo-material · cursor-fx · post-image-fx. Cada uma tem SKILL.md com o procedimento; o primeiro preset de cada entra aqui quando passar pelo `visual-judge` e pelo `qa-motion`.
+## cursor-fx
+
+Renderer: `skills/cursor-fx/templates/standalone.html`. Abra com `?preset=<nome>` (17 em `skills/cursor-fx/references/presets.md`), `?demo=0` desliga o ponteiro fantasma. Cada preset é uma entrada: CONFIG = o preset mais `{ "colorMode": "solid", "color": "#FFFFFF", "color2": "#C8FF5A", "hideNative": true }`.
+
+## holo-material
+
+Renderer: `skills/holo-material/templates/standalone.html` (three.js por import map). `?preset=black-gloss|holo|chrome|oil-slick|pearl-silk|aurora-foil`. API: `poke(x, y)`, `reset()`.
+
+### holo
+- Eixos: 3d · luxurious · dark · motionEnergy 0.4 · density 0.5
+- CONFIG: `{ "baseColor": "#d9dde6", "rainbowStrength": 1.0, "patternSize": 14, "colorShift": 0.5, "glitter": 0.6, "finish": "glossy", "metallic": 0.95, "pearl": 0.1, "scratches": 0.5, "roughness": null, "clearcoat": null, "background": "#0b0c12", "brightness": 0.6, "reflections": 1.1, "toneMapping": "ACES", "cloth": { "cols": 40, "rows": 28, "stiffness": 1.0, "solverIterations": 10, "grabSize": 0.27, "wind": 0.6 }, "quality": "high", "autoSway": true, "seed": 7, "dprMax": 1.5 }`
+- Irmãos: black-gloss, chrome, oil-slick, pearl-silk, aurora-foil (diffs em `PRESETS` do template).
+
+## post-image-fx
+
+Renderer: `skills/post-image-fx/templates/standalone.html`. `?preset=terminal|amber-binary|newsprint|film-noir|toxic-grid|cyber-rain|fluted|cross-reeded|rain|frosted`. Solte uma imagem ou vídeo em cima, ou `__lobo.loadFile(file)`.
+
+### terminal
+- Eixos: 2d · electric · dark · motionEnergy 0.1 · density 0.8
+- CONFIG: `{ "mode": "ascii", "ink": "#39FF88", "paper": "#020904", "accent": "#39FF88", "exposure": 1.2, "contrast": 1.3, "ascii": { "charset": "classic70", "cellSize": 14, "glow": true, "bands": 16, "gamma": 0.7, "invert": false }, "post": { "scanlines": 0, "vignette": 0.25, "grain": 0.04, "crt": 0, "posterize": 0, "chroma": 0 } }`
+- Irmãos: amber-binary, newsprint (ascii); film-noir, toxic-grid, cyber-rain (dither); fluted, cross-reeded, rain, frosted (refract).
+
+Todas as sete famílias têm template testado. Novos presets entram aqui com screenshot e prompt. Cada uma tem SKILL.md com o procedimento; o primeiro preset de cada entra aqui quando passar pelo `visual-judge` e pelo `qa-motion`.

@@ -30,7 +30,9 @@ lobo-motion-harness/
 | `effect-tool-ui`, `build-prompt`, `qa-motion`, `optimize-3d-scene`, `catalog-entry` | **Prontas** como procedimento; o contrato `window.__lobo` já está nos dois templates. |
 | `orb-reactive` | **Pronta.** Template WebGL2 testado: 5 presets, 6 estados com transição, áudio por microfone ou `setLevel`, modo widget (264 px) e hero (`size: 0`), fundo transparente opcional. |
 | `text-motion` | **Pronta.** Template vanilla JS + CSS testado: 28 presets por letra, palavra e linha, mola própria, 4 gatilhos, texto no DOM pra SEO, reduced motion sem split. |
-| `holo-material`, `cursor-fx`, `post-image-fx` | **Procedurais.** SKILL.md completo com CONFIG, algoritmo e verificação; o template de cada uma entra quando o primeiro preset passar pelo `visual-judge` e pelo `qa-motion`. |
+| `cursor-fx` | **Pronta.** 17 efeitos em vanilla JS + CSS (pointer, trail, field), demo automático, desligado em touch. |
+| `holo-material` | **Pronta.** Tecido verlet com iridescência física do three.js, 6 presets, agarre e cutucão. |
+| `post-image-fx` | **Pronta.** ASCII, dither e refração num shader WebGL2, 10 presets, upload de imagem ou vídeo. |
 | Sondas `tools/qa` | **Testadas** nos dois templates neste ambiente (Chromium headless com SwiftShader). |
 
 ## Instalar
@@ -145,10 +147,10 @@ Quatro agents `effect-builder` constroem quatro variações (seeds e paletas dif
 | shader-background | WebGL2 cru, CONFIG map, OKLab, grain, shapes | sim, testado |
 | particle-forms | three.js Points, formas com seed, curl noise, bloom, tiers | sim, testado |
 | orb-reactive | SDF de esfera, fbm em camadas, Web Audio, 6 estados | sim, testado |
-| holo-material | thin-film no especular, cloth verlet, DOF | não |
+| holo-material | thin-film físico, cloth verlet, mapas procedurais | sim, testado |
 | text-motion | split letra/palavra/linha, 28 presets, scroll grammar | sim, testado |
-| cursor-fx | pointer, trail, field; off em touch | não |
-| post-image-fx | ASCII, dither, refract, 27 pós-efeitos | não |
+| cursor-fx | pointer, trail, field; off em touch | sim, testado |
+| post-image-fx | ASCII, dither, refract, pós-efeitos | sim, testado |
 | effect-tool-ui | painel do schema, presets, favoritos, URL, PNG/vídeo/HTML/prompt | contrato nos templates |
 | build-prompt | o formato do «Copy prompt» e o teste | — |
 | optimize-3d-scene | tiers, prewarm, DPR, fill, iOS, worker | — |
@@ -211,7 +213,7 @@ Todas aceitam `--url http://localhost:3000/rota` pra uma build servida. SwiftSha
 
 ## Roadmap
 
-1. Templates de `cursor-fx` (mais barato) e depois `holo-material` e `post-image-fx`.
+1. Stickers e artwork no tecido do `holo-material`; DOF opcional em desktop.
 2. `effect-tool-ui` implementado no Motion Labs como Recipe com Leva, usando `window.__lobo` dos templates.
 3. Efeitos empilháveis no shader-background (luz, glass, blobs, dither, halftone), um bloco opcional do CONFIG cada.
 4. `catalog/` com 30 presets → repo próprio `lobo-layers` → MCP próprio com `search`, `tool_look` e `reproduce`.

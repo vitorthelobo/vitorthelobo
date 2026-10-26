@@ -6,6 +6,8 @@ allowed-tools: Bash, Read, Grep, Glob, Edit, Write
 
 # Cursor FX
 
+`templates/standalone.html` é a implementação de referência: os 17 efeitos (7 pointer, 7 trail, 3 field) em vanilla JS + CSS, lerp por dt, hover scale, demo em Lissajous até o primeiro movimento real, nada montado em touch, um rAF que para em repouso. Schema em `references/config-schema.md`, tabela em `references/presets.md`.
+
 ## 0. Intake
 - Grupo: pointer (substitui o cursor), trail (deixa rastro) ou field (o fundo reage ao cursor).
 - Alvo: vanilla JS + CSS (default, funciona em qualquer stack) ou componente.

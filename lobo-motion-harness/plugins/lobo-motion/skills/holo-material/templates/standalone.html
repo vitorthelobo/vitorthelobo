@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holographic Cloth · Lobo Motion</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b0c12; }
+  .scene { position: relative; width: 100%; height: 100lvh; overflow: hidden; transform: translateZ(0); touch-action: pan-y; }
+  .scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+  .scene.grabbing canvas { cursor: grabbing; }
+  .fallback { position: absolute; inset: 0; display: none; background: conic-gradient(from 200deg at 50% 50%, #ff7ab6, #ffd36e, #7cf5c8, #7ab8ff, #c38bff, #ff7ab6); filter: saturate(.7) brightness(.6); }
+  .scene.static .fallback { display: block; }
+  .scene.static canvas { display: none; }
+</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+</head>
+<body>
+<div class="scene" data-lobo-scene>
+  <canvas id="holo" aria-hidden="true"></canvas>
+  <div class="fallback" aria-hidden="true"></div>
+</div>
+<script type="module">
+// ============================================================================
+// CONFIG: a fonte da verdade. Schema em ../references/config-schema.md
+// Thin-film pela iridescência física do MeshPhysicalMaterial (three r170); bandas por iridescenceThicknessMap procedural;
+// tecido por verlet com constraints estruturais e de cisalhamento; arraste pra agarrar, clique pra cutucar.
+// ============================================================================
+const PRESETS = {
+  "black-gloss":  { baseColor: "#101114", rainbowStrength: 0.9, patternSize: 8,  colorShift: 0.2, glitter: 0.0, finish: "glossy", metallic: 0.45, pearl: 0.0, scratches: 1.5, reflections: 0.9, background: "#0b0c12" },
+  "holo":         { baseColor: "#d9dde6", rainbowStrength: 1.0, patternSize: 14, colorShift: 0.5, glitter: 0.6, finish: "glossy", metallic: 0.95, pearl: 0.1, scratches: 0.5, reflections: 1.1, background: "#0b0c12" },
+  "chrome":       { baseColor: "#e8e8ec", rainbowStrength: 0.25, patternSize: 4, colorShift: 0.1, glitter: 0.0, finish: "glossy", metallic: 1.0, pearl: 0.0, scratches: 0.8, reflections: 1.3, background: "#06070a" },
+  "oil-slick":    { baseColor: "#0a0a0d", rainbowStrength: 1.0, patternSize: 22, colorShift: 0.7, glitter: 0.0, finish: "glossy", metallic: 0.2, pearl: 0.0, scratches: 0.0, reflections: 1.0, background: "#050507" },
+  "pearl-silk":   { baseColor: "#f1e9e4", rainbowStrength: 0.55, patternSize: 6, colorShift: 0.3, glitter: 0.2, finish: "satin", metallic: 0.1, pearl: 0.9, scratches: 0.0, reflections: 0.8, background: "#14101a" },
+  "aurora-foil":  { baseColor: "#0e1a1c", rainbowStrength: 1.0, patternSize: 18, colorShift: 0.85, glitter: 0.35, finish: "glossy", metallic: 0.8, pearl: 0.2, scratches: 1.0, reflections: 1.2, background: "#061010" }
+};
+const CONFIG = {
+  preset: "holo",
+  baseColor: "#d9dde6", rainbowStrength: 1.0, patternSize: 14, colorShift: 0.5, glitter: 0.6,
+  finish: "glossy",            // glossy | satin | matte
+  metallic: 0.95, pearl: 0.1, scratches: 0.5,
+  roughness: null, clearcoat: null,   // null = derivado do finish
+  background: "#0b0c12", brightness: 0.6, reflections: 1.1,
+  toneMapping: "ACES",         // ACES | AgX | Neutral
+  cloth: { cols: 40, rows: 28, stiffness: 1.0, solverIterations: 10, grabSize: 0.27, wind: 0.6 },
+  quality: "high",             // low | medium | high
+  autoSway: true, seed: 7, dprMax: 1.5
+};
+
+const scene = document.querySelector("[data-lobo-scene]"), canvas = document.getElementById("holo");
+const motionOff = matchMedia("(prefers-reduced-motion: reduce)").matches, coarse = matchMedia("(hover: none) and (pointer: coarse)").matches;
+const isBot = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed/i.test(navigator.userAgent);
+const stats = { frames: 0, links: 0, lost: 0, restored: 0, resizes: 0, particles: 0, grabbing: false, tier: "" };
+const cfg = JSON.parse(JSON.stringify(CONFIG)); let ready = false, dirty = true;
+function setConfig(changes) { const ignored = []; for (const k in changes) { if (!(k in cfg)) { ignored.push(k); continue; } if (k === "cloth" && typeof changes.cloth === "object") Object.assign(cfg.cloth, changes.cloth); else cfg[k] = changes[k]; } if (ready) { applyConfig(); schedule(); } return { ignored }; }
+const params = new URLSearchParams(location.search);
+if (params.get("preset") && PRESETS[params.get("preset")]) { cfg.preset = params.get("preset"); setConfig(PRESETS[cfg.preset]); }
+if (params.get("s")) { try { setConfig(JSON.parse(atob(params.get("s").replace(/-/g, "+").replace(/_/g, "/")))); } catch (e) {} }
+function exportState() { return location.origin + location.pathname + "?s=" + btoa(JSON.stringify(cfg)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+window.__lobo = { config: cfg, presets: PRESETS, stats, setConfig, exportState, poke: (x = 0, y = 0) => poke(x, y), reset: () => buildCloth(), family: "holo-material" };
+document.body.style.background = cfg.background;
+if (isBot) scene.classList.add("static"); else boot().catch((e) => { console.error(e); scene.classList.add("static"); });
+
+let THREE, renderer, cam, stage, mesh, mat, geo, pmrem, key;
+let raf = 0, last = performance.now(), time = 0, visible = !document.hidden, inView = true, w = 0, h = 0, dpr = 0;
+const W = 1.7, H = 1.15; let cols = 40, rows = 28, pos, prev, rest, cons, grab = null, pokeQ = [];
+const rng = (s) => () => { s += 0x6D2B79F5; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+function tier() { const t = coarse ? "phone" : (innerWidth < 1024 ? "tablet" : "desktop"); stats.tier = t; return { name: t, dprMax: t === "phone" ? 1.25 : 1.5, gridMul: t === "phone" ? 0.5 : 1, iters: t === "phone" ? 6 : 99 }; }
+
+// texturas procedurais (canvas 2D) pra espessura do filme, brilho (glitter) e riscos
+function noiseTex(size, scale, seed, fn) { const c = document.createElement("canvas"); c.width = c.height = size; const x = c.getContext("2d"), img = x.createImageData(size, size), r = rng(seed); const grid = []; const g = Math.max(2, Math.round(scale)); for (let i = 0; i < (g + 1) * (g + 1); i++) grid.push(r());
+  for (let j = 0; j < size; j++) for (let i = 0; i < size; i++) { const u = i / size * g, v = j / size * g, iu = u | 0, iv = v | 0, fu = u - iu, fv = v - iv, s = (a, b) => a + (b - a) * (fu * fu * (3 - 2 * fu)); const n = s(grid[iv * (g + 1) + iu], grid[iv * (g + 1) + iu + 1]) * (1 - fv * fv * (3 - 2 * fv)) + s(grid[(iv + 1) * (g + 1) + iu], grid[(iv + 1) * (g + 1) + iu + 1]) * (fv * fv * (3 - 2 * fv)); const px = fn(n, i, j, r); const o = (j * size + i) * 4; img.data[o] = px[0]; img.data[o + 1] = px[1]; img.data[o + 2] = px[2]; img.data[o + 3] = 255; }
+  x.putImageData(img, 0, 0); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; }
+
+async function boot() {
+  THREE = await import("three"); const { RoomEnvironment } = await import("three/addons/environments/RoomEnvironment.js");
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: coarse ? "default" : "high-performance" });
+  renderer.debug.checkShaderErrors = false; renderer.toneMappingExposure = 1;
+  stage = new THREE.Scene(); cam = new THREE.PerspectiveCamera(32, 1, 0.1, 20); cam.position.set(0, 0.05, 3.4);
+  pmrem = new THREE.PMREMGenerator(renderer); stage.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  key = new THREE.DirectionalLight(0xffffff, 1.2); key.position.set(1.5, 2, 2); stage.add(key); stage.add(new THREE.AmbientLight(0xffffff, 0.15));
+  mat = new THREE.MeshPhysicalMaterial({ side: THREE.DoubleSide, iridescence: 1, iridescenceIOR: 1.3, sheenColor: new THREE.Color(0xffffff) });
+  buildCloth(); applyConfig();
+  mesh = new THREE.Mesh(geo, mat); mesh.frustumCulled = false; stage.add(mesh);
+  canvas.addEventListener("webglcontextlost", () => { stats.lost++; if (raf) cancelAnimationFrame(raf); raf = 0; });
+  canvas.addEventListener("webglcontextrestored", () => { stats.restored++; w = h = dpr = 0; dirty = true; schedule(); });
+  new IntersectionObserver((es) => { inView = es[0].isIntersecting; if (inView) schedule(); }, { rootMargin: "100% 0px" }).observe(scene);
+  document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });
+  window.addEventListener("resize", () => { dirty = true; schedule(); }, { passive: true });
+  // ponteiro: raycast no plano z = 0 (analítico), nunca na malha
+  const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), hit = new THREE.Vector3();
+  const toPlane = (e) => { const r = scene.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, cam); return ray.ray.intersectPlane(plane, hit) ? hit : null; };
+  canvas.addEventListener("pointerdown", (e) => { const p = toPlane(e); if (!p) return; const near = nearest(p.x, p.y, cfg.cloth.grabSize); if (near.length) { grab = { ids: near, x: p.x, y: p.y }; scene.classList.add("grabbing"); stats.grabbing = true; canvas.setPointerCapture(e.pointerId); } else poke(p.x, p.y); schedule(); });
+  canvas.addEventListener("pointermove", (e) => { if (!grab) return; const p = toPlane(e); if (p) { grab.x = p.x; grab.y = p.y; schedule(); } }, { passive: true });
+  const release = () => { grab = null; scene.classList.remove("grabbing"); stats.grabbing = false; }; canvas.addEventListener("pointerup", release); canvas.addEventListener("pointercancel", release);
+  resize(); renderer.compile(stage, cam); renderer.render(stage, cam); stats.links = renderer.info.programs.length;
+  ready = true; schedule();
+}
+function buildCloth() {
+  const T = tier(); cols = Math.max(8, Math.round(cfg.cloth.cols * T.gridMul)); rows = Math.max(6, Math.round(cfg.cloth.rows * T.gridMul));
+  const n = (cols + 1) * (rows + 1); pos = new Float32Array(n * 3); prev = new Float32Array(n * 3); rest = new Float32Array(n * 3); const uv = new Float32Array(n * 2), idx = [];
+  for (let j = 0; j <= rows; j++) for (let i = 0; i <= cols; i++) { const k = j * (cols + 1) + i, x = (i / cols - 0.5) * W, y = (0.5 - j / rows) * H; pos[k * 3] = prev[k * 3] = rest[k * 3] = x; pos[k * 3 + 1] = prev[k * 3 + 1] = rest[k * 3 + 1] = y; uv[k * 2] = i / cols; uv[k * 2 + 1] = 1 - j / rows; if (i < cols && j < rows) idx.push(k, k + 1, k + cols + 1, k + 1, k + cols + 2, k + cols + 1); }
+  cons = []; const dx = W / cols, dy = H / rows, dd = Math.hypot(dx, dy);
+  for (let j = 0; j <= rows; j++) for (let i = 0; i <= cols; i++) { const k = j * (cols + 1) + i; if (i < cols) cons.push([k, k + 1, dx]); if (j < rows) cons.push([k, k + cols + 1, dy]); if (i < cols && j < rows) { cons.push([k, k + cols + 2, dd]); cons.push([k + 1, k + cols + 1, dd]); } }
+  if (!geo) geo = new THREE.BufferGeometry(); geo.setIndex(idx); geo.setAttribute("position", new THREE.BufferAttribute(pos, 3)); geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2)); geo.computeVertexNormals(); stats.particles = n;
+  if (mesh) mesh.geometry = geo;
+}
+function nearest(x, y, r) { const out = []; for (let k = 0; k < pos.length / 3; k++) { const d = Math.hypot(pos[k * 3] - x, pos[k * 3 + 1] - y); if (d < r) out.push([k, pos[k * 3] - x, pos[k * 3 + 1] - y, d / r]); } return out; }
+function poke(x, y) { pokeQ.push({ x, y, t: 0 }); schedule(); }
+function applyConfig() {
+  const fin = { glossy: [0.12, 1.0, 0.08], satin: [0.38, 0.5, 0.3], matte: [0.7, 0.0, 0.5] }[cfg.finish] || [0.12, 1, 0.08];
+  mat.color.set(cfg.baseColor); mat.metalness = cfg.metallic; mat.roughness = cfg.roughness ?? fin[0]; mat.clearcoat = cfg.clearcoat ?? fin[1]; mat.clearcoatRoughness = fin[2];
+  mat.iridescence = cfg.rainbowStrength; mat.iridescenceThicknessRange = [100 + 200 * cfg.colorShift, 400 + 900 * cfg.colorShift]; mat.sheen = cfg.pearl; mat.sheenRoughness = 0.6; mat.envMapIntensity = cfg.reflections;
+  if (mat.iridescenceThicknessMap) mat.iridescenceThicknessMap.dispose(); mat.iridescenceThicknessMap = noiseTex(256, cfg.patternSize, cfg.seed, (n) => { const v = Math.pow(n, 0.8) * 255; return [v, v, v]; });
+  if (mat.roughnessMap) mat.roughnessMap.dispose(); mat.roughnessMap = cfg.glitter > 0 ? noiseTex(256, 60, cfg.seed + 3, (n, i, j, r) => { const g = r() < cfg.glitter * 0.08 ? 40 : 255; return [255, g, 255]; }) : null;
+  if (mat.normalMap) mat.normalMap.dispose(); mat.normalMap = cfg.scratches > 0 ? noiseTex(256, 3, cfg.seed + 9, (n, i, j, r) => { const s = Math.sin((i * 0.7 + j * 2.3) * 0.9 + n * 9.0) > 0.992 ? 1 : 0; return [128 + s * 30 * cfg.scratches, 128 - s * 15 * cfg.scratches, 255]; }) : null; mat.normalScale?.set(0.18, 0.18);
+  mat.needsUpdate = true;
+  renderer.toneMapping = { ACES: THREE.ACESFilmicToneMapping, AgX: THREE.AgXToneMapping, Neutral: THREE.NeutralToneMapping }[cfg.toneMapping] || THREE.ACESFilmicToneMapping;
+  renderer.setClearColor(new THREE.Color(cfg.background)); document.body.style.background = cfg.background; key.intensity = 0.4 + cfg.brightness * 1.6;
+  const T = tier(); if (cols !== Math.max(8, Math.round(cfg.cloth.cols * T.gridMul))) buildCloth();
+}
+function resize() { const r = scene.getBoundingClientRect(), T = tier(), d = Math.min(cfg.dprMax, T.dprMax, devicePixelRatio || 1), nw = Math.max(1, Math.round(r.width)), nh = Math.max(1, Math.round(r.height)); if (nw === w && nh === h && d === dpr) return false; w = nw; h = nh; dpr = d; stats.resizes++; renderer.setPixelRatio(d); renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); return true; }
+function simulate(dt) {
+  const n = pos.length / 3, damp = Math.pow(0.965, dt * 60), stiff = Math.min(1, 0.35 * cfg.cloth.stiffness), T = tier(), iters = Math.min(cfg.cloth.solverIterations, T.iters, cfg.quality === "low" ? 4 : 99);
+  for (let k = 0; k < n; k++) { const i = k * 3, x = pos[i], y = pos[i + 1], z = pos[i + 2];
+    const wind = motionOff ? 0 : cfg.cloth.wind * 0.55 * (Math.sin(time * 1.1 + x * 1.6) * Math.cos(time * 0.8 + y * 2.0) + 0.35 * Math.sin(time * 1.9 + x * 3.2 + y * 2.4));   // unidades/s²; a mola de repouso (6/s²) segura a amplitude em ~0.05
+    let ax = (rest[i] - x) * 6.0, ay = (rest[i + 1] - y) * 6.0, az = (rest[i + 2] - z) * 6.0 + wind;   // mola pro repouso: o tecido flutua, não cai
+    for (const q of pokeQ) { const dx = x - q.x, dy = y - q.y, d = Math.hypot(dx, dy); const f = Math.max(0, 1 - d / 0.5) * 25 * Math.exp(-q.t * 6); az -= f; }
+    const vx = (x - prev[i]) * damp, vy = (y - prev[i + 1]) * damp, vz = (z - prev[i + 2]) * damp; prev[i] = x; prev[i + 1] = y; prev[i + 2] = z;
+    pos[i] = x + vx + ax * dt * dt; pos[i + 1] = y + vy + ay * dt * dt; pos[i + 2] = z + vz + az * dt * dt; }
+  for (const q of pokeQ) q.t += dt; pokeQ = pokeQ.filter((q) => q.t < 1);
+  for (let it = 0; it < iters; it++) { for (const [a, b, L] of cons) { const i = a * 3, j = b * 3, dx = pos[j] - pos[i], dy = pos[j + 1] - pos[i + 1], dz = pos[j + 2] - pos[i + 2], d = Math.hypot(dx, dy, dz) || 1e-6, f = (d - L) / d * 0.5 * stiff; pos[i] += dx * f; pos[i + 1] += dy * f; pos[i + 2] += dz * f; pos[j] -= dx * f; pos[j + 1] -= dy * f; pos[j + 2] -= dz * f; }
+    if (grab) for (const [k, ox, oy, t] of grab.ids) { const i = k * 3, s = 1 - t * t; pos[i] += (grab.x + ox - pos[i]) * s; pos[i + 1] += (grab.y + oy - pos[i + 1]) * s; pos[i + 2] += (0.28 * s - pos[i + 2]) * s; } }
+  geo.attributes.position.needsUpdate = true; geo.computeVertexNormals();
+}
+function frame(now) {
+  raf = 0; const dt = Math.min(0.033, (now - last) / 1000); last = now; if (!motionOff) time += dt;
+  const resized = resize();
+  const active = !motionOff || grab || pokeQ.length > 0;
+  if (!active && !dirty && !resized) return;
+  simulate(dt);
+  if (cfg.autoSway && !motionOff) { cam.position.x = Math.sin(time * 0.25) * 0.25; cam.position.y = 0.05 + Math.sin(time * 0.18) * 0.1; cam.lookAt(0, 0, 0); }
+  renderer.render(stage, cam); stats.frames++; stats.links = renderer.info.programs.length; dirty = false;
+  if (visible && inView && active) raf = requestAnimationFrame(frame);
+}
+function schedule() { if (!raf && visible && inView && ready) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+</script>
+</body>
+</html>

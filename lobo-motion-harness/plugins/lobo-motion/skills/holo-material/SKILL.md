@@ -6,7 +6,9 @@ allowed-tools: Bash, Read, Grep, Glob, Edit, Write
 
 # Material holográfico
 
-Status: skill procedural; o primeiro template entra depois do primeiro preset aprovado. O princípio que separa holo bom de gradiente colorido: **o arco-íris mora na reflexão, não na difusa**. Ele segue o ângulo entre a normal e a câmera, não a posição no plano.
+O princípio que separa holo bom de gradiente colorido: **o arco-íris mora na reflexão, não na difusa**. Ele segue o ângulo entre a normal e a câmera, não a posição no plano.
+
+`templates/standalone.html` é a implementação de referência: tecido verlet (constraints estruturais e de cisalhamento, agarre e cutucão por raycast num plano), thin-film pela iridescência física do `MeshPhysicalMaterial` com mapa de espessura procedural (bandas), glitter como roughnessMap e riscos como normalMap, RoomEnvironment por PMREM, tone mapping ACES, AgX ou Neutral. Schema em `references/config-schema.md`.
 
 ## 0. Intake
 - Superfície: plano (cartão, poster), tecido (cloth) ou malha (logo em 3D).
