@@ -121,6 +121,42 @@ Renderer: `skills/morph-transition/templates/standalone.html` (three.js). Abra c
 | storm | tornado → vortex → cosmicWave → lorenz | 3d · dramatic · dark · energy 0.8 | scatter 0.9, cutoff 0.38 |
 | scroll-driven | sphere → galaxy | 3d · calm · dark · energy 0.4 | `auto: false`; `t` pelo scroll |
 
+### Terceira leva (30 presets: tipos de partícula)
+Cada um combina forma × sprite × movimento × cor × blend. Abrem com `?preset=<nome>`.
+
+| preset | shape · sprite · motion · colorMode · blend | Eixos | Lê como |
+| --- | --- | --- | --- |
+| snowfall | volume · disc · fall · random · normal | 3d · calm · dark · energy 0.3 | neve lenta, flocos opacos de 4 brancos |
+| rain-streaks | volume · streak · fall ×3 · depth · add | 3d · dramatic · dark · energy 0.9 | chuva em riscos, longe mais escura |
+| embers-rise | volume · bokeh · rise · axis · add | 3d · warm · dark · energy 0.6 | brasas subindo e cintilando |
+| fireflies | scatter · bokeh · drift · random · add | 3d · dreamy · dark · energy 0.3 | 2.5k vagalumes piscando |
+| confetti-burst | scatter · square · fall · random · normal | 3d · playful · dark · energy 0.6 | confete opaco girando (spin 1.6) |
+| glitter-dust | disc · star · swirl · radial · add | 3d · premium · dark · energy 0.4 | estrelinhas de 4 pontas cintilando |
+| starfield | volume (z 3) · dot · drift · depth · add | 3d · calm · dark · energy 0.15 | céu com profundidade |
+| pixel-lattice | lattice · square · flow · axis · normal | 3d · tech · dark · energy 0.3 | cubo de pixels magenta→azul |
+| dna-helix | helixDna · ring · flow · index · add | 3d · tech · dark · energy 0.4 | dupla hélice com gradiente de 4 cores |
+| phyllotaxis | phyllotaxis · disc · pulse · radial · add | 3d · organic · dark · energy 0.4 | girassol respirando |
+| mobius-band | mobius · dot · flow · axis · add | 3d · precise · dark · energy 0.3 | fita de Möbius ciano→magenta |
+| atom-orbits | atom · bokeh · orbit ×1.6 · radial · add | 3d · tech · dark · energy 0.7 | elétrons correndo nas órbitas |
+| saturn | saturn · dot · orbit · depth · add | 3d · calm · dark · energy 0.25 | planeta com anel e divisão |
+| fountain-spray | fountain · streak · jitter · axis · add | 3d · fresh · dark · energy 0.7 | jato de água em arcos |
+| lissajous-string | lissajous · disc · flow · index · add | 3d · electric · dark · energy 0.4 | corda luminosa de 4 cores |
+| lobo-glyph | glyph "LOBO" · dot · jitter · axis · add | 3d · brand · dark · energy 0.3 | palavra em partículas (troque `text`) |
+| jellyfish-glow | jellyfish · disc · pulse · axis · add | 3d · dreamy · dark · energy 0.5 | medusa pulsando |
+| superformula | superformula · diamond · flow · radial · add | 3d · organic · dark · energy 0.3 | flor geométrica (seed muda os lóbulos) |
+| bubbles-rise | volume · ring · rise · depth · add | 3d · fresh · dark · energy 0.4 | 4k bolhas subindo |
+| smoke-plume | volume (1.4×3) · disc 26 px · rise · axis · normal | 3d · soft · dark · energy 0.3 | fumaça opaca |
+| pollen-drift | scatter · bokeh · drift · random · add | 3d · soft · dark · energy 0.25 | 1.8k grãos de pólen |
+| neon-cross-field | disc · cross · swirl · flow · add | 3d · electric · dark · energy 0.5 | campo de cruzes neon girando |
+| asteroid-belt | ring · dot · orbit · depth · add | 3d · calm · dark · energy 0.3 | cinturão de 140k rochas |
+| digital-matrix | lattice · square · fall ×1.4 · axis · add | 3d · hacker · dark · energy 0.7 | chuva de quadrados verdes |
+| sand-storm | volume (x 4) · dot · fall ×2.2 · random · normal | 3d · dramatic · dark · energy 0.9 | areia opaca em 4 tons |
+| ink-swirl | sphere · disc · swirl ×1.4 · flow · add | 3d · editorial · dark · energy 0.6 | tinta prata girando |
+| hologram-scan | cylinder · dot · orbit · axis · add | 3d · tech · dark · energy 0.4 | cilindro holográfico cintilando |
+| heartbeat | heart · disc · pulse ×1.3 · radial · add | 3d · warm · dark · energy 0.6 | coração batendo |
+| triangle-mesh | sphere · triangle · orbit · random · normal | 3d · playful · dark · energy 0.3 | 9k triângulos opacos girando |
+| aurora-curtain | membrane · streak · drift · axis · add | 3d · dreamy · dark · energy 0.4 | cortina de riscos verde→roxo |
+
 ## orb-reactive
 
 Renderer: `skills/orb-reactive/templates/standalone.html`. Abra com `?preset=<nome>`, `?state=<estado>`, `?level=0.8` (teste) ou `?s=`. API: `setState`, `setLevel`, `startMic`.

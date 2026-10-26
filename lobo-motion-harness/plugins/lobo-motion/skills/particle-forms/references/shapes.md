@@ -126,5 +126,26 @@ Todos são `(N, seed) => Float32Array(N*3)`, stateless, cabendo em raio ~1.4 (c�
 | cosmicWave | 11 linhas horizontais com z senoidal defasado por linha | passo 0.16 |
 | magnetosphere | linhas de campo dipolar r = L·sin²θ, 40 linhas em 10 valores de L, θ em 0.42..π−0.42 pra não estourar os polos | L 0.35..1.35 |
 
+## Geradores diretos do template (terceira leva: volumes, curvas, objetos)
+| shape | Construção | Nota |
+| --- | --- | --- |
+| volume | caixa uniforme `volumeX × volumeY × volumeZ` | o palco de neve, chuva, areia, fumaça; `fall`/`rise` dão a volta em y ±1.3 |
+| scatter | esfera uniforme r 1.35 (`cbrt`) | vagalumes, pólen, confete |
+| disc | disco plano r 1.35 (`sqrt`) | glitter, campo de cruzes |
+| ring | anel r 0.95 ± 0.4 com densidade no centro | asteroides |
+| cylinder | casca cilíndrica r 0.85, altura 2.2 | hologram |
+| lattice | grade 9³ com jitter 0.012 | pixel, matrix |
+| phyllotaxis | 2200 sementes em ângulo áureo, leve cúpula | flor, girassol |
+| helixDna | dupla hélice r 0.45 (70 %) + degraus (30 %) | DNA |
+| mobius | fita de Möbius R 1, largura 0.7 | laço |
+| atom | núcleo r 0.22 + 3 órbitas elípticas a 60° | átomo |
+| saturn | esfera r 0.62 + anel 0.85..1.4 com divisão de Cassini | planeta |
+| fountain | arcos parabólicos (v 0.55..1, g 2.6) | spray; `jitter` dá vida |
+| lissajous | curva (3, 2, 5) com jitter | corda luminosa; `index` colore ao longo |
+| heart | cardioide paramétrica preenchida (`pow(r,0.35)`) | coração; `pulse` |
+| superformula | Gielis 3D, m = 6 + seed % 5 | flores geométricas; mude a seed pra mudar os lóbulos |
+| jellyfish | cúpula (45 %) + 14 tentáculos ondulados | medusa; `pulse` |
+| glyph | amostra os pixels de `text` renderizado num canvas 512×160 (passo 2) | logo/palavra; qualquer fonte do sistema |
+
 ## Catálogo de nomes (como o GetLayers nomeia)
 Membrane, Coral, Nebula, Neuron, Galaxy, Torus knot, Attractor, Magnetosphere, Tornado, Lotus, Gyroscope, Hopf fibration, Wormhole, Fur, Synapse, Bud, Silk, Cosmic wave, Portal, Iris, Cosmic web, Smoke, Ribbon, Tree, Horizon, Vortex. Cada um é uma das famílias acima com parâmetros diferentes; «New variation» é só outra seed.

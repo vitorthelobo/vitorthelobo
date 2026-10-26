@@ -40,3 +40,8 @@ Leituras que enganam e armadilhas de ferramenta. Cada uma custou tempo real em a
 - **Transmission sem nada atrás é uma esfera preta.** Vidro em cena com clear color sólido só lê com `envIntensity` ≥ 2, `roughness` ≤ 0.2 e um toque de `iridescence`; ou ponha algo atrás pra refratar.
 - **Enquadre pela diagonal, não pelo raio.** TorusKnot(0.75, 0.26) ocupa ~1.3 unidades; com fov 35 a câmera precisa de z ≥ 5.5 pra sobrar respiro. Regra: `cameraZ ≈ 2.2 × extensão do objeto / tan(fov/2)`.
 - **Morph precisa de origem "assada".** Trocar `aTo` no meio de um morph sem gravar a posição interpolada atual em `position` faz as partículas pularem; `bakeCurrentAsFrom` custa 1 ms pra 160k e resolve.
+- **Clear color com EffectComposer chega sem conversão.** `renderer.setClearColor("#0B1422")` dentro de um composer com OutputPass sai como (59,79,102): o valor é tratado como linear e codificado pra sRGB. Passe `new THREE.Color(hex).convertSRGBToLinear()`. Medido com pixel do canto: #808080 → 188 antes, 128 depois. Sem composer (3d-object-scene) não acontece.
+- **Sprite com ângulo aleatório some como forma.** Riscos de chuva com `vAngle = aRandom·2π` viram pontinhos; o ângulo inicial só entra quando `spin > 0`.
+- **Forma plana em XZ vista de frente é uma linha.** Disco, anel e flor gerados no plano XZ precisam de `tiltX` 0.7–1.25 (chave nova) ou são invisíveis na câmera padrão em z.
+- **Contagem é intensidade com blend aditivo.** 130k pontos numa casca pequena viram um disco branco qualquer que seja o `glow`; o teto por área é ~50k pra ler forma. Com `blend: "normal"` a contagem vira só densidade.
+- **Wrap de `fall`/`rise` corta sprites grandes.** Fumaça de 26 px mostrava a linha do `mod`; `wrapFade` zera o alpha nos últimos 0.25 do percurso.
