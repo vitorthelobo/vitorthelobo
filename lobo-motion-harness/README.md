@@ -34,7 +34,7 @@ lobo-motion-harness/
 | `holo-material` | **Pronta.** Tecido verlet com iridescência física do three.js, 6 presets, agarre e cutucão. |
 | `post-image-fx` | **Pronta.** ASCII, dither e refração num shader WebGL2, 10 presets, upload de imagem ou vídeo. |
 | `image-reveal` | **Pronta.** Reveal líquido, pixel, tiles, wipe, ripple e líquido no hover num shader sobre a imagem, 6 presets, `<img>` no fallback. |
-| `grid-dots-field` | **Pronta.** Grade em canvas 2D (dots, lines, plus, cross, ascii) com warp, onda e cursor, 6 presets. |
+| `grid-dots-field` | **Pronta.** Grade em canvas 2D com 10 glifos (dots, ring, square, diamond, triangle, star, plus, cross, lines, ascii), warp, onda, 5 efeitos de hover com sliders e toque, 8 presets. |
 | `3d-object-scene` | **Pronta.** GLB ou objeto procedural com material físico, PMREM, órbita por arrasto, 6 presets. |
 | `morph-transition` | **Pronta.** Transição entre as 18 formas de partícula com stagger e scatter, ciclo ou scroll, 5 presets. |
 | `integrate-effect` | **Pronta (doc).** Receitas React/Next, Vue, Astro/HTML, Framer, Webflow; cleanup, SSR, uma lib de motion. |

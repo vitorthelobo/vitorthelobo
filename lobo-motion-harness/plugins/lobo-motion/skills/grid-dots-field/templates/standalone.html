@@ -28,14 +28,16 @@
 const PRESETS = {
   "dot-matrix": { mode: "dots",  spacing: 28, size: 1.6, color: "#FFFFFF", color2: "#25B8FF", bg: "#0A0A0C", warp: 0.35, warpScale: 1.2, wave: 0.0, speed: 0.4, pointer: 0.8, pointerRadius: 160, fade: 0.35 },
   "blueprint":  { mode: "lines", spacing: 36, size: 1.0, color: "#2F6BFF", color2: "#9FC3FF", bg: "#061024", warp: 0.25, warpScale: 0.9, wave: 0.0, speed: 0.3, pointer: 0.6, pointerRadius: 200, fade: 0.25 },
-  "plus-grid":  { mode: "plus",  spacing: 32, size: 5.0, color: "#C8FF5A", color2: "#FFFFFF", bg: "#0B0F08", warp: 0.5, warpScale: 1.6, wave: 0.0, speed: 0.5, pointer: 0.9, pointerRadius: 180, fade: 0.3 },
-  "sonar":      { mode: "dots",  spacing: 24, size: 2.4, color: "#145E5A", color2: "#C8FFF4", bg: "#03151A", warp: 0.1, warpScale: 1.0, wave: 1.0, speed: 0.7, pointer: 0.5, pointerRadius: 140, fade: 0.45 },
-  "ascii-rain": { mode: "ascii", spacing: 18, size: 11,  color: "#39FF88", color2: "#E6FFF0", bg: "#040806", warp: 0.6, warpScale: 1.4, wave: 0.3, speed: 0.9, pointer: 0.7, pointerRadius: 150, fade: 0.4 },
-  "topo":       { mode: "cross", spacing: 26, size: 4.0, color: "#FF8A1F", color2: "#FFE6A7", bg: "#120804", warp: 0.8, warpScale: 0.7, wave: 0.0, speed: 0.25, pointer: 0.6, pointerRadius: 220, fade: 0.3 }
+  "plus-grid":  { mode: "plus", hover: "vortex",  spacing: 32, size: 5.0, color: "#C8FF5A", color2: "#FFFFFF", bg: "#0B0F08", warp: 0.5, warpScale: 1.6, wave: 0.0, speed: 0.5, pointer: 0.9, pointerRadius: 180, fade: 0.3 },
+  "sonar":      { mode: "ring", hover: "pull",  spacing: 24, size: 2.4, color: "#145E5A", color2: "#C8FFF4", bg: "#03151A", warp: 0.1, warpScale: 1.0, wave: 1.0, speed: 0.7, pointer: 0.5, pointerRadius: 140, fade: 0.45 },
+  "ascii-rain": { mode: "ascii", hover: "glow", spacing: 18, size: 11,  color: "#39FF88", color2: "#E6FFF0", bg: "#040806", warp: 0.6, warpScale: 1.4, wave: 0.3, speed: 0.9, pointer: 0.7, pointerRadius: 150, fade: 0.4 },
+  "star-dust":  { mode: "star",  spacing: 34, size: 5.0, color: "#FFD166", color2: "#FFFFFF", bg: "#0B0804", warp: 0.3, warpScale: 1.0, wave: 0.2, speed: 0.4, hover: "glow", pointer: 0.9, pointerRadius: 200, fade: 0.3 },
+  "diamond-net":{ mode: "diamond", spacing: 30, size: 4.0, color: "#F72585", color2: "#4CC9F0", bg: "#0A0612", warp: 0.45, warpScale: 1.3, wave: 0.0, speed: 0.5, hover: "push", pointer: 0.8, pointerRadius: 170, fade: 0.3 },
+  "topo":       { mode: "triangle", hover: "scatter", spacing: 26, size: 4.0, color: "#FF8A1F", color2: "#FFE6A7", bg: "#120804", warp: 0.8, warpScale: 0.7, wave: 0.0, speed: 0.25, pointer: 0.6, pointerRadius: 220, fade: 0.3 }
 };
 const CONFIG = {
   preset: "dot-matrix",
-  mode: "dots",            // dots | lines | plus | cross | ascii
+  mode: "dots",            // glifo: dots | ring | square | diamond | triangle | star | plus | cross | lines | ascii
   spacing: 28,             // px CSS entre células
   size: 1.6,               // raio do ponto, metade do braço do plus/cross, tamanho da fonte no ascii
   color: "#FFFFFF", color2: "#25B8FF", bg: "#0A0A0C",
@@ -43,8 +45,11 @@ const CONFIG = {
   warpScale: 1.2,          // frequência do ruído
   wave: 0.0,               // 0..1 onda radial que pulsa do centro
   speed: 0.4,
-  pointer: 0.8,            // 0..1 força do campo do cursor (repele e acende)
+  hover: "push",           // push | pull | vortex | scatter | glow — efeito do cursor (no toque, arrastando)
+  pointer: 0.8,            // 0..1 força do hover
   pointerRadius: 160,      // px CSS
+  hoverGlow: 1.0,          // 0..2 quanto acende e cresce perto do cursor (todos os modos)
+  hoverSoft: 0.6,          // 0..1 borda do raio
   fade: 0.35,              // 0..1 vinheta (células somem nas bordas)
   seed: 7, dprMax: 1.5
 };
@@ -78,6 +83,7 @@ const CONFIG = {
     const a = hash(ix, iy), b = hash(ix + 1, iy), c = hash(ix, iy + 1), d = hash(ix + 1, iy + 1); return (a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy) * 2 - 1; }
   const hex = (h) => { const n = parseInt(h.replace("#", ""), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
   const GLYPHS = " .:-=+*#%@";
+  const smooth = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
 
   function resize() {
     const r = scene.getBoundingClientRect(), d = Math.min(cfg.dprMax, coarse ? 1.25 : 1.5, window.devicePixelRatio || 1);
@@ -91,9 +97,16 @@ const CONFIG = {
   const BUCKETS = Array.from({ length: 32 }, () => []);
   // sprite por balde (dots): um disco pré-rasterizado e blitado com drawImage, o caminho mais barato do canvas 2D
   const SPRITES = new Map();
-  function sprite(k, s, r, g, bl, a) {
-    const key = k + ":" + s.toFixed(2) + ":" + r + "," + g + "," + bl + ":" + dpr; let c = SPRITES.get(key);
-    if (!c) { if (SPRITES.size > 96) SPRITES.clear(); const px = Math.ceil((s * 2 + 2) * dpr); c = document.createElement("canvas"); c.width = c.height = px; const x = c.getContext("2d"); x.fillStyle = `rgba(${r},${g},${bl},${a.toFixed(2)})`; x.beginPath(); x.arc(px / 2, px / 2, s * dpr, 0, 6.2832); x.fill(); SPRITES.set(key, c); }
+  function sprite(k, s, r, g, bl, a, shape) {
+    const key = shape + ":" + k + ":" + s.toFixed(2) + ":" + r + "," + g + "," + bl + ":" + dpr; let c = SPRITES.get(key);
+    if (!c) { if (SPRITES.size > 160) SPRITES.clear(); const S = s * dpr, px = Math.ceil((s * 2 + 2) * dpr), cx = px / 2; c = document.createElement("canvas"); c.width = c.height = px; const x = c.getContext("2d"); x.fillStyle = x.strokeStyle = `rgba(${r},${g},${bl},${a.toFixed(2)})`; x.lineWidth = Math.max(1, S * 0.35); x.beginPath();
+      if (shape === "ring") { x.arc(cx, cx, S * 0.8, 0, 6.2832); x.stroke(); }
+      else if (shape === "square") { x.fillRect(cx - S * 0.85, cx - S * 0.85, S * 1.7, S * 1.7); }
+      else if (shape === "diamond") { x.moveTo(cx, cx - S); x.lineTo(cx + S, cx); x.lineTo(cx, cx + S); x.lineTo(cx - S, cx); x.closePath(); x.fill(); }
+      else if (shape === "triangle") { x.moveTo(cx, cx - S); x.lineTo(cx + S * 0.95, cx + S * 0.7); x.lineTo(cx - S * 0.95, cx + S * 0.7); x.closePath(); x.fill(); }
+      else if (shape === "star") { for (let i = 0; i < 10; i++) { const rr = i % 2 ? S * 0.42 : S, an = -1.5708 + i * 0.6283; x.lineTo(cx + Math.cos(an) * rr, cx + Math.sin(an) * rr); } x.closePath(); x.fill(); }
+      else { x.arc(cx, cx, S, 0, 6.2832); x.fill(); }
+      SPRITES.set(key, c); }
     return c;
   }
   function draw() {
@@ -107,7 +120,13 @@ const CONFIG = {
       const nx = noise(i * ws + t * 0.35, j * ws + 11.3), ny = noise(i * ws + 41.7, j * ws - t * 0.3);
       let dx = nx * cfg.warp * sp * 0.6, dy = ny * cfg.warp * sp * 0.6, e = 0.5 + 0.5 * nx;
       if (cfg.wave > 0) { const r = Math.hypot(gx - cx, gy - cy) / diag; const wv = Math.sin(r * 18 - t * 2.4); dx += (gx - cx) / (diag + 1) * wv * cfg.wave * sp * 0.5; dy += (gy - cy) / (diag + 1) * wv * cfg.wave * sp * 0.5; e = Math.max(e, 0.5 + 0.5 * wv * cfg.wave); }
-      if (pointer.active && cfg.pointer > 0) { const px = gx - pointer.x, py = gy - pointer.y, d = Math.hypot(px, py); if (d < cfg.pointerRadius) { const f = 1 - d / cfg.pointerRadius, s = f * f * cfg.pointer; dx += px / (d + 1) * s * sp * 0.9; dy += py / (d + 1) * s * sp * 0.9; e = Math.min(1, e + s * 1.2); } }
+      if (pointer.active && cfg.pointer > 0) { const px = gx - pointer.x, py = gy - pointer.y, d = Math.hypot(px, py), R = cfg.pointerRadius; if (d < R) {
+          const edge = Math.max(0.02, cfg.hoverSoft) * R, near = cfg.pointer * smooth((R - d) / edge), ux = px / (d + 1), uy = py / (d + 1), k = near * sp * 0.9;
+          if (cfg.hover === "pull") { dx -= ux * Math.min(k, d * 0.8); dy -= uy * Math.min(k, d * 0.8); }
+          else if (cfg.hover === "vortex") { dx += -uy * k + ux * k * 0.15; dy += ux * k + uy * k * 0.15; }
+          else if (cfg.hover === "scatter") { const n1 = noise(gx * 0.08 + t * 3, gy * 0.08), n2 = noise(gx * 0.08 + 50, gy * 0.08 - t * 3); dx += n1 * k * 1.2; dy += n2 * k * 1.2; }
+          else if (cfg.hover !== "glow") { dx += ux * k; dy += uy * k; }
+          e = Math.min(1, e + near * 1.2 * cfg.hoverGlow); } }
       const x = gx + dx, y = gy + dy;
       const vx = Math.abs(x - cx) / cx, vy = Math.abs(y - cy) / cy, v = 1 - cfg.fade * Math.max(0, Math.max(vx, vy) * 1.15 - 0.15);
       const a = Math.max(0, Math.min(1, (0.35 + 0.65 * e) * v)); if (a < 0.03) continue;
@@ -123,7 +142,7 @@ const CONFIG = {
       const e = ((k >> 2) + 0.5) / 8, a = ((k & 3) + 0.5) / 4, s = cfg.size * (0.7 + 0.6 * e);
       const r = Math.round(c1[0] + (c2[0] - c1[0]) * e), g = Math.round(c1[1] + (c2[1] - c1[1]) * e), bl = Math.round(c1[2] + (c2[2] - c1[2]) * e);
       ctx.fillStyle = `rgba(${r},${g},${bl},${a.toFixed(2)})`;
-      if (cfg.mode === "dots") { const sp2 = sprite(k, s, r, g, bl, a), half = sp2.width / (2 * dpr); for (let q = 0; q < b.length; q += 4) ctx.drawImage(sp2, b[q] - half, b[q + 1] - half, half * 2, half * 2); }
+      if (cfg.mode === "dots" || cfg.mode === "ring" || cfg.mode === "square" || cfg.mode === "diamond" || cfg.mode === "triangle" || cfg.mode === "star") { const sp2 = sprite(k, s, r, g, bl, a, cfg.mode), half = sp2.width / (2 * dpr); for (let q = 0; q < b.length; q += 4) ctx.drawImage(sp2, b[q] - half, b[q + 1] - half, half * 2, half * 2); }
       else if (cfg.mode === "plus") { for (let q = 0; q < b.length; q += 4) { const x = b[q], y = b[q + 1]; ctx.fillRect(x - s, y - lw / 2, s * 2, lw); ctx.fillRect(x - lw / 2, y - s, lw, s * 2); } }
       else if (cfg.mode === "cross") { for (let q = 0; q < b.length; q += 4) { ctx.setTransform(dpr, 0, 0, dpr, b[q] * dpr, b[q + 1] * dpr); ctx.rotate(0.7854); ctx.fillRect(-s, -lw / 2, s * 2, lw); ctx.fillRect(-lw / 2, -s, lw, s * 2); } ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
       else if (cfg.mode === "lines") { const L = sp * 0.42; for (let q = 0; q < b.length; q += 4) { ctx.setTransform(dpr, 0, 0, dpr, b[q] * dpr, b[q + 1] * dpr); ctx.rotate(Math.atan2(b[q + 3], b[q + 2]) * 0.5); ctx.fillRect(-L, -lw / 2, L * 2, lw); } ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
@@ -147,9 +166,15 @@ const CONFIG = {
   new IntersectionObserver((es) => { inView = es[0].isIntersecting; if (inView) schedule(); }, { rootMargin: "100% 0px" }).observe(scene);
   document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });
   window.addEventListener("resize", () => { dirty = true; schedule(); }, { passive: true });
-  if (!coarse) {
-    window.addEventListener("pointermove", (e) => { const r = scene.getBoundingClientRect(); pointer.tx = e.clientX - r.left; pointer.ty = e.clientY - r.top; if (!pointer.active) { pointer.x = pointer.tx; pointer.y = pointer.ty; } pointer.active = true; pointer.idleAt = performance.now(); schedule(); }, { passive: true });
+  {
+    let pressed = false;
+    const track = (e) => { const r = scene.getBoundingClientRect(); pointer.tx = e.clientX - r.left; pointer.ty = e.clientY - r.top; if (!pointer.active) { pointer.x = pointer.tx; pointer.y = pointer.ty; } pointer.active = true; pointer.idleAt = performance.now(); schedule(); };
+    window.addEventListener("pointermove", (e) => { if (e.pointerType !== "mouse" && !pressed) return; track(e); }, { passive: true });
+    canvas.addEventListener("pointerdown", (e) => { if (e.pointerType === "mouse") return; pressed = true; track(e); }, { passive: true });
+    const up = (e) => { if (e.pointerType === "mouse") return; pressed = false; pointer.idleAt = performance.now() - 2000; };   // solta: some em 0.5 s
+    window.addEventListener("pointerup", up, { passive: true }); window.addEventListener("pointercancel", up, { passive: true });
     window.addEventListener("pointerleave", () => { pointer.idleAt = 0; });
+    canvas.style.touchAction = "none";
   }
   schedule();
 })();

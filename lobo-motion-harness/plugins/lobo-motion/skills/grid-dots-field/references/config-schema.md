@@ -5,7 +5,10 @@ Canvas 2D. Uma grade de células a cada `spacing` px; cada célula desloca por r
 | Chave | Tipo | Range / valores | Default | O que faz |
 | --- | --- | --- | --- | --- |
 | preset | string | nome no catálogo | dot-matrix | rótulo |
-| mode | enum | dots, lines, plus, cross, ascii | dots | o glifo de cada célula |
+| mode | enum | dots, ring, square, diamond, triangle, star, plus, cross, lines, ascii | dots | o glifo de cada célula (os seis primeiros são sprites pré-rasterizados por balde) |
+| hover | enum | push, pull, vortex, scatter, glow | push | efeito do cursor, igual ao particle-forms; no toque segue o dedo arrastando |
+| hoverGlow | number | 0..2 | 1 | quanto acende perto do cursor |
+| hoverSoft | number | 0..1 | 0.6 | borda do raio |
 | spacing | number | 12..64 | 28 | distância entre células (px CSS); custo ∝ 1/spacing² |
 | size | number | 0.5..14 | 1.6 | raio do ponto; metade do braço (plus/cross); tamanho da fonte (ascii) |
 | color, color2 | hex | | #FFFFFF, #25B8FF | repouso → aceso |

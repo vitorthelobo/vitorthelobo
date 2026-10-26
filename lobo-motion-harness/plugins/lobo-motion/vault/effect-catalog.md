@@ -92,9 +92,11 @@ Renderer: `skills/grid-dots-field/templates/standalone.html` (canvas 2D). Abra c
 | dot-matrix | dots | 2d · tech · dark · energy 0.3 | pontos brancos acendendo em ciano |
 | blueprint | lines | 2d · precise · dark · energy 0.25 | traços orientados pelo ruído, azul |
 | plus-grid | plus | 2d · tech · dark · energy 0.4 | cruzes lima, warp alto |
-| sonar | dots | 2d · tech · dark · energy 0.6 | onda radial pulsando |
+| sonar | ring | 2d · tech · dark · energy 0.6 | anéis com onda radial pulsando, hover pull |
 | ascii-rain | ascii | 2d · hacker · dark · energy 0.7 | glifos `.:-=+*#%@` pela energia |
-| topo | cross | 2d · organic · dark · energy 0.2 | warp 0.8 em frequência baixa (mapa) |
+| star-dust | star | 2d · premium · dark · energy 0.3 | estrelas de 5 pontas, hover glow |
+| diamond-net | diamond | 2d · electric · dark · energy 0.4 | losangos magenta→ciano, hover push |
+| topo | triangle | 2d · organic · dark · energy 0.2 | warp 0.8 em frequência baixa (mapa), hover scatter |
 
 ## 3d-object-scene
 
