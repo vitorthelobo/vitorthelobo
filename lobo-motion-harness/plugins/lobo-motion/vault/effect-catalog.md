@@ -29,6 +29,22 @@ Renderer: `skills/shader-background/templates/standalone.html`. Abra com `?prese
 - Eixos: 2d · electric · dark · motionEnergy 0.5 · density 0.3
 - CONFIG: `{ "colors": ["#0A0014","#3A0CA3","#7209B7","#F72585","#FFD6FF"], "shape": "radial", "zoom": 1.4, "swirl": 0.6, "movement": 0.4, "speed": 0.7, "angle": 240, "contrast": 1.1, "grain": 0.08 }`
 
+### Segunda leva (10 presets, campos e efeitos novos)
+Todos no template, abrem com `?preset=<nome>`. Screenshots de QA em `catalog/shader-background/<nome>.png` quando gerados.
+
+| preset | shape | Eixos | Diferencial |
+| --- | --- | --- | --- |
+| aurora-veil | aurora | 2d · dreamy · dark · energy 0.5 | cortinas verde/roxo, vignette 0.35 |
+| sun-rays | rays | 2d · warm · dark · energy 0.4 | raios do centro deslocado (centerY 0.65) |
+| pond-ripples | ripples | 2d · calm · dark · energy 0.5 | anéis concêntricos azul/ciano |
+| silk-stripes | stripes | 2d · electric · dark · energy 0.5 | listras diagonais dobradas (angle 35) |
+| pool-caustics | caustics | 2d · fresh · mid · energy 0.7 | veios claros de piscina, contrast 1.25 |
+| lava-blobs | blobs | 2d · dramatic · dark · energy 0.5 | metaballs laranja (lava lamp) |
+| glacier | linear | 2d · calm · light · energy 0.3 | dither 0.6 (retro, poucos níveis) |
+| halftone-noir | radial | 2d · editorial · mono · energy 0.4 | halftone 7 px, preto sobre branco |
+| cyber-bloom | conic | 2d · electric · dark · energy 0.6 | swirl 0.5 + vignette 0.4 |
+| twilight-haze | mesh | 2d · soft · mid · energy 0.3 | contrast 0.95, pastel |
+
 ## particle-forms
 
 Renderer: `skills/particle-forms/templates/standalone.html` (three.js por import map).
@@ -37,6 +53,22 @@ Renderer: `skills/particle-forms/templates/standalone.html` (three.js por import
 - Eixos: 3d · dreamy · dark · motionEnergy 0.45 · density 0.6
 - CONFIG: `{ "shape": "hopf", "seed": 4821, "count": 180000, "size": 1.95, "speed": 0.45, "flow": 0.35, "flowScale": 1.6, "pointer": 0.7, "pointerRadius": 1.2, "colorA": "#25B8FF", "colorB": "#B04DFF", "glow": 0.75, "glowSpread": 0.08, "glowCutoff": 0.21, "autoRotate": true, "rotateSpeed": 0.08, "dprMax": 1.5 }`
 - Presets irmãos no template: `ember-knot` (torusKnot), `frost-galaxy` (galaxy), `abyss-lorenz` (lorenz). Abra com `?preset=<nome>`.
+
+### Segunda leva (10 presets, 10 shapes novos)
+Abrem com `?preset=<nome>`; shapes descritos em `skills/particle-forms/references/shapes.md`.
+
+| preset | shape | Eixos | Diferencial |
+| --- | --- | --- | --- |
+| silk-membrane | membrane | 3d · calm · dark · energy 0.35 | folha ondulada teal, rotação lenta (0.05) pra revelar o relevo |
+| coral-bloom | coral | 3d · organic · dark · energy 0.3 | 36 ramos rosa/âmbar |
+| synapse | neuron | 3d · electric · dark · energy 0.5 | soma + 14 dendritos, glow alto |
+| dust-tornado | tornado | 3d · dramatic · dark · energy 0.5 | hélice cônica, rotateSpeed 0.25, flow baixo (0.12) pra hélice não virar fumaça |
+| gyro-core | gyroscope | 3d · tech · dark · energy 0.6 | 4 anéis, lima/ciano |
+| wormhole | wormhole | 3d · dramatic · dark · energy 0.7 | hiperboloide torcido, glow 0.9 |
+| ribbon-twist | ribbon | 3d · playful · dark · energy 0.45 | banda torcida, amarelo/coral |
+| vortex-fall | vortex | 3d · dramatic · dark · energy 0.6 | funil de 3 braços inclinado pra câmera, branco/teal |
+| cosmic-wave | cosmicWave | 3d · calm · dark · energy 0.5 | 11 linhas senoidais, sem autoRotate |
+| magnetosphere | magnetosphere | 3d · tech · dark · energy 0.4 | linhas de campo dipolar roxo/laranja |
 
 ## orb-reactive
 

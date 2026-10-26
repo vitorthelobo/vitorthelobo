@@ -25,8 +25,8 @@ lobo-motion-harness/
 
 | Peça | Estado |
 | --- | --- |
-| `shader-background` | **Pronta.** Template WebGL2 testado pelas 4 sondas (1 programa, reduced motion assenta, bot sem WebGL, contexto volta). 4 presets. Cookbook GLSL e schema. |
-| `particle-forms` | **Pronta.** Template three.js testado, 8 formas com seed, curl noise, bloom por knobs, tiers. 4 presets. Geradores e GPGPU documentados. |
+| `shader-background` | **Pronta.** Template WebGL2 testado pelas 4 sondas (1 programa, reduced motion assenta, bot sem WebGL, contexto volta). 14 presets, 11 campos (linear, radial, conic, mesh, warped, aurora, rays, ripples, stripes, caustics, blobs) e efeitos dither, halftone e vinheta. Cookbook GLSL e schema. |
+| `particle-forms` | **Pronta.** Template three.js testado, 18 formas com seed, curl noise, bloom por knobs, tiers. 14 presets. Geradores e GPGPU documentados. |
 | `effect-tool-ui`, `build-prompt`, `qa-motion`, `optimize-3d-scene`, `catalog-entry` | **Prontas** como procedimento; o contrato `window.__lobo` já está nos dois templates. |
 | `orb-reactive` | **Pronta.** Template WebGL2 testado: 5 presets, 6 estados com transição, áudio por microfone ou `setLevel`, modo widget (264 px) e hero (`size: 0`), fundo transparente opcional. |
 | `text-motion` | **Pronta.** Template vanilla JS + CSS testado: 28 presets por letra, palavra e linha, mola própria, 4 gatilhos, texto no DOM pra SEO, reduced motion sem split. |

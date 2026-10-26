@@ -110,5 +110,21 @@ export const thomas = (N, seed) => integrate(N, seed,
 
 Amostre triângulos por área: peso = área do triângulo, ponto = `a + u(b - a) + v(c - a)` com `u + v <= 1`. Antes, strip o modelo pra POSITION + índices (gltf-transform): 4,67 MB → 61 KB num caso medido pela Textura. Faça a amostragem num Worker acima de 100k pontos.
 
+## Geradores diretos do template (segunda leva)
+Todos são `(N, seed) => Float32Array(N*3)`, stateless, cabendo em raio ~1.4 (câmera z 3.8). Jitter gaussiano pequeno (`gauss(r0) * j`) evita moiré sem destruir a silhueta. Lição da calibração: forma fina (hélice, anel, linha de campo) pede `flow` ≤ 0.15, senão o curl noise dissolve a silhueta; onde muitos pontos convergem (ponta do cone, polos), suba `glowCutoff` pra 0.35–0.4 ou rarefaça com `pow`.
+
+| shape | Construção | Parâmetros fixos no gerador |
+| --- | --- | --- |
+| membrane | folha 2.7×1.7 com z = soma de dois senos (baixa + alta frequência) | amplitude 0.22 + 0.08 |
+| coral | 36 ramos radiais, t com `pow(r,0.8)` concentra na base, ondula com seno; jitter maior na base | base 0.35, altura 1.8 |
+| neuron | 22 % no soma (esfera r 0.26, `cbrt` para volume) + 14 dendritos com ondulação e bifurcação após t 0.6 | D 14 |
+| tornado | hélice cônica: t = r^0.6 (rarefaz a ponta), raio 0.1 + t², 22 rad de giro ao longo de y | altura 1.9 |
+| gyroscope | 3 anéis ortogonais R 1 + 1 anel interno inclinado R 0.55, tubo 0.045 | 4 anéis |
+| wormhole | hiperboloide com eixo y: r = 0.22 + 0.5·u², ângulo torcido por u·2.2, inclinado 0.55 rad em x pra mostrar a garganta | u ±1.5 (×0.85) |
+| ribbon | banda de largura 0.5 torcida 4π ao longo de x, com onda em y | comprimento 2.6 |
+| vortex | funil de 3 braços (jitter 0.7 rad), torção 1.6/r + 2.5·r, boca pra cima e inclinado −0.95 rad em x | raio até 1.28 |
+| cosmicWave | 11 linhas horizontais com z senoidal defasado por linha | passo 0.16 |
+| magnetosphere | linhas de campo dipolar r = L·sin²θ, 40 linhas em 10 valores de L, θ em 0.42..π−0.42 pra não estourar os polos | L 0.35..1.35 |
+
 ## Catálogo de nomes (como o GetLayers nomeia)
 Membrane, Coral, Nebula, Neuron, Galaxy, Torus knot, Attractor, Magnetosphere, Tornado, Lotus, Gyroscope, Hopf fibration, Wormhole, Fur, Synapse, Bud, Silk, Cosmic wave, Portal, Iris, Cosmic web, Smoke, Ribbon, Tree, Horizon, Vortex. Cada um é uma das famílias acima com parâmetros diferentes; «New variation» é só outra seed.

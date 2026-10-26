@@ -1,6 +1,6 @@
 ---
 name: shader-background
-description: Constrói ou afina um background procedural animado em WebGL2 cru (fragment shader lendo um CONFIG map) com gradiente de 2 a 6 cores misturado em OKLab, shapes (linear, radial, conic, mesh, warped field), swirl, movimento por ruído, grain e efeitos empilháveis (luz, glass, blobs, dither, halftone). Entrega HTML standalone, componente e build prompt. Use quando o usuário pedir "shader background", "gradiente animado", "fundo procedural", "mesh gradient", "aurora de fundo", "background de hero", ou quando pedir pra afinar cores, swirl, zoom, grain ou velocidade de um background existente.
+description: Constrói ou afina um background procedural animado em WebGL2 cru (fragment shader lendo um CONFIG map) com gradiente de 2 a 6 cores misturado em OKLab, 11 campos (linear, radial, conic, mesh, warped, aurora, rays, ripples, stripes, caustics, blobs), swirl, movimento por ruído, grain e efeitos empilháveis (dither, halftone, vinheta). Entrega HTML standalone, componente e build prompt. Use quando o usuário pedir "shader background", "gradiente animado", "fundo procedural", "mesh gradient", "aurora de fundo", "background de hero", ou quando pedir pra afinar cores, swirl, zoom, grain ou velocidade de um background existente.
 allowed-tools: Bash, Read, Grep, Glob, Edit, Write
 ---
 
@@ -23,12 +23,18 @@ Preencha o objeto completo com todas as chaves do schema, inclusive `seed`. Esco
 | giro, relógio, espectro | conic |
 | manchas, nuvem, aquarela | mesh |
 | fluido, seda, óleo | warped |
+| aurora boreal, cortina de luz | aurora |
+| sol, farol, explosão de luz | rays |
+| gota na água, sonar, pulso | ripples |
+| listras, tecido, zebra | stripes |
+| fundo de piscina, água rasa | caustics |
+| lava lamp, bolhas, metaballs | blobs |
 
 Paleta: 4 ou 5 stops, do escuro pro claro, com um stop de acento na posição 0.5 a 0.75. Mistura é em OKLab no shader, então cores saturadas não lavam.
 
 ## 2. Shader
 - Copie `templates/standalone.html`. O fragment lê **só uniforms**; a única mudança de código aceitável é em `shapeT()` (o campo) e nos efeitos empilháveis.
-- Para um efeito novo (luz, glass, blobs, dither, halftone): adicione um bloco opcional no CONFIG, um uniform `uX` e uma função no fragment aplicada na ordem shape → gradient → light → glass → blobs → dither/halftone/pixelate → grain → vignette. Funções no cookbook.
+- `dither`, `halftone` e `vignette` já existem como chaves planas (0 = off). Para um efeito novo (luz, glass, pixelate): adicione a chave no CONFIG, um uniform `uX` e um bloco no fragment aplicado na ordem shape → dither → gradient → contrast → halftone → vignette → grain. Funções no cookbook.
 - Nunca troque define ou precisão em runtime. Tudo que muda é uniform.
 
 ## 3. Tiers e sobrevivência (o template já faz; não remova)

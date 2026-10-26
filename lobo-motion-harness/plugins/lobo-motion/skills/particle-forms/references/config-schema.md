@@ -3,7 +3,7 @@
 | Chave | Tipo | Range / valores | Default | O que faz |
 | --- | --- | --- | --- | --- |
 | preset | string | nome no catálogo | nebula-drift | rótulo |
-| shape | enum | torusKnot, hopf, lotus, galaxy, sphere, lorenz, aizawa, thomas | hopf | gerador de forma (shapes.md) |
+| shape | enum | torusKnot, hopf, lotus, galaxy, sphere, lorenz, aizawa, thomas, membrane, coral, neuron, tornado, gyroscope, wormhole, ribbon, vortex, cosmicWave, magnetosphere | hopf | gerador de forma (shapes.md) |
 | seed | integer | 0..9999 | 4821 | variação da forma e do aRandom |
 | count | integer | 20000..300000 | 180000 | pontos alocados; o tier corta por drawRange |
 | size | number | 0.5..4 | 1.95 | tamanho do ponto em px CSS (× DPR no shader) |
