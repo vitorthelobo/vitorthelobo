@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Grep, Glob, Edit, Write
 
 # Text motion
 
-Contrato primeiro, biblioteca depois. A biblioteca é a que o projeto já usa (regra «uma por projeto»): GSAP, react-spring (com `spring-text-engine`), motion ou `svelte/motion`. Se não há nenhuma, proponha uma e pergunte antes de instalar.
+Contrato primeiro, biblioteca depois. `templates/standalone.html` é a implementação de referência em vanilla JS + CSS: motor de mola próprio (massa 1, k = 170 × tension, c = 26 × friction, integração semi-implícita), split em linha, palavra e letra pelo layout real, os 28 presets, quatro gatilhos (mount, inview-once, inview-always, progress), cópia em texto puro no DOM, blur por linha, um rAF só. Num projeto que já tem GSAP, react-spring (com `spring-text-engine`), motion ou `svelte/motion`, traduza o contrato pra lib instalada (tabela em `references/presets.md`); nunca adicione uma segunda. Schema e API: `references/config-schema.md`.
 
 ## 0. Intake
 - Unidade: letra (títulos curtos), palavra (frases) ou linha (parágrafos). Letra por letra em texto longo é ruído.

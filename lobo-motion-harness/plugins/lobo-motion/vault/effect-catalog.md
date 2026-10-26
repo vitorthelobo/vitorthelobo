@@ -62,5 +62,13 @@ Renderer: `skills/orb-reactive/templates/standalone.html`. Abra com `?preset=<no
 - Eixos: 2.5d · calm · dark · motionEnergy 0.3 · density 0.4
 - CONFIG: core-teal com `{ "colorBase": "#061410", "colorInterior": "#03090A", "accentDust": "#19B5A8", "accentStars": "#C5F2E6", "accentAurora": "#9D4EDD", "intensity": 0.9, "detail": 0.6, "glass": 0.45, "glow": 0.85, "speed": 0.6, "drift": 0.9 }`
 
+## text-motion
+
+Renderer: `skills/text-motion/templates/standalone.html`. Abra com `?preset=<nome>`, `?text=<frase>`, `?trigger=mount|inview-once|inview-always|progress` ou `?s=`. Os 28 presets estão em `skills/text-motion/references/presets.md`; cada um já é uma entrada do catálogo (CONFIG = `{ "preset": "<nome>", "tension": 1, "friction": 1, "stagger": null, "delay": 0, "speed": 1, "trigger": "inview-once" }`).
+
+### hero-rise (o default da página)
+- Eixos: 2d · calm · dark · motionEnergy 0.4 · density 0.3
+- Composição: h1 `rise-settle`, eyebrow `fade-letters`, lead `fade-cascade` com delay 500, h2 abaixo da dobra `stagger-reveal-lines`, parágrafo `unblur-lines` com delay 150.
+
 ## Famílias sem preset ainda
-holo-material · text-motion · cursor-fx · post-image-fx. Cada uma tem SKILL.md com o procedimento; o primeiro preset de cada entra aqui quando passar pelo `visual-judge` e pelo `qa-motion`.
+holo-material · cursor-fx · post-image-fx. Cada uma tem SKILL.md com o procedimento; o primeiro preset de cada entra aqui quando passar pelo `visual-judge` e pelo `qa-motion`.

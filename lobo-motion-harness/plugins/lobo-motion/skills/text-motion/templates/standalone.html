@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text Motion · Lobo Motion</title>
+<style>
+  :root { --bg: #0b0b0f; --ink: #f4f1ea; --muted: #9a9aa5; --accent: #c8ff5a; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, "Inter", "Helvetica Neue", Arial, sans-serif; }
+  .hero { min-height: 100lvh; display: grid; align-content: center; padding: 8vh 6vw; gap: 1.4rem; }
+  .eyebrow { font-size: 0.85rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin: 0; }
+  h1 { font-size: clamp(2.6rem, 8vw, 7rem); line-height: 1.1; margin: 0; font-weight: 700; letter-spacing: -0.02em; max-width: 14ch; }
+  p.lead { font-size: clamp(1.1rem, 2.2vw, 1.6rem); line-height: 1.45; color: var(--muted); max-width: 44ch; margin: 0; }
+  section.more { min-height: 80vh; padding: 12vh 6vw; display: grid; gap: 1.6rem; align-content: center; }
+  section.more h2 { font-size: clamp(1.8rem, 4vw, 3.4rem); margin: 0; line-height: 1.15; max-width: 22ch; }
+  section.more p { font-size: 1.15rem; line-height: 1.55; color: var(--muted); max-width: 60ch; margin: 0; }
+  /* motor de split: a cópia em texto puro fica no DOM pra crawlers e leitores de tela; o split é aria-hidden */
+  .lm-sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .lm-line { display: block; }
+  .lm-clip { display: block; overflow: hidden; padding: 0.08em 0.02em 0.1em; margin: -0.08em -0.02em -0.1em; }
+  .lm-word { display: inline-block; white-space: nowrap; }
+  .lm-letter { display: inline-block; }
+  .lm-ws { display: inline-block; width: 0.28em; }
+  .lm-3d { perspective: 700px; }
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <p class="eyebrow" data-lobo-text data-preset="fade-letters" data-delay="0">Lobo Motion · text-motion</p>
+    <h1 data-lobo-text data-hero>Design em movimento que respeita o leitor</h1>
+    <p class="lead" data-lobo-text data-preset="fade-cascade" data-delay="500">Vinte e oito presets por letra, palavra e linha. Springs de verdade, uma por unidade, um relógio por efeito, e o texto inteiro no DOM antes de qualquer frame.</p>
+  </section>
+  <section class="more">
+    <h2 data-lobo-text data-preset="stagger-reveal-lines">Cada linha entra quando chega na viewport, e sai do caminho quando não precisa</h2>
+    <p data-lobo-text data-preset="unblur-lines" data-delay="150">Blur acontece uma vez por linha, nunca por letra. Hover só onde existe mouse. Com prefers-reduced-motion o texto aparece pronto, sem split, sem espera.</p>
+  </section>
+</main>
+<script>
+// ============================================================================
+// CONFIG: a fonte da verdade. Schema em ../references/config-schema.md; presets em ../references/presets.md
+// Vanilla JS + CSS: sem biblioteca. Num projeto com GSAP, react-spring ou motion, a skill traduz o contrato pra lib instalada.
+// ============================================================================
+const PRESETS = {
+  // letra (14)
+  "rise-settle":   { unit: "letter", from: { y: "110%", opacity: 0 }, to: { y: 0, opacity: 1 }, stagger: 28, tension: 1.2, friction: 1.0, clip: true },
+  "blur-in":       { unit: "letter", from: { opacity: 0, blur: 12 }, to: { opacity: 1, blur: 0 }, stagger: 22, tension: 1.0, friction: 1.1 },
+  "pop-scale":     { unit: "letter", from: { scale: 0.4, opacity: 0 }, to: { scale: 1, opacity: 1 }, stagger: 30, tension: 1.4, friction: 0.7 },
+  "flip-in":       { unit: "letter", from: { rotateX: -90, y: "30%", opacity: 0 }, to: { rotateX: 0, y: 0, opacity: 1 }, stagger: 30, tension: 1.1, friction: 0.9, perspective: true },
+  "typewriter":    { unit: "letter", from: { opacity: 0 }, to: { opacity: 1 }, stagger: 42, tension: 4.0, friction: 2.0 },
+  "drop-in":       { unit: "letter", from: { y: "-120%", opacity: 0 }, to: { y: 0, opacity: 1 }, stagger: 26, tension: 1.1, friction: 0.75 },
+  "bounce-up":     { unit: "letter", from: { y: "60%", opacity: 0 }, to: { y: 0, opacity: 1 }, stagger: 24, tension: 1.6, friction: 0.55 },
+  "skew-in":       { unit: "letter", from: { x: "-40%", skewX: -20, opacity: 0 }, to: { x: 0, skewX: 0, opacity: 1 }, stagger: 24, tension: 1.2, friction: 0.9 },
+  "tilt-3d":       { unit: "letter", from: { rotateY: 60, x: "20%", opacity: 0 }, to: { rotateY: 0, x: 0, opacity: 1 }, stagger: 26, tension: 1.0, friction: 0.9, perspective: true },
+  "fade-scale":    { unit: "letter", from: { scale: 1.3, opacity: 0 }, to: { scale: 1, opacity: 1 }, stagger: 20, tension: 0.9, friction: 1.1 },
+  "squeeze-in":    { unit: "letter", from: { scaleX: 0.2, opacity: 0 }, to: { scaleX: 1, opacity: 1 }, stagger: 22, tension: 1.3, friction: 0.8 },
+  "swing-in":      { unit: "letter", from: { rotate: -25, y: "-30%", opacity: 0 }, to: { rotate: 0, y: 0, opacity: 1 }, stagger: 28, tension: 1.2, friction: 0.6, origin: "top center" },
+  "scale-y":       { unit: "letter", from: { scaleY: 0, opacity: 0 }, to: { scaleY: 1, opacity: 1 }, stagger: 20, tension: 1.3, friction: 0.9, origin: "bottom center" },
+  "fade-letters":  { unit: "letter", from: { opacity: 0 }, to: { opacity: 1 }, stagger: 18, tension: 1.0, friction: 1.2 },
+  // palavra (9)
+  "fade-cascade":  { unit: "word", from: { opacity: 0, y: "20%" }, to: { opacity: 1, y: 0 }, stagger: 60, tension: 1.0, friction: 1.0 },
+  "curtain-up":    { unit: "word", from: { y: "100%" }, to: { y: 0 }, stagger: 50, tension: 1.1, friction: 1.0, clip: true },
+  "word-rise":     { unit: "word", from: { y: "60%", opacity: 0 }, to: { y: 0, opacity: 1 }, stagger: 45, tension: 1.2, friction: 0.95 },
+  "zoom-blur":     { unit: "word", from: { scale: 1.6, blur: 10, opacity: 0 }, to: { scale: 1, blur: 0, opacity: 1 }, stagger: 55, tension: 0.9, friction: 1.0 },
+  "rotate-in":     { unit: "word", from: { rotateX: 80, opacity: 0 }, to: { rotateX: 0, opacity: 1 }, stagger: 50, tension: 1.0, friction: 0.9, perspective: true },
+  "rise-wide":     { unit: "word", from: { y: "50%", scaleX: 1.25, opacity: 0 }, to: { y: 0, scaleX: 1, opacity: 1 }, stagger: 50, tension: 1.0, friction: 1.0 },
+  "pop-words":     { unit: "word", from: { scale: 0.6, opacity: 0 }, to: { scale: 1, opacity: 1 }, stagger: 55, tension: 1.5, friction: 0.6 },
+  "soft-focus":    { unit: "word", from: { blur: 8, scale: 1.05, opacity: 0 }, to: { blur: 0, scale: 1, opacity: 1 }, stagger: 45, tension: 0.8, friction: 1.2 },
+  "cascade-down":  { unit: "word", from: { y: "-60%", opacity: 0 }, to: { y: 0, opacity: 1 }, stagger: 50, tension: 1.1, friction: 0.9 },
+  // linha (5)
+  "slide-from-left":      { unit: "line", from: { x: -60, opacity: 0 }, to: { x: 0, opacity: 1 }, stagger: 120, tension: 1.0, friction: 1.0 },
+  "stagger-reveal-lines": { unit: "line", from: { y: "100%" }, to: { y: 0 }, stagger: 110, tension: 1.1, friction: 1.0, clip: true },
+  "wipe-down":            { unit: "line", from: { y: "-100%" }, to: { y: 0 }, stagger: 100, tension: 1.1, friction: 1.0, clip: true },
+  "slide-from-right":     { unit: "line", from: { x: 60, opacity: 0 }, to: { x: 0, opacity: 1 }, stagger: 120, tension: 1.0, friction: 1.0 },
+  "unblur-lines":         { unit: "line", from: { blur: 14, opacity: 0 }, to: { blur: 0, opacity: 1 }, stagger: 110, tension: 0.9, friction: 1.1 }
+};
+const CONFIG = {
+  preset: "rise-settle",      // preset do hero (data-hero); os outros elementos têm data-preset próprio
+  tension: 1.0, friction: 1.0, // multiplicadores sobre o preset (1 = o preset como está)
+  stagger: null,              // ms entre unidades; null = o do preset
+  delay: 0, speed: 1.0,
+  trigger: "inview-once",     // mount | inview-once | inview-always | progress
+  start: "top bottom-=10%", end: "center center",   // só para progress
+  scope: "all",               // all | hero | headings
+  text: null,                 // troca o texto do hero (?text=)
+  seed: 0
+};
+
+(function () {
+  const motionOff = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isBot = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed/i.test(navigator.userAgent);
+  const stats = { elements: 0, units: 0, frames: 0, active: 0, plays: 0, resplits: 0 };
+  const cfg = Object.assign({}, CONFIG);
+  const params = new URLSearchParams(location.search);
+  let ready = false;
+  function setConfig(changes) { const ignored = []; for (const k in changes) { if (k in cfg) cfg[k] = changes[k]; else ignored.push(k); } if (ready) rebuildAll(); return { ignored }; }
+  if (params.get("preset") && PRESETS[params.get("preset")]) cfg.preset = params.get("preset");
+  if (params.get("text")) cfg.text = params.get("text");
+  if (params.get("trigger")) cfg.trigger = params.get("trigger");
+  if (params.get("s")) { try { setConfig(JSON.parse(atob(params.get("s").replace(/-/g, "+").replace(/_/g, "/")))); } catch (e) {} }
+  function exportState() { return location.origin + location.pathname + "?s=" + btoa(JSON.stringify(cfg)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+  window.__lobo = { config: cfg, presets: PRESETS, stats, setConfig, exportState, family: "text-motion", replay: () => instances.forEach((i) => i.play(true)), split: (el) => mount(el) };
+
+  const heroEl = document.querySelector("[data-hero]");
+  if (cfg.text && heroEl) heroEl.textContent = cfg.text;
+  // robot form e reduced motion: nada é dividido, o texto já está pronto no DOM
+  if (isBot || motionOff) { ready = true; return; }
+
+  // ---- spring: massa 1, k = 170 × tension, c = 26 × friction (os defaults do react-spring), integração semi-implícita ----
+  const PERCENT = { x: "w", y: "h" };
+  class Spring {
+    constructor(from, to, k, c) { this.k = k; this.c = c; this.from = from; this.to = to; this.v = {}; this.x = {}; this.target = 1; this.settled = false; for (const p in to) { this.x[p] = from[p]; this.v[p] = 0; } }
+    goal(p) { return this.from[p] + (this.to[p] - this.from[p]) * this.target; }
+    step(dt) {
+      let rest = true; const h = 1 / 120;
+      for (let t = 0; t < dt; t += h) { const s = Math.min(h, dt - t);
+        for (const p in this.x) { const g = this.goal(p), a = this.k * (g - this.x[p]) - this.c * this.v[p]; this.v[p] += a * s; this.x[p] += this.v[p] * s; } }
+      for (const p in this.x) { const range = Math.abs(this.to[p] - this.from[p]) + 1e-3; if (Math.abs(this.v[p]) > 0.004 * range * 60 || Math.abs(this.goal(p) - this.x[p]) > 0.002 * range) rest = false; }
+      if (rest) for (const p in this.x) { this.x[p] = this.goal(p); this.v[p] = 0; }
+      this.settled = rest; return rest;
+    }
+  }
+  const instances = [];
+  let raf = 0, last = 0;
+  function tick(now) {
+    raf = 0; const dt = Math.min(1 / 30, (now - last) / 1000); last = now; let active = 0;
+    for (const inst of instances) active += inst.update(now, dt);
+    stats.frames++; stats.active = active;
+    if (active > 0) raf = requestAnimationFrame(tick);
+  }
+  function wake() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); } }
+
+  // ---- split: linhas pelo layout real → palavras → letras; cópia em texto puro fica no DOM ----
+  function splitElement(el, unit) {
+    const text = (el.dataset.loboOriginal || (el.dataset.loboOriginal = el.textContent.replace(/\s+/g, " ").trim()));
+    el.textContent = ""; el.setAttribute("aria-label", text);
+    const words = text.split(" ");
+    const probe = document.createElement("span"); probe.setAttribute("aria-hidden", "true");
+    const wordEls = words.map((w, i) => { const s = document.createElement("span"); s.className = "lm-word"; s.textContent = w; probe.appendChild(s); if (i < words.length - 1) { const ws = document.createElement("span"); ws.className = "lm-ws"; probe.appendChild(ws); } return s; });
+    el.appendChild(probe);
+    const lines = []; let top = null;
+    for (const w of wordEls) { const t = w.offsetTop; if (top === null || Math.abs(t - top) > 2) { lines.push([]); top = t; } lines[lines.length - 1].push(w); }
+    el.textContent = "";
+    const sr = document.createElement("span"); sr.className = "lm-sr"; sr.textContent = text; el.appendChild(sr);
+    const wrap = document.createElement("span"); wrap.setAttribute("aria-hidden", "true"); el.appendChild(wrap);
+    const units = [], lineEls = [];
+    lines.forEach((ws, li) => {
+      const line = document.createElement("span"); line.className = "lm-line"; const clip = document.createElement("span"); clip.className = "lm-clip"; line.appendChild(clip); wrap.appendChild(line); lineEls.push({ line, clip });
+      if (unit === "line") units.push({ el: clip, line: li, h: 0, w: 0 });
+      ws.forEach((w, wi) => {
+        const word = document.createElement("span"); word.className = "lm-word";
+        if (unit === "letter") { for (const ch of w.textContent) { const l = document.createElement("span"); l.className = "lm-letter"; l.textContent = ch; word.appendChild(l); units.push({ el: l, line: li, h: 0, w: 0 }); } }
+        else { word.textContent = w.textContent; if (unit === "word") units.push({ el: word, line: li, h: 0, w: 0 }); }
+        clip.appendChild(word); if (wi < ws.length - 1) { const s = document.createElement("span"); s.className = "lm-ws"; clip.appendChild(s); }
+      });
+    });
+    for (const u of units) { u.h = u.el.offsetHeight || 1; u.w = u.el.offsetWidth || 1; }
+    return { units, lineEls };
+  }
+
+  function resolve(spec, u) { const out = {}; for (const p in spec) { const v = spec[p]; out[p] = (typeof v === "string" && v.endsWith("%")) ? parseFloat(v) / 100 * (PERCENT[p] === "w" ? u.w : u.h) : Number(v); } return out; }
+  function transformOf(x) {
+    let t = "";
+    if ("x" in x || "y" in x) t += `translate3d(${(x.x || 0).toFixed(2)}px, ${(x.y || 0).toFixed(2)}px, 0) `;
+    if ("rotate" in x) t += `rotate(${x.rotate.toFixed(2)}deg) `; if ("rotateX" in x) t += `rotateX(${x.rotateX.toFixed(2)}deg) `; if ("rotateY" in x) t += `rotateY(${x.rotateY.toFixed(2)}deg) `;
+    if ("skewX" in x) t += `skewX(${x.skewX.toFixed(2)}deg) `;
+    if ("scale" in x || "scaleX" in x || "scaleY" in x) t += `scale(${(x.scaleX ?? x.scale ?? 1).toFixed(4)}, ${(x.scaleY ?? x.scale ?? 1).toFixed(4)}) `;
+    return t.trim() || "none";
+  }
+
+  function mount(el) {
+    const name = el.dataset.preset && PRESETS[el.dataset.preset] ? el.dataset.preset : cfg.preset;
+    const P = PRESETS[name];
+    const inst = { el, name, units: [], lineSprings: [], playing: false, played: false, t0: 0, delay: Number(el.dataset.delay || 0) + cfg.delay, trigger: el.dataset.trigger || cfg.trigger, io: null };
+    function build() {
+      const unit = P.unit; const { units, lineEls } = splitElement(el, unit);
+      if (P.perspective) el.classList.add("lm-3d"); else el.classList.remove("lm-3d");
+      const k = 170 * P.tension * cfg.tension, c = 26 * P.friction * cfg.friction;
+      const stagger = (cfg.stagger ?? P.stagger) / cfg.speed;
+      // blur é propriedade da LINHA, nunca da letra ou da palavra (uma camada por linha)
+      const fromU = Object.assign({}, P.from), toU = Object.assign({}, P.to); const hasBlur = "blur" in fromU; delete fromU.blur; delete toU.blur;
+      inst.units = units.map((u, i) => ({ u, i, spring: new Spring(resolve(fromU, u), resolve(toU, u), k, c), startAt: inst.delay + i * stagger, started: false, done: false }));
+      inst.lineSprings = lineEls.map((L, li) => { const first = inst.units.find((x) => x.u.line === li); return { el: L.line, clip: L.clip, spring: hasBlur ? new Spring({ blur: P.from.blur }, { blur: P.to.blur }, k, c) : null, startAt: first ? first.startAt : 0, started: false, done: !hasBlur }; });
+      for (const L of lineEls) L.clip.style.overflow = P.clip ? "hidden" : "visible";
+      for (const x of inst.units) { if (P.origin) x.u.el.style.transformOrigin = P.origin; paint(x, true); }
+      for (const L of inst.lineSprings) if (L.spring) paintLine(L);
+      stats.units += inst.units.length;
+    }
+    function paint(x, first) { const s = x.spring; const st = x.u.el.style; st.transform = transformOf(s.x); if ("opacity" in s.x) st.opacity = s.x.opacity.toFixed(3); if (first) st.willChange = ""; }
+    function paintLine(L) { const b = L.spring.x.blur; L.clip.style.filter = b > 0.05 ? `blur(${b.toFixed(2)}px)` : ""; }
+    inst.play = (force) => { if (inst.playing && !force) return; inst.playing = true; inst.played = true; inst.t0 = performance.now(); stats.plays++;
+      for (const x of inst.units) { x.started = false; x.done = false; x.spring.target = 1; const s = x.spring; for (const p in s.x) { s.x[p] = s.from[p]; s.v[p] = 0; } paint(x, true); }
+      for (const L of inst.lineSprings) if (L.spring) { L.started = false; L.done = false; L.spring.target = 1; L.spring.x.blur = L.spring.from.blur; L.spring.v.blur = 0; paintLine(L); }
+      wake(); };
+    inst.reverse = () => { for (const x of inst.units) { x.spring.target = 0; x.started = true; x.done = false; } for (const L of inst.lineSprings) if (L.spring) { L.spring.target = 0; L.started = true; L.done = false; } inst.playing = true; wake(); };
+    inst.update = (now, dt) => {
+      let active = 0;
+      if (inst.trigger === "progress") { const p = progressOf(el, cfg.start, cfg.end), N = inst.units.length, spread = 0.3 / Math.max(1, N);
+        inst.units.forEach((x, i) => { x.spring.target = Math.max(0, Math.min(1, (p - i * spread) / Math.max(1e-3, 1 - spread * (N - 1)))); x.started = true; x.done = false; });
+        inst.lineSprings.forEach((L, li) => { if (L.spring) { L.spring.target = inst.units.find((x) => x.u.line === li)?.spring.target ?? p; L.started = true; L.done = false; } });
+        inst.playing = true; }
+      if (!inst.playing) return 0;
+      const elapsed = now - inst.t0;
+      for (const x of inst.units) { if (x.done) continue; if (!x.started) { if (elapsed < x.startAt) { active++; continue; } x.started = true; x.u.el.style.willChange = "transform, opacity"; }
+        const rest = x.spring.step(dt); paint(x, false); if (rest && inst.trigger !== "progress") { x.done = true; x.u.el.style.willChange = ""; } else active++; }
+      for (const L of inst.lineSprings) { if (!L.spring || L.done) continue; if (!L.started) { if (elapsed < L.startAt) { active++; continue; } L.started = true; }
+        const rest = L.spring.step(dt); paintLine(L); if (rest && inst.trigger !== "progress") L.done = true; else active++; }
+      if (active === 0 && inst.trigger !== "progress") inst.playing = false;
+      return inst.trigger === "progress" ? 1 : active;
+    };
+    build();
+    if (inst.trigger === "mount") inst.play();
+    else if (inst.trigger === "progress") { inst.playing = true; wake(); window.addEventListener("scroll", wake, { passive: true }); }
+    else { inst.io = new IntersectionObserver((es) => { if (es[0].isIntersecting) inst.play(); else if (inst.trigger === "inview-always" && inst.played) inst.reverse(); }, { rootMargin: "0px 0px -10% 0px" }); inst.io.observe(el); }
+    inst.rebuild = () => { const was = inst.playing || inst.played; build(); if (was) { for (const x of inst.units) { const s = x.spring; for (const p in s.x) s.x[p] = s.to[p]; paint(x, true); } for (const L of inst.lineSprings) if (L.spring) { L.spring.x.blur = L.spring.to.blur; paintLine(L); } } stats.resplits++; };
+    instances.push(inst); stats.elements++; return inst;
+  }
+  // gramática de scroll "<borda do elemento> <borda da viewport>[±=px|%]" (a mesma do GSAP e do spring-text-engine)
+  function edgePos(spec, rect, vh) {
+    const [a, b] = spec.split(" "); const elEdge = { top: rect.top, center: rect.top + rect.height / 2, bottom: rect.bottom }[a] ?? rect.top;
+    const m = /^(top|center|bottom)(?:([+-])=(\d+(?:\.\d+)?)(px|%)?)?$/.exec(b || "bottom"); let vp = { top: 0, center: vh / 2, bottom: vh }[m ? m[1] : "bottom"];
+    if (m && m[2]) { const off = m[4] === "%" ? vh * Number(m[3]) / 100 : Number(m[3]); vp += m[2] === "+" ? off : -off; }
+    return elEdge - vp;   // 0 quando a borda do elemento encontra a borda da viewport
+  }
+  function progressOf(el, start, end) { const r = el.getBoundingClientRect(), vh = innerHeight; const s = edgePos(start, r, vh), e = edgePos(end, r, vh); if (Math.abs(s - e) < 1) return s <= 0 ? 1 : 0; return Math.max(0, Math.min(1, s / (s - e))); }
+
+  function targets() { const all = [...document.querySelectorAll("[data-lobo-text]")]; if (cfg.scope === "hero") return all.filter((e) => e.hasAttribute("data-hero")); if (cfg.scope === "headings") return all.filter((e) => /^H[1-6]$/.test(e.tagName)); return all; }
+  function rebuildAll() { for (const inst of instances) { if (inst.io) inst.io.disconnect(); inst.el.textContent = inst.el.dataset.loboOriginal; inst.el.classList.remove("lm-3d"); } instances.length = 0; stats.elements = 0; stats.units = 0; for (const el of targets()) mount(el); }
+  let lastW = innerWidth, rt = 0;
+  window.addEventListener("resize", () => { if (innerWidth === lastW) return; lastW = innerWidth; clearTimeout(rt); rt = setTimeout(() => instances.forEach((i) => i.rebuild()), 150); }, { passive: true });
+  // web font chegando depois do split muda as quebras de linha: re-split só quando a página declara fontes (@font-face) e elas ainda estavam carregando
+  if (document.fonts && document.fonts.size > 0 && document.fonts.status === "loading") document.fonts.ready.then(() => { if (ready) instances.forEach((i) => i.rebuild()); });
+  for (const el of targets()) mount(el);
+  ready = true;
+})();
+</script>
+</body>
+</html>
