@@ -15,7 +15,7 @@ Leia `references/shapes.md`, `references/gpgpu.md` e `vault/effect-catalog.md` a
 - Memória? Se a partícula precisa lembrar (kick que decai, tornado que acumula, swarm, transição entre formas), é GPGPU. Se é «respirar em volta da forma», stateless.
 
 ## 0.5 Tipo de partícula (antes da forma)
-Um preset é forma × sprite × movimento × cor × blend. Decida nesta ordem: o que cai/sobe/gira (`motion`), se é luz ou matéria (`blend` add/normal), o glifo (`sprite`), de onde vem a cor (`colorMode`), e só então a forma. Tabelas em `references/config-schema.md`; os 44 presets do template cobrem as combinações mais pedidas (neve, chuva, brasas, vagalumes, confete, glitter, DNA, átomo, saturno, texto).
+Um preset é forma × sprite × movimento × cor × blend × hover. As três cores que o cliente escolhe são `colorA`, `colorB` e `bg` (fundo); `colorC`/`colorD` só entram em `random` e `index`. O hover tem 5 modos (`push`, `pull`, `vortex`, `scatter`, `glow`) e 4 sliders (`pointer`, `pointerRadius`, `hoverGlow`, `hoverSoft`). Decida nesta ordem: o que cai/sobe/gira (`motion`), se é luz ou matéria (`blend` add/normal), o glifo (`sprite`), de onde vem a cor (`colorMode`), e só então a forma. Tabelas em `references/config-schema.md`; os 44 presets do template cobrem as combinações mais pedidas (neve, chuva, brasas, vagalumes, confete, glitter, DNA, átomo, saturno, texto).
 
 ## 1. CONFIG primeiro
 Chaves do template, todas obrigatórias (ranges em `references/config-schema.md`): `shape`, `seed`, `count`, `size`, `speed`, `flow`, `flowScale`, `pointer`, `pointerRadius`, `colorA`, `colorB`, `glow`, `glowSpread`, `glowCutoff`, `autoRotate`, `rotateSpeed`, `dprMax`. Variante GPGPU adiciona `spring`, `damping`, `kick`. Nenhuma cor, contagem ou intensidade literal fora do objeto.

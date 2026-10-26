@@ -45,3 +45,5 @@ Leituras que enganam e armadilhas de ferramenta. Cada uma custou tempo real em a
 - **Forma plana em XZ vista de frente é uma linha.** Disco, anel e flor gerados no plano XZ precisam de `tiltX` 0.7–1.25 (chave nova) ou são invisíveis na câmera padrão em z.
 - **Contagem é intensidade com blend aditivo.** 130k pontos numa casca pequena viram um disco branco qualquer que seja o `glow`; o teto por área é ~50k pra ler forma. Com `blend: "normal"` a contagem vira só densidade.
 - **Wrap de `fall`/`rise` corta sprites grandes.** Fumaça de 26 px mostrava a linha do `mod`; `wrapFade` zera o alpha nos últimos 0.25 do percurso.
+- **Ponteiro que lerpa desde (99,99,99) demora segundos em fps baixo.** O primeiro `pointermove` precisa saltar a posição suavizada pro alvo; o lerp só vale a partir do segundo evento. Sem isso, em 10 fps o hover parecia desligado.
+- **Sonda de hover: mova o mouse depois do boot.** Com three.js o listener de `pointermove` só existe depois dos imports; `page.mouse.move` 200 ms após o load não chega a ninguém. Espere `ready` (ou 1.5 s) antes de mover.

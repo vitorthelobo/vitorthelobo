@@ -121,6 +121,9 @@ Renderer: `skills/morph-transition/templates/standalone.html` (three.js). Abra c
 | storm | tornado → vortex → cosmicWave → lorenz | 3d · dramatic · dark · energy 0.8 | scatter 0.9, cutoff 0.38 |
 | scroll-driven | sphere → galaxy | 3d · calm · dark · energy 0.4 | `auto: false`; `t` pelo scroll |
 
+### Hover
+Cinco modos em todos os presets (`hover`): push, pull, vortex, scatter, glow; sliders `pointer`, `pointerRadius`, `hoverGlow`, `hoverSoft`. Presets com modo próprio: ember-knot vortex, frost-galaxy glow, abyss-lorenz scatter, synapse pull, fireflies scatter, glitter-dust glow, ink-swirl vortex, lobo-glyph scatter, starfield glow, atom-orbits pull, phyllotaxis vortex, heartbeat pull, digital-matrix scatter.
+
 ### Terceira leva (30 presets: tipos de partícula)
 Cada um combina forma × sprite × movimento × cor × blend. Abrem com `?preset=<nome>`.
 

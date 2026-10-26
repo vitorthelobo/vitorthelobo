@@ -11,6 +11,11 @@
 | motion | enum | flow, fall, rise, drift, orbit, swirl, pulse, jitter | flow | movimento stateless além do curl noise (tabela abaixo) |
 | motionSpeed | number | 0..3 | 1 | velocidade do movimento |
 | twinkle | number | 0..1 | 0 | cintilação de alpha por partícula (vagalume, estrela, glitter) |
+| hover | enum | push, pull, vortex, scatter, glow | push | efeito do cursor (tabela abaixo); desligado em touch |
+| pointer | number | 0..1 | 0.7 | força do hover |
+| pointerRadius | number | 0.2..3 | 1.2 | raio do hover em unidades de cena (a forma cabe em ~1.4) |
+| hoverGlow | number | 0..2 | 0.6 | quanto as partículas perto do cursor acendem e crescem, em qualquer modo |
+| hoverSoft | number | 0..1 | 0.5 | borda do raio: 0 corte duro, 1 bem suave |
 | colorMode | enum | flow, depth, axis, random, radial, index | flow | de onde vem a cor (tabela abaixo) |
 | colorC, colorD | hex | | #FFFFFF, #FFD166 | terceira e quarta cores (random e index) |
 | bg | hex | | #05060A | fundo (clear color e fallback) |
@@ -37,6 +42,19 @@ Variante GPGPU (gpgpu.md) adiciona: `spring (0..1)`, `damping (0.8..0.99)`, `kic
 
 ## Operações
 `setConfig(changes)` → `{ ignored }`. Trocar `shape` ou `seed` regenera o buffer (custo único; acima de 100k, Worker). Tint = `colorA`/`colorB`. Variação = `seed`.
+
+## Hover (`hover`)
+Todos partem de `near` = `pointer · smoothstep(raio, raio − borda, distância)`. Em touch o template zera `pointer`.
+
+| hover | Deslocamento | Pra quê |
+| --- | --- | --- |
+| push | afasta radialmente (0.6 · near) | o clássico: abre um buraco onde o cursor passa |
+| pull | puxa em direção ao cursor, limitado a 0.6 pra não atravessar | magnetismo, a nuvem segue o mouse |
+| vortex | tangencial em volta do eixo da câmera + leve afastamento | redemoinho que acompanha o cursor |
+| scatter | ruído 3D animado · near | explode/turbilhona onde o cursor toca |
+| glow | nenhum; só `hoverGlow` (acende, cresce 1.6×) | destaque sem bagunçar a forma; bom em texto e logo |
+
+`hoverGlow` vale nos cinco (acende e cresce 0.5× nos de deslocamento, 1.6× no glow). Cores do hover: no `colorMode: "flow"` o `near` empurra pra `colorB`; nos outros modos só o alpha e o tamanho sobem.
 
 ## Movimentos (`motion`)
 | motion | O que faz | Pra quê |
