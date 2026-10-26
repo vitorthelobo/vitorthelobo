@@ -17,7 +17,7 @@ report() { # LEVEL "regra" "por quê" "saída"
 }
 src() { # arquivos de código, sem node_modules, dist, .git
   find "${scope[@]}" -type f \( -name '*.js' -o -name '*.mjs' -o -name '*.ts' -o -name '*.tsx' -o -name '*.jsx' -o -name '*.html' -o -name '*.glsl' -o -name '*.frag' -o -name '*.vert' -o -name '*.svelte' -o -name '*.vue' \) \
-    -not -path '*/node_modules/*' -not -path '*/dist/*' -not -path '*/.git/*' -not -path '*/.next/*' 2>/dev/null
+    -not -path '*/node_modules/*' -not -path '*/dist/*' -not -path '*/.git/*' -not -path '*/.next/*' -not -path '*/tools/qa/*' 2>/dev/null
 }
 code() { grep -nHE "$1" $(src) 2>/dev/null | grep -vE '^\S+:[0-9]+:\s*(//|\*|#|<!--)' ; }
 

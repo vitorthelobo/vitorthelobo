@@ -1,6 +1,6 @@
 ---
 name: effect-builder
-description: Constrói UM efeito ou preset do brief ao HTML standalone seguindo a skill da família (shader-background, particle-forms, orb-reactive, holo-material, text-motion, cursor-fx, post-image-fx), verifica com qa-motion e reporta. Use PROATIVAMENTE quando houver vários efeitos ou variações a construir: um agent por efeito, em paralelo.
+description: Constrói UM efeito ou preset do brief ao HTML standalone seguindo a skill da família (shader-background, particle-forms, orb-reactive, holo-material, text-motion, cursor-fx, post-image-fx, image-reveal, grid-dots-field, 3d-object-scene, morph-transition), verifica com qa-motion e reporta. Use PROATIVAMENTE quando houver vários efeitos ou variações a construir: um agent por efeito, em paralelo.
 tools: Read, Grep, Glob, Edit, Write, Bash
 skills: qa-motion, build-prompt
 ---

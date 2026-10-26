@@ -11,7 +11,7 @@ lobo-motion-harness/
 ├── .claude-plugin/marketplace.json     # catálogo do marketplace (instale a partir daqui)
 └── plugins/lobo-motion/
     ├── .claude-plugin/plugin.json      # manifesto do plugin
-    ├── skills/        12 skills        # procedimentos + references/ + templates/
+    ├── skills/        22 skills        # 11 famílias com template + 11 de processo (integrar, scroll, marca, pack, QA…)
     ├── agents/         6 agents        # builder, judge, reviewer, auditor, librarian, tester
     ├── commands/       7 commands      # /effect /preset /tool-ui /export-prompt /qa-motion /perf-3d /harness-init
     ├── rules/          4 rules         # shaders, scenes, motion, config-first (copiadas pro projeto por /harness-init)
@@ -33,6 +33,16 @@ lobo-motion-harness/
 | `cursor-fx` | **Pronta.** 17 efeitos em vanilla JS + CSS (pointer, trail, field), demo automático, desligado em touch. |
 | `holo-material` | **Pronta.** Tecido verlet com iridescência física do three.js, 6 presets, agarre e cutucão. |
 | `post-image-fx` | **Pronta.** ASCII, dither e refração num shader WebGL2, 10 presets, upload de imagem ou vídeo. |
+| `image-reveal` | **Pronta.** Reveal líquido, pixel, tiles, wipe, ripple e líquido no hover num shader sobre a imagem, 6 presets, `<img>` no fallback. |
+| `grid-dots-field` | **Pronta.** Grade em canvas 2D (dots, lines, plus, cross, ascii) com warp, onda e cursor, 6 presets. |
+| `3d-object-scene` | **Pronta.** GLB ou objeto procedural com material físico, PMREM, órbita por arrasto, 6 presets. |
+| `morph-transition` | **Pronta.** Transição entre as 18 formas de partícula com stagger e scatter, ciclo ou scroll, 5 presets. |
+| `integrate-effect` | **Pronta (doc).** Receitas React/Next, Vue, Astro/HTML, Framer, Webflow; cleanup, SSR, uma lib de motion. |
+| `scroll-grammar` | **Pronta (doc).** switch/scrub/progress/pin, driver próprio ou ScrollTrigger/Lenis, receitas por família. |
+| `brand-to-preset` | **Pronta (doc).** Paleta em OKLab, tom → energia, onde vai → densidade, nome e tags. |
+| `effect-pack-export` | **Pronta.** `tools/pack.mjs` gera pasta/zip com HTMLs embutidos, index, previews, README e licença. |
+| `add-family` | **Pronta (doc).** O procedimento de família nova como skill, com checklist de registro. |
+| `tier-calibrate` | **Pronta.** `tools/qa/tier-calibrate.mjs` varre count × dpr × glow por tier e recomenda. |
 | Sondas `tools/qa` | **Testadas** nos dois templates neste ambiente (Chromium headless com SwiftShader). |
 
 ## Instalar
@@ -151,6 +161,16 @@ Quatro agents `effect-builder` constroem quatro variações (seeds e paletas dif
 | text-motion | split letra/palavra/linha, 28 presets, scroll grammar | sim, testado |
 | cursor-fx | pointer, trail, field; off em touch | sim, testado |
 | post-image-fx | ASCII, dither, refract, pós-efeitos | sim, testado |
+| image-reveal | reveal líquido/pixel/tiles/wipe, ripple e líquido no hover | sim, testado |
+| grid-dots-field | canvas 2D, 5 glifos, warp, onda, cursor, sprites | sim, testado |
+| 3d-object-scene | GLB/procedural, MeshPhysicalMaterial, PMREM, arrasto | sim, testado |
+| morph-transition | dois buffers + progresso, stagger, scatter, morphTo/next | sim, testado |
+| integrate-effect | componente React/Vue/Astro/Framer/Webflow com cleanup | receitas |
+| scroll-grammar | switch, scrub, progress, pin; um driver por página | receitas |
+| brand-to-preset | marca → CONFIGs por família (OKLab, tom, uso) | mapeamentos |
+| effect-pack-export | pack auto-contido (HTML + index + previews + licença) | `tools/pack.mjs` |
+| add-family | família nova do zero com checklist | checklist |
+| tier-calibrate | count × dpr × glow por tier em GPU real | `tools/qa/tier-calibrate.mjs` |
 | effect-tool-ui | painel do schema, presets, favoritos, URL, PNG/vídeo/HTML/prompt | contrato nos templates |
 | build-prompt | o formato do «Copy prompt» e o teste | — |
 | optimize-3d-scene | tiers, prewarm, DPR, fill, iOS, worker | — |

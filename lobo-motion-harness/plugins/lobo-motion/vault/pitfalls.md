@@ -36,3 +36,7 @@ Leituras que enganam e armadilhas de ferramenta. Cada uma custou tempo real em a
 - **Ângulo aleatório uniforme apaga espiral.** Braços precisam de k discretos (3 braços + jitter), não `rng()*2π`.
 - **Conic com `fract` tem costura.** Onda triangular `1 - abs(2a - 1)` fecha o círculo sem emenda.
 - **Metaball: calcule o pico.** Depois de mudar `f += k/(d²+e)`, confira que o centro passa de 1 e o ponto médio entre dois blobs passa de ~0.3; senão apaga ou não funde.
+- **Canvas 2D no SwiftShader não mede nada.** 2k células ficam em 6–11 fps em raster por software em qualquer variante (arc, fillRect, drawImage); em GPU real o mesmo código roda a 60. Use a sonda só pra comparar modos entre si. O que ajuda de verdade em GPU: nunca `stroke()` de traço curto (fillRect girado), nunca um path com milhares de subpaths (um `arc` por célula ou sprite por `drawImage`), estilo por balde.
+- **Transmission sem nada atrás é uma esfera preta.** Vidro em cena com clear color sólido só lê com `envIntensity` ≥ 2, `roughness` ≤ 0.2 e um toque de `iridescence`; ou ponha algo atrás pra refratar.
+- **Enquadre pela diagonal, não pelo raio.** TorusKnot(0.75, 0.26) ocupa ~1.3 unidades; com fov 35 a câmera precisa de z ≥ 5.5 pra sobrar respiro. Regra: `cameraZ ≈ 2.2 × extensão do objeto / tan(fov/2)`.
+- **Morph precisa de origem "assada".** Trocar `aTo` no meio de um morph sem gravar a posição interpolada atual em `position` faz as partículas pularem; `bakeCurrentAsFrom` custa 1 ms pra 160k e resolve.

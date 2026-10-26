@@ -1,7 +1,7 @@
 {
   "name": "lobo-motion",
-  "version": "0.1.0",
-  "description": "Constrói efeitos visuais de interface no nível GetLayers: shader backgrounds, campos de partículas, orbs reativos, materiais holográficos, text motion e cursores. CONFIG-first, QA medido com Playwright, exportação como HTML standalone e build prompt.",
+  "version": "0.2.0",
+  "description": "Constrói efeitos visuais de interface no nível GetLayers: shader backgrounds, campos de partículas, morph entre formas, orbs reativos, materiais holográficos, cenas 3D, image reveal, grids técnicos, text motion e cursores. CONFIG-first, QA medido com Playwright, integração em React/Astro/Framer, scroll grammar, presets derivados da marca, packs exportáveis e build prompt.",
   "author": { "name": "Vítor Lobo", "url": "https://github.com/vitorthelobo" },
   "homepage": "https://github.com/vitorthelobo",
   "keywords": ["webgl", "three", "glsl", "shaders", "particles", "motion", "ui-effects", "design"]

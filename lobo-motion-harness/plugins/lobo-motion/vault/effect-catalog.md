@@ -70,6 +70,57 @@ Abrem com `?preset=<nome>`; shapes descritos em `skills/particle-forms/reference
 | cosmic-wave | cosmicWave | 3d · calm · dark · energy 0.5 | 11 linhas senoidais, sem autoRotate |
 | magnetosphere | magnetosphere | 3d · tech · dark · energy 0.4 | linhas de campo dipolar roxo/laranja |
 
+## image-reveal
+
+Renderer: `skills/image-reveal/templates/standalone.html`. Abra com `?preset=<nome>`, `?src=<url>` ou `?s=`. API: `play()`, `replay()`; `reveal` por scroll.
+
+| preset | mode | Eixos | Diferencial |
+| --- | --- | --- | --- |
+| liquid-reveal | liquid | 2d · organic · any · energy 0.5 | limiar de fbm com borda clara; hover desloca |
+| pixel-resolve | pixel | 2d · tech · any · energy 0.4 | mosaico 64 px que resolve |
+| tiles-flip | tiles | 2d · editorial · any · energy 0.5 | 10 colunas crescendo em ordem diagonal |
+| wipe-warp | wipe | 2d · dramatic · any · energy 0.5 | varredura a 20° com borda deformada |
+| hover-ripple | ripple | 2d · playful · any · energy 0.4 | ondas concêntricas no ponteiro |
+| hover-liquid | displace | 2d · dreamy · any · energy 0.5 | fbm animado + velocidade do ponteiro |
+
+## grid-dots-field
+
+Renderer: `skills/grid-dots-field/templates/standalone.html` (canvas 2D). Abra com `?preset=<nome>` ou `?s=`.
+
+| preset | mode | Eixos | Diferencial |
+| --- | --- | --- | --- |
+| dot-matrix | dots | 2d · tech · dark · energy 0.3 | pontos brancos acendendo em ciano |
+| blueprint | lines | 2d · precise · dark · energy 0.25 | traços orientados pelo ruído, azul |
+| plus-grid | plus | 2d · tech · dark · energy 0.4 | cruzes lima, warp alto |
+| sonar | dots | 2d · tech · dark · energy 0.6 | onda radial pulsando |
+| ascii-rain | ascii | 2d · hacker · dark · energy 0.7 | glifos `.:-=+*#%@` pela energia |
+| topo | cross | 2d · organic · dark · energy 0.2 | warp 0.8 em frequência baixa (mapa) |
+
+## 3d-object-scene
+
+Renderer: `skills/3d-object-scene/templates/standalone.html` (three.js). Abra com `?preset=<nome>`, `?src=<glb>` ou `?s=`.
+
+| preset | objeto · material | Eixos | Diferencial |
+| --- | --- | --- | --- |
+| chrome-knot | torusKnot · chrome | 3d · premium · dark · energy 0.35 | roughness 0.08, clearcoat 0.6, rim ciano |
+| frosted-glass | icosahedron · glass | 3d · tech · dark · energy 0.25 | transmission 0.9, iridescence 0.35, env 2.2 |
+| clay-sphere | sphere · clay | 3d · soft · dark · energy 0.2 | roughness 0.9, luz quente |
+| oil-capsule | capsule · iridescent | 3d · premium · dark · energy 0.4 | iridescence 1, clearcoat 1, rim magenta |
+| wire-gem | dodecahedron · wire | 3d · tech · dark · energy 0.3 | LineSegments lima |
+| gold-logo | box · metal | 3d · premium · dark · energy 0.3 | ouro #D4A017, substitua o box pelo GLB do logo |
+
+## morph-transition
+
+Renderer: `skills/morph-transition/templates/standalone.html` (three.js). Abra com `?preset=<nome>`, `?t=0.5` ou `?s=`. API: `morphTo(shape)`, `next()`.
+
+| preset | sequence | Eixos | Diferencial |
+| --- | --- | --- | --- |
+| sphere-to-knot | sphere → torusKnot → galaxy → hopf | 3d · dreamy · dark · energy 0.6 | scatter 0.6, stagger 0.35 |
+| bloom-cycle | lotus → coral → membrane → neuron | 3d · organic · dark · energy 0.5 | rosa → verde-água |
+| tech-rings | gyroscope → wormhole → magnetosphere → ribbon | 3d · tech · dark · energy 0.6 | easing elastic |
+| storm | tornado → vortex → cosmicWave → lorenz | 3d · dramatic · dark · energy 0.8 | scatter 0.9, cutoff 0.38 |
+| scroll-driven | sphere → galaxy | 3d · calm · dark · energy 0.4 | `auto: false`; `t` pelo scroll |
+
 ## orb-reactive
 
 Renderer: `skills/orb-reactive/templates/standalone.html`. Abra com `?preset=<nome>`, `?state=<estado>`, `?level=0.8` (teste) ou `?s=`. API: `setState`, `setLevel`, `startMic`.
@@ -124,4 +175,4 @@ Renderer: `skills/post-image-fx/templates/standalone.html`. `?preset=terminal|am
 - CONFIG: `{ "mode": "ascii", "ink": "#39FF88", "paper": "#020904", "accent": "#39FF88", "exposure": 1.2, "contrast": 1.3, "ascii": { "charset": "classic70", "cellSize": 14, "glow": true, "bands": 16, "gamma": 0.7, "invert": false }, "post": { "scanlines": 0, "vignette": 0.25, "grain": 0.04, "crt": 0, "posterize": 0, "chroma": 0 } }`
 - Irmãos: amber-binary, newsprint (ascii); film-noir, toxic-grid, cyber-rain (dither); fluted, cross-reeded, rain, frosted (refract).
 
-Todas as sete famílias têm template testado. Novos presets entram aqui com screenshot e prompt. Cada uma tem SKILL.md com o procedimento; o primeiro preset de cada entra aqui quando passar pelo `visual-judge` e pelo `qa-motion`.
+Todas as onze famílias têm template testado. Novos presets entram aqui com screenshot e prompt. Cada uma tem SKILL.md com o procedimento; o primeiro preset de cada entra aqui quando passar pelo `visual-judge` e pelo `qa-motion`.

@@ -1,7 +1,7 @@
 # Template · entrada do catálogo
 
 ### <nome-do-preset>
-- Família: <shader-background | particle-forms | orb-reactive | holo-material | text-motion | cursor-fx | post-image-fx>
+- Família: <shader-background | particle-forms | orb-reactive | holo-material | text-motion | cursor-fx | post-image-fx | image-reveal | grid-dots-field | 3d-object-scene | morph-transition>
 - Eixos: <2d|2.5d|3d> · <mood> · <dark|light> · motionEnergy <0 a 1> · density <0 a 1>
 - CONFIG: `{ ... objeto completo, com seed ... }`
 - Screenshot: `catalog/<família>/<nome>.png` (1440x900 em t = 3 s) e `<nome>.phone.png` (390x844 DPR 3)
