@@ -88,6 +88,7 @@ const CONFIG = {
   pointerRadius: 1.2,       // 0.2..3 raio do hover em unidades de cena
   hoverGlow: 0.6,           // 0..2 quanto as partículas perto do cursor acendem e crescem (vale pros 5 modos)
   hoverSoft: 0.5,           // 0..1 borda do raio: 0 = corte duro, 1 = bem suave
+  touch: "drag",            // drag | off — no toque o hover segue o dedo enquanto arrasta (drag bloqueia o scroll sobre o canvas)
   colorMode: "flow",        // flow | depth | axis | random | radial | index
   colorA: "#25B8FF", colorB: "#B04DFF", colorC: "#FFFFFF", colorD: "#FFD166",   // random e index usam as quatro
   bg: "#05060A",
@@ -275,9 +276,9 @@ const MOTIONS = { flow: 0, fall: 1, rise: 2, drift: 3, orbit: 4, swirl: 5, pulse
 const COLOR_MODES = { flow: 0, depth: 1, axis: 2, random: 3, radial: 4, index: 5 };
 const HOVERS = { push: 0, pull: 1, vortex: 2, scatter: 3, glow: 4 };
 let raf = 0, last = performance.now(), time = 0, visible = !document.hidden, inView = true, w = 0, h = 0, dpr = 0;
-const pointerTarget = { x: 0, y: 0, z: 0, active: false }, pointerPos = { x: 99, y: 99, z: 99 };
+const pointerTarget = { x: 0, y: 0, z: 0, active: false, releasing: false }, pointerPos = { x: 99, y: 99, z: 99 };
 
-function tier() { const t = coarse ? "phone" : (window.innerWidth < 1024 ? "tablet" : "desktop"); stats.tier = t; return { name: t, countMul: t === "phone" ? 0.33 : t === "tablet" ? 0.6 : 1, dprMax: t === "phone" ? 1.25 : 1.5, bloomMul: t === "phone" ? 0.5 : 1, pointer: t === "desktop" }; }
+function tier() { const t = coarse ? "phone" : (window.innerWidth < 1024 ? "tablet" : "desktop"); stats.tier = t; return { name: t, countMul: t === "phone" ? 0.33 : t === "tablet" ? 0.6 : 1, dprMax: t === "phone" ? 1.25 : 1.5, bloomMul: t === "phone" ? 0.5 : 1, pointer: !coarse || cfg.touch !== "off" }; }
 
 async function boot() {
   THREE = await import("three");
@@ -303,12 +304,19 @@ async function boot() {
   new IntersectionObserver((es) => { inView = es[0].isIntersecting; if (inView) schedule(); }, { rootMargin: "100% 0px" }).observe(scene);
   document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });
   window.addEventListener("resize", () => { dirty = true; schedule(); }, { passive: true });
-  if (tier().pointer) {
+  {
+    // mouse: hover livre. toque: segue o dedo enquanto pressiona (pointerdown → move → up solta e o efeito se afasta suavemente).
     const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), hit = new THREE.Vector3();
-    window.addEventListener("pointermove", (e) => {
+    let pressed = false;
+    function track(e) {
       const r = scene.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-      ray.setFromCamera(ndc, camera); if (ray.ray.intersectPlane(plane, hit)) { points.worldToLocal(hit); if (!pointerTarget.active) { pointerPos.x = hit.x; pointerPos.y = hit.y; pointerPos.z = hit.z; } pointerTarget.x = hit.x; pointerTarget.y = hit.y; pointerTarget.z = hit.z; pointerTarget.active = true; schedule(); }   // primeiro evento: salta (sem isso o lerp desde (99,99,99) leva segundos em fps baixo)
-    }, { passive: true });
+      ray.setFromCamera(ndc, camera); if (ray.ray.intersectPlane(plane, hit)) { points.worldToLocal(hit); if (!pointerTarget.active) { pointerPos.x = hit.x; pointerPos.y = hit.y; pointerPos.z = hit.z; } pointerTarget.x = hit.x; pointerTarget.y = hit.y; pointerTarget.z = hit.z; pointerTarget.active = true; pointerTarget.releasing = false; schedule(); }   // primeiro evento: salta (sem isso o lerp desde (99,99,99) leva segundos em fps baixo)
+    }
+    function release() { pressed = false; if (!pointerTarget.active) return; pointerTarget.releasing = true; const away = 6; pointerTarget.x = pointerPos.x * away; pointerTarget.y = pointerPos.y * away; pointerTarget.z = 40; schedule(); }
+    window.addEventListener("pointermove", (e) => { if (!tier().pointer) return; if (e.pointerType !== "mouse" && !pressed) return; track(e); }, { passive: true });
+    canvas.addEventListener("pointerdown", (e) => { if (!tier().pointer || e.pointerType === "mouse") return; pressed = true; track(e); }, { passive: true });
+    window.addEventListener("pointerup", (e) => { if (e.pointerType !== "mouse") release(); }, { passive: true });
+    window.addEventListener("pointercancel", release, { passive: true });
   }
   resize(); composer.render(); stats.links = renderer.info.programs.length;   // pré-aquece: tudo compila antes do primeiro frame visível
   ready = true; schedule();
@@ -321,7 +329,7 @@ function applyConfig() {
     geometry.setAttribute("position", new THREE.BufferAttribute(base, 3)); geometry.setAttribute("aRandom", new THREE.BufferAttribute(rnd, 1)); geometry.setAttribute("aIndex", new THREE.BufferAttribute(idx, 1)); geometry.userData.key = cfg.shape + ":" + cfg.seed + ":" + cfg.text;
   }
   geometry.setDrawRange(0, Math.floor(N * T.countMul));
-  const u = material.uniforms; u.uFlow.value = cfg.flow; u.uFlowScale.value = cfg.flowScale; u.uSize.value = cfg.size; u.uPointer.value = T.pointer ? cfg.pointer : 0; u.uPointerRadius.value = cfg.pointerRadius; u.uHover.value = HOVERS[cfg.hover] ?? 0; u.uHoverGlow.value = cfg.hoverGlow; u.uHoverSoft.value = cfg.hoverSoft;
+  const u = material.uniforms; u.uFlow.value = cfg.flow; u.uFlowScale.value = cfg.flowScale; u.uSize.value = cfg.size; u.uPointer.value = T.pointer ? cfg.pointer : 0; canvas.style.touchAction = cfg.touch === "drag" ? "none" : "pan-y"; u.uPointerRadius.value = cfg.pointerRadius; u.uHover.value = HOVERS[cfg.hover] ?? 0; u.uHoverGlow.value = cfg.hoverGlow; u.uHoverSoft.value = cfg.hoverSoft;
   u.uSizeVar.value = cfg.sizeVar; u.uSpin.value = cfg.spin; u.uMotion.value = MOTIONS[cfg.motion] ?? 0; u.uMotionSpeed.value = cfg.motionSpeed; u.uTwinkle.value = cfg.twinkle;
   u.uColorMode.value = COLOR_MODES[cfg.colorMode] ?? 0; u.uColors.value[0].set(cfg.colorA); u.uColors.value[1].set(cfg.colorB); u.uColors.value[2].set(cfg.colorC); u.uColors.value[3].set(cfg.colorD);
   u.uSprite.value = SPRITES[cfg.sprite] ?? 0; u.uAdditive.value = cfg.blend === "normal" ? 0 : 1; material.blending = cfg.blend === "normal" ? THREE.NormalBlending : THREE.AdditiveBlending; material.needsUpdate = true;
@@ -344,7 +352,7 @@ function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   if (!motionOff) { time += dt * cfg.speed; if (cfg.autoRotate) points.rotation.y += cfg.rotateSpeed * dt; }
   const k = 1 - Math.pow(1 - 0.15, dt * 60);   // easing independente do refresh rate
-  if (pointerTarget.active) { pointerPos.x += (pointerTarget.x - pointerPos.x) * k; pointerPos.y += (pointerTarget.y - pointerPos.y) * k; pointerPos.z += (pointerTarget.z - pointerPos.z) * k; material.uniforms.uPointerPos.value.set(pointerPos.x, pointerPos.y, pointerPos.z); }
+  if (pointerTarget.active) { pointerPos.x += (pointerTarget.x - pointerPos.x) * k; pointerPos.y += (pointerTarget.y - pointerPos.y) * k; pointerPos.z += (pointerTarget.z - pointerPos.z) * k; material.uniforms.uPointerPos.value.set(pointerPos.x, pointerPos.y, pointerPos.z); if (pointerTarget.releasing && pointerPos.z > 20) { pointerTarget.active = false; pointerTarget.releasing = false; pointerPos.x = pointerPos.y = pointerPos.z = 99; material.uniforms.uPointerPos.value.set(99, 99, 99); } }
   const resized = resize();
   if (motionOff && !dirty && !resized && !pointerTarget.active) return;
   material.uniforms.uTime.value = time;

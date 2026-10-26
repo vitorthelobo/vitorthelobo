@@ -16,6 +16,7 @@
 | pointerRadius | number | 0.2..3 | 1.2 | raio do hover em unidades de cena (a forma cabe em ~1.4) |
 | hoverGlow | number | 0..2 | 0.6 | quanto as partículas perto do cursor acendem e crescem, em qualquer modo |
 | hoverSoft | number | 0..1 | 0.5 | borda do raio: 0 corte duro, 1 bem suave |
+| touch | enum | drag, off | drag | no toque o hover segue o dedo enquanto arrasta e se afasta ao soltar; `drag` põe `touch-action: none` no canvas (o scroll da página não passa por cima dele), `off` desliga o hover em touch e deixa o scroll vertical |
 | colorMode | enum | flow, depth, axis, random, radial, index | flow | de onde vem a cor (tabela abaixo) |
 | colorC, colorD | hex | | #FFFFFF, #FFD166 | terceira e quarta cores (random e index) |
 | bg | hex | | #05060A | fundo (clear color e fallback) |
@@ -44,7 +45,7 @@ Variante GPGPU (gpgpu.md) adiciona: `spring (0..1)`, `damping (0.8..0.99)`, `kic
 `setConfig(changes)` → `{ ignored }`. Trocar `shape` ou `seed` regenera o buffer (custo único; acima de 100k, Worker). Tint = `colorA`/`colorB`. Variação = `seed`.
 
 ## Hover (`hover`)
-Todos partem de `near` = `pointer · smoothstep(raio, raio − borda, distância)`. Em touch o template zera `pointer`.
+Todos partem de `near` = `pointer · smoothstep(raio, raio − borda, distância)`. Mouse: hover livre. Toque: segue o dedo do `pointerdown` ao `pointerup`, depois o ponto de pressão se afasta suavemente (a forma volta sem salto). `touch: "off"` desliga.
 
 | hover | Deslocamento | Pra quê |
 | --- | --- | --- |
