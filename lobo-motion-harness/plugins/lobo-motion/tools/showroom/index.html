@@ -1,0 +1,323 @@
+<meta charset="utf-8">
+<title>Lobo Motion Showroom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+  /* Layout: uma régua de famílias no topo, trilho de presets à esquerda, palco 16:10 à direita, CONFIG vivo embaixo. Dark-first por escolha: os efeitos são escuros. */
+  :root {
+    --bg: #0e0f13; --panel: #15171d; --line: #262932; --fg: #ece9e1; --muted: #8f93a1; --accent: #d6ff3f; --accent-ink: #141a00; --ok: #5be0a8;
+    --display: "Syne", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+    --body: "Manrope", "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f3f2ee; --panel: #ffffff; --line: #dedbd3; --fg: #15161a; --muted: #6a6d78; --accent: #5a7a00; --accent-ink: #ffffff; --ok: #1f8a5c; color-scheme: light; } }
+  :root[data-theme="light"] { --bg: #f3f2ee; --panel: #ffffff; --line: #dedbd3; --fg: #15161a; --muted: #6a6d78; --accent: #5a7a00; --accent-ink: #ffffff; --ok: #1f8a5c; color-scheme: light; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+  .wrap { max-width: 1380px; margin: 0 auto; padding-block: 20px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+  h1 { font-family: var(--display); font-weight: 800; font-size: clamp(1.5rem, 3vw, 2.1rem); letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+  header p { margin: 0; color: var(--muted); max-width: 62ch; }
+  nav.families { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tab { font-family: var(--display); font-weight: 700; font-size: 0.95rem; padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .tab:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* Estúdio: presets à esquerda, palco no meio (fica fixo ao rolar), controles à direita. Tudo visível junto. */
+  .studio { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+  .stage { position: sticky; top: 12px; }
+  @media (max-width: 1100px) { .studio { grid-template-columns: 1fr; } .stage { position: static; } #controls { position: static; max-height: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 16px; align-items: start; } }
+  @media (max-width: 820px) { nav.families { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; margin-inline: -16px; padding-inline: 16px; } .tab { white-space: nowrap; flex: 0 0 auto; } header p { display: none; } .studio { grid-template-columns: 1fr; } .stage { position: sticky; top: 0; z-index: 5; background: var(--bg); padding-bottom: 8px; } #controls { grid-template-columns: 1fr; } }
+  aside { display: grid; gap: 12px; min-width: 0; }
+  #controls { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; scrollbar-width: thin; padding-right: 2px; }
+  .group h2 { font-family: var(--display); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 700; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font: 500 0.85rem var(--body); padding: 7px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; }
+  .chip[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .chip.state[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .knob { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; align-items: center; font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+  .knob input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); height: 18px; margin: 0; }
+  .knob output { font-family: var(--mono); font-size: 0.74rem; color: var(--fg); font-variant-numeric: tabular-nums; }
+  .knobs2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  .group .knob + .knob { margin-top: 4px; }
+  .presetNav { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; }
+  .presetSelect { width: 100%; min-width: 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); font: 500 0.88rem var(--body); }
+  .btn.nav { padding: 6px 11px; font-size: 1.1rem; line-height: 1; }
+  .presetCount { font: 0.74rem var(--mono); color: var(--muted); margin-top: 6px; }
+  .group { padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+  .colors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .color { display: grid; gap: 4px; justify-items: center; font-size: 0.78rem; color: var(--muted); cursor: pointer; }
+  .color input[type="color"] { width: 100%; height: 36px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 3px; cursor: pointer; }
+  .color code { font-family: var(--mono); font-size: 0.72rem; color: var(--fg); }
+  .field { display: grid; gap: 6px; margin-top: 8px; }
+  .field input[type="text"], .field select { width: 100%; box-sizing: border-box; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); font: 500 0.9rem var(--body); }
+  .btn { font: 600 0.85rem var(--body); padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .stage { display: grid; gap: 12px; min-width: 0; }
+  .frame { position: relative; width: 100%; aspect-ratio: 16 / 10; touch-action: none; max-width: 100%; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+  .frame.phone { aspect-ratio: 9 / 16; max-width: 420px; margin: 0 auto; }
+  .frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; color: var(--muted); font-size: 0.85rem; }
+  .bar .left { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); font-size: 0.78rem; color: var(--fg); }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+  details { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); min-width: 0; }
+  summary { cursor: pointer; padding: 12px 14px; font-family: var(--display); font-weight: 700; font-size: 0.9rem; }
+  pre { margin: 0; padding: 0 14px 14px; font: 0.8rem/1.5 var(--mono); color: var(--fg); overflow-x: auto; white-space: pre; }
+  .note { color: var(--muted); font-size: 0.85rem; max-width: 72ch; }
+  .note b { color: var(--fg); }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Lobo Motion Showroom</h1>
+    <p>As onze famílias do harness rodando ao vivo, com a GPU do seu navegador. Troque preset, estado e knobs; o CONFIG embaixo é o que o build prompt carrega.</p>
+  </header>
+
+  <nav class="families" role="tablist" aria-label="Famílias">
+    <button class="tab" role="tab" data-family="shader" aria-selected="true" id="tab-shader">Shader Background</button>
+    <button class="tab" role="tab" data-family="particles" aria-selected="false" id="tab-particles">Particle Forms</button>
+    <button class="tab" role="tab" data-family="orb" aria-selected="false" id="tab-orb">Orb Reactive</button>
+    <button class="tab" role="tab" data-family="text" aria-selected="false" id="tab-text">Text Motion</button>
+    <button class="tab" role="tab" data-family="cursor" aria-selected="false" id="tab-cursor">Cursor FX</button>
+    <button class="tab" role="tab" data-family="holo" aria-selected="false" id="tab-holo">Holographic Cloth</button>
+    <button class="tab" role="tab" data-family="post" aria-selected="false" id="tab-post">Post Image FX</button>
+    <button class="tab" role="tab" data-family="image" aria-selected="false" id="tab-image">Image Reveal</button>
+    <button class="tab" role="tab" data-family="grid" aria-selected="false" id="tab-grid">Grid Dots Field</button>
+    <button class="tab" role="tab" data-family="object3d" aria-selected="false" id="tab-object3d">3D Object Scene</button>
+    <button class="tab" role="tab" data-family="morph" aria-selected="false" id="tab-morph">Morph Transition</button>
+  </nav>
+
+  <div class="studio">
+    <div class="stage">
+      <div class="frame" id="frame"><iframe id="view" title="Palco do efeito" allow="autoplay"></iframe></div>
+      <div class="bar">
+        <div class="left">
+          <span class="pill"><span class="dot"></span><span id="status">carregando</span></span>
+          <span id="meta"></span>
+        </div>
+        <div class="left">
+          <button class="btn" id="phoneToggle" type="button" aria-pressed="false">Ver como celular</button>
+          <button class="btn" id="reload" type="button">Recarregar</button>
+          <button class="btn primary" id="copy" type="button">Copiar CONFIG</button>
+        </div>
+      </div>
+      <details>
+        <summary>CONFIG vivo</summary>
+        <pre id="config">{ }</pre>
+      </details>
+      <p class="note" id="familyNote"></p>
+    </div>
+    <aside id="controls"></aside>
+  </div>
+</div>
+
+<script>
+(function () {
+  const FAMILIES = {
+    shader: {
+      file: "templates/shader-background.html", label: "Shader Background",
+      note: "<b>WebGL2 cru.</b> Um quad e um fragment shader que lê o CONFIG por uniforms: 5 stops misturados em OKLab, shape linear, radial, conic, mesh ou warped, swirl, movimento por ruído e grão. Sem dependência.",
+      presets: { base: ["graphite", "lagoon", "molten", "neon-dream"], campos: ["aurora-veil", "sun-rays", "pond-ripples", "silk-stripes", "pool-caustics", "lava-blobs"], efeitos: ["glacier", "halftone-noir", "cyber-bloom", "twilight-haze"] },
+      colors: [["colors", "cor 1", { index: 0 }], ["colors", "cor 2", { index: 1 }], ["colors", "cor 3", { index: 2 }], ["colors", "cor 4", { index: 3 }], ["colors", "cor 5", { index: 4 }]],
+      selects: { shape: { label: "Campo (shape)", options: ["linear", "radial", "conic", "mesh", "warped", "aurora", "rays", "ripples", "stripes", "caustics", "blobs"], knobs: [["angle", 0, 360, 1, "ângulo"], ["centerX", 0, 1, 0.01, "centro x"], ["centerY", 0, 1, 0.01, "centro y"]] } },
+      knobs: [["swirl", 0, 1.5, 0.01], ["movement", 0, 1, 0.01], ["zoom", 0.3, 3, 0.01], ["speed", 0, 2, 0.01], ["detail", 0.25, 3, 0.05], ["contrast", 0.5, 2, 0.01], ["grain", 0, 0.4, 0.005], ["dither", 0, 1, 0.01], ["halftone", 0, 16, 1], ["vignette", 0, 1, 0.01]]
+    },
+    particles: {
+      file: "templates/particle-forms.html", label: "Particle Forms",
+      note: "<b>three.js por import map.</b> Forma gerada por fórmula com seed (nó tórico, Hopf, galáxia, atrator de Lorenz), curl noise no vertex shader, bloom como glow, glow spread e glow cut-off. O tier phone corta a contagem por 3 e o bloom pela metade.",
+      presets: { base: ["nebula-drift", "ember-knot", "frost-galaxy", "abyss-lorenz"], orgânicos: ["silk-membrane", "coral-bloom", "synapse", "ribbon-twist", "cosmic-wave"], dinâmicos: ["dust-tornado", "gyro-core", "wormhole", "vortex-fall", "magnetosphere"], clima: ["snowfall", "rain-streaks", "embers-rise", "bubbles-rise", "smoke-plume", "sand-storm", "starfield"], vida: ["fireflies", "pollen-drift", "jellyfish-glow", "heartbeat", "phyllotaxis", "superformula"], objetos: ["atom-orbits", "saturn", "asteroid-belt", "dna-helix", "mobius-band", "lissajous-string", "fountain-spray", "hologram-scan"], gráficos: ["confetti-burst", "glitter-dust", "pixel-lattice", "digital-matrix", "neon-cross-field", "triangle-mesh", "ink-swirl", "aurora-curtain", "lobo-glyph"] },
+      colors: [["colorA", "cor A"], ["colorB", "cor B"], ["bg", "fundo"]],
+      selects: { hover: { label: "Efeito de hover", options: ["push", "pull", "vortex", "scatter", "glow"], knobs: [["pointer", 0, 1, 0.01, "força"], ["pointerRadius", 0.2, 3, 0.05, "raio"], ["hoverGlow", 0, 2, 0.01, "brilho"], ["hoverSoft", 0, 1, 0.01, "suavidade da borda"]], hint: "Passe o mouse no palco (no celular, arraste o dedo). push afasta · pull puxa · vortex gira · scatter turbilhona · glow só acende." }, sprite: { label: "Sprite", options: ["disc", "dot", "ring", "square", "diamond", "star", "cross", "streak", "bokeh", "triangle"] }, motion: { label: "Movimento", options: ["flow", "fall", "rise", "drift", "orbit", "swirl", "pulse", "jitter"] }, colorMode: { label: "Modo de cor", options: ["flow", "depth", "axis", "random", "radial", "index"] }, blend: { label: "Blend", options: ["add", "normal"] } },
+      knobs: [["flow", 0, 1.5, 0.01], ["size", 0.5, 30, 0.1], ["sizeVar", 0, 1, 0.01], ["motionSpeed", 0, 3, 0.05], ["twinkle", 0, 1, 0.01], ["spin", 0, 2, 0.05], ["glow", 0, 2, 0.01], ["speed", 0, 2, 0.01]]
+    },
+    orb: {
+      file: "templates/orb-reactive.html", label: "Orb Reactive",
+      note: "<b>Seis estados com transição de 450 ms.</b> Speaking e listening reagem ao nível de áudio (o slider simula; na vida real vem do microfone ou do app). Hero preenche a caixa; widget é 264 px.",
+      presets: ["core-teal", "ember-core", "cyan-spiral", "violet-nebula", "aurora-field"],
+      states: ["idle", "listening", "thinking", "speaking", "success", "error"],
+      colors: [["colorBase", "base"], ["colorInterior", "interior"], ["accentDust", "poeira"], ["accentStars", "estrelas"], ["accentAurora", "aurora"]],
+      selects: { quality: { label: "Qualidade", options: ["low", "balanced", "high"] } },
+      knobs: [["intensity", 0, 2, 0.01], ["detail", 0, 1.5, 0.01], ["glass", 0, 1, 0.01], ["glow", 0, 2, 0.01], ["drift", 0, 1, 0.01], ["speed", 0, 2, 0.01], ["grain", 0, 0.2, 0.005], ["audioPulse", 0, 2, 0.01]]
+    },
+    text: {
+      file: "templates/text-motion.html", label: "Text Motion",
+      note: "<b>Vanilla JS, mola própria.</b> Split em linha, palavra e letra pelo layout real; 14 presets por letra, 9 por palavra, 5 por linha. O texto inteiro fica no DOM antes de qualquer frame.",
+      presets: { letra: ["rise-settle", "blur-in", "pop-scale", "flip-in", "typewriter", "drop-in", "bounce-up", "skew-in", "tilt-3d", "fade-scale", "squeeze-in", "swing-in", "scale-y", "fade-letters"], palavra: ["fade-cascade", "curtain-up", "word-rise", "zoom-blur", "rotate-in", "rise-wide", "pop-words", "soft-focus", "cascade-down"], linha: ["slide-from-left", "stagger-reveal-lines", "wipe-down", "slide-from-right", "unblur-lines"] },
+      selects: { trigger: { label: "Gatilho", options: ["mount", "inview-once", "inview-always", "progress"], hint: "progress segue o scroll; os outros tocam uma vez ou a cada entrada na viewport." } },
+      knobs: [["tension", 0.5, 2, 0.05], ["friction", 0.5, 2, 0.05], ["speed", 0.25, 3, 0.05], ["delay", 0, 2, 0.05]]
+    },
+    cursor: {
+      file: "templates/cursor-fx.html", label: "Cursor FX",
+      note: "<b>Vanilla JS + CSS.</b> Mova o mouse dentro do palco. Até o primeiro movimento um ponteiro fantasma anda sozinho (modo demo). Em telas de toque o cursor custom fica desligado.",
+      presets: { pointer: ["dot-ring", "velocity-squish", "crosshair-hud", "custom-pointer", "figma-cursor", "eyes", "butterfly"], trail: ["trail", "cascading-dots", "swirl", "silky-ribbon", "pixel-trail", "fluid-smoke", "cursor-ghost"], field: ["magnet-lines", "ascii-field", "dot-grid-warp"] },
+      colors: [["color", "cor"], ["color2", "cor 2"]],
+      selects: { colorMode: { label: "Modo de cor", options: ["solid", "gradient", "difference"] } },
+      knobs: [["follow", 0.05, 1, 0.01], ["ringSize", 8, 80, 1], ["dotSize", 2, 20, 1], ["hoverScale", 1, 3, 0.05], ["trailLength", 4, 60, 1], ["trailDecay", 0.5, 0.98, 0.01], ["fieldSpacing", 12, 60, 1], ["fieldStrength", 0, 1.5, 0.05]]
+    },
+    holo: {
+      file: "templates/holo-material.html", label: "Holographic Cloth",
+      note: "<b>three.js, iridescência física.</b> Arraste sobre o tecido pra agarrar, clique fora pra cutucar. O arco-íris mora na reflexão e muda com o ângulo; as bandas vêm de um mapa de espessura procedural.",
+      presets: ["holo", "black-gloss", "chrome", "oil-slick", "pearl-silk", "aurora-foil"],
+      colors: [["baseColor", "base"], ["background", "fundo"]],
+      selects: { finish: { label: "Acabamento", options: ["glossy", "satin", "matte"] }, toneMapping: { label: "Tone mapping", options: ["ACES", "AgX", "Neutral"] } },
+      knobs: [["rainbowStrength", 0, 1, 0.01], ["patternSize", 2, 40, 1], ["colorShift", 0, 1, 0.01], ["metallic", 0, 1, 0.01], ["pearl", 0, 1, 0.01], ["glitter", 0, 1, 0.01], ["scratches", 0, 1, 0.01], ["reflections", 0, 2, 0.05], ["brightness", 0, 1.5, 0.01], ["cloth.wind", 0, 2, 0.05, "vento"]]
+    },
+    post: {
+      file: "templates/post-image-fx.html", label: "Post Image FX",
+      note: "<b>WebGL2, três modos num shader.</b> ASCII por atlas de glifos, dither ordenado e refração por vidro procedural. Solte uma imagem ou vídeo no palco (ou clique nele) pra trocar a amostra.",
+      presets: { ascii: ["terminal", "amber-binary", "newsprint"], dither: ["film-noir", "toxic-grid", "cyber-rain"], refract: ["fluted", "cross-reeded", "rain", "frosted"] },
+      colors: [["ink", "tinta"], ["paper", "papel"], ["accent", "acento"]],
+      selects: { mode: { label: "Modo", options: ["ascii", "dither", "refract"], knobs: [["ascii.cellSize", 6, 30, 1, "célula ascii"], ["dither.strength", 0, 1, 0.01, "força do dither"], ["dither.dotSize", 1, 6, 1, "ponto do dither"], ["refract.depth", 0, 2, 0.05, "profundidade do vidro"], ["refract.cellSize", 8, 80, 1, "célula do vidro"]] } },
+      knobs: [["exposure", 0, 3, 0.05], ["contrast", 0.5, 2, 0.05], ["gamma", 0.5, 2, 0.05], ["temporal", 0, 1, 0.01], ["post.vignette", 0, 1, 0.01, "vinheta"], ["post.scanlines", 0, 1, 0.01, "scanlines"], ["post.grain", 0, 0.2, 0.005, "grão"], ["post.chroma", 0, 1, 0.01, "chroma"]]
+    },
+    grid: {
+      file: "templates/grid-dots-field.html", label: "Grid Dots Field",
+      note: "<b>Canvas 2D.</b> Uma grade de células deslocada por ruído, onda radial e o cursor; dez glifos (dots, ring, square, diamond, triangle, star, plus, cross, lines, ascii), cinco efeitos de hover, 32 baldes de estilo e sprites pra os pontos. Fundo técnico sem dependência.",
+      presets: ["dot-matrix", "blueprint", "plus-grid", "sonar", "star-dust", "diamond-net", "ascii-rain", "topo"],
+      colors: [["color", "cor"], ["color2", "cor acesa"], ["bg", "fundo"]],
+      selects: { mode: { label: "Partícula (glifo)", options: ["dots", "ring", "square", "diamond", "triangle", "star", "plus", "cross", "lines", "ascii"] }, hover: { label: "Efeito de hover", options: ["push", "pull", "vortex", "scatter", "glow"], knobs: [["pointer", 0, 1, 0.01, "força"], ["pointerRadius", 60, 400, 5, "raio (px)"], ["hoverGlow", 0, 2, 0.01, "brilho"], ["hoverSoft", 0, 1, 0.01, "suavidade da borda"]], hint: "Passe o mouse (ou arraste o dedo) no palco." } },
+      knobs: [["spacing", 12, 64, 1], ["size", 0.5, 14, 0.1], ["warp", 0, 1, 0.01], ["warpScale", 0.3, 3, 0.05], ["wave", 0, 1, 0.01], ["fade", 0, 1, 0.01], ["speed", 0, 2, 0.01]]
+    },
+    image: {
+      file: "templates/image-reveal.html", label: "Image Reveal",
+      note: "<b>WebGL2, uma textura e um shader.</b> Reveal líquido, pixel que resolve, tiles, wipe deformado, ripple e líquido no hover. Clique no palco pra reanimar o reveal; arraste o cursor nos modos de hover.",
+      presets: { entrada: ["liquid-reveal", "pixel-resolve", "tiles-flip", "wipe-warp"], hover: ["hover-ripple", "hover-liquid"] },
+      colors: [["tint", "tint"]],
+      selects: { mode: { label: "Modo", options: ["liquid", "pixel", "tiles", "wipe", "ripple", "displace"], knobs: [["pixelSize", 0, 160, 1, "mosaico (pixel)"], ["tiles", 0, 40, 1, "colunas (tiles)"], ["direction", 0, 360, 1, "direção (wipe, tiles)"]], hint: "Clique no palco pra reanimar o reveal; ripple e displace reagem ao cursor." } },
+      knobs: [["reveal", 0, 1, 0.01], ["hover", 0, 1, 0.01], ["hoverRadius", 0.05, 0.6, 0.01], ["noiseScale", 0.5, 6, 0.1], ["edge", 0.005, 0.4, 0.005], ["duration", 0.3, 4, 0.1], ["speed", 0, 2, 0.05]]
+    },
+    object3d: {
+      file: "templates/3d-object-scene.html", label: "3D Object Scene",
+      note: "<b>three.js, material físico.</b> Objeto procedural (ou GLB por <code>?src=</code>) com MeshPhysicalMaterial, ambiente PMREM, key + rim, órbita limitada por arrasto com inércia. Sem sombras, sem OrbitControls.",
+      presets: ["chrome-knot", "frosted-glass", "clay-sphere", "oil-capsule", "wire-gem", "gold-logo"],
+      colors: [["color", "objeto"], ["bg", "fundo"], ["keyColor", "luz"], ["rimColor", "contraluz"]],
+      selects: { object: { label: "Objeto", options: ["torusKnot", "icosahedron", "sphere", "capsule", "box", "dodecahedron", "torus"] }, wire: { label: "Wireframe", options: [0, 1] } },
+      knobs: [["roughness", 0, 1, 0.01], ["metalness", 0, 1, 0.01], ["transmission", 0, 1, 0.01], ["iridescence", 0, 1, 0.01], ["clearcoat", 0, 1, 0.01], ["envIntensity", 0, 3, 0.05], ["exposure", 0.3, 2, 0.05], ["rotateSpeed", 0, 2, 0.01], ["tiltX", -1.2, 1.2, 0.01], ["cameraZ", 2, 10, 0.1], ["scale", 0.2, 3, 0.05]]
+    },
+    morph: {
+      file: "templates/morph-transition.html", label: "Morph Transition",
+      note: "<b>three.js, dois buffers e um progresso.</b> Partículas interpolam de uma forma pra outra com stagger por partícula e espalhamento no meio do caminho; ciclo automático ou <code>t</code> manual (scroll). Clique no palco pra avançar.",
+      presets: ["sphere-to-knot", "bloom-cycle", "tech-rings", "storm", "scroll-driven"],
+      colors: [["colorA", "cor A"], ["colorB", "cor B"]],
+      selects: { to: { label: "Ir para a forma", options: ["sphere", "torusKnot", "hopf", "lotus", "galaxy", "lorenz", "membrane", "coral", "neuron", "tornado", "gyroscope", "wormhole", "ribbon", "vortex", "magnetosphere", "phyllotaxis", "helixDna", "atom", "saturn", "heart", "jellyfish", "glyph"], call: "morphTo", hint: "Clicar numa forma inicia o morph a partir da posição atual." }, easing: { label: "Easing", options: ["smooth", "elastic", "linear"] } },
+      knobs: [["t", 0, 1, 0.01], ["scatter", 0, 1, 0.01], ["stagger", 0, 1, 0.01], ["duration", 0.3, 6, 0.1], ["hold", 0, 10, 0.1], ["flow", 0, 1, 0.01], ["glow", 0, 2, 0.01], ["size", 0.5, 4, 0.05], ["rotateSpeed", 0, 1, 0.01]]
+    }
+  };
+  const state = { family: "shader", preset: null, orbState: "idle", size: "widget", level: 0.7, text: "", phone: false };
+  const $ = (id) => document.getElementById(id);
+  const view = $("view"), rail = $("controls"), status = $("status"), meta = $("meta"), configEl = $("config");
+  let poll = 0;
+
+  function lobo() { try { return view.contentWindow && view.contentWindow.__lobo; } catch (e) { return null; } }
+  function srcFor() {
+    const F = FAMILIES[state.family]; const q = new URLSearchParams();
+    if (state.preset) q.set("preset", state.preset);
+    if (state.family === "orb") { q.set("state", state.orbState); if (state.orbState === "speaking" || state.orbState === "listening") q.set("level", state.level); if (state.size === "hero") q.set("s", btoa(JSON.stringify({ size: 0 })).replace(/=+$/, "")); }
+    if (state.family === "text" && state.text) q.set("text", state.text);
+    return F.file + (q.toString() ? "?" + q.toString() : "");
+  }
+  function load() {
+    status.textContent = "carregando"; view.src = srcFor(); clearInterval(poll);
+    poll = setInterval(() => { const L = lobo(); if (!L) return; status.textContent = L.family + " · " + (L.stats.tier ? "tier " + L.stats.tier : "vivo"); showConfig(L); }, 500);
+  }
+  function showConfig(L) { const c = Object.assign({}, L.config); configEl.textContent = JSON.stringify(c, null, 2); meta.textContent = L.stats ? ("frames " + (L.stats.frames || 0) + (L.stats.links ? " · programas " + L.stats.links : "") + (L.stats.units ? " · unidades " + L.stats.units : "")) : ""; }
+  function apply(changes) { const L = lobo(); if (L && L.setConfig) { L.setConfig(changes); showConfig(L); } }
+
+  function chip(label, pressed, onClick, cls) { const b = document.createElement("button"); b.type = "button"; b.className = "chip" + (cls ? " " + cls : ""); b.textContent = label; b.setAttribute("aria-pressed", pressed ? "true" : "false"); b.addEventListener("click", onClick); return b; }
+  function group(title) { const g = document.createElement("div"); g.className = "group"; const h = document.createElement("h2"); h.textContent = title; g.appendChild(h); return g; }
+
+  function buildRail() {
+    const F = FAMILIES[state.family]; const ctl = $("controls"); ctl.textContent = ""; const rail = ctl;
+    const gp = group("Presets");
+    const lists = Array.isArray(F.presets) ? { "": F.presets } : F.presets;
+    const flat = Object.values(lists).flat(); const total = flat.length;
+    const nav = document.createElement("div"); nav.className = "presetNav";
+    const sel = document.createElement("select"); sel.className = "presetSelect"; sel.setAttribute("aria-label", "Preset");
+    for (const k in lists) { const og = k ? document.createElement("optgroup") : null; if (og) { og.label = k; sel.appendChild(og); } for (const pr of lists[k]) { const o = document.createElement("option"); o.value = pr; o.textContent = pr; if (pr === state.preset) o.selected = true; (og || sel).appendChild(o); } }
+    sel.addEventListener("change", () => { state.preset = sel.value; load(); syncNav(); });
+    const prev = document.createElement("button"); prev.type = "button"; prev.className = "btn nav"; prev.textContent = "‹"; prev.title = "preset anterior";
+    const next = document.createElement("button"); next.type = "button"; next.className = "btn nav"; next.textContent = "›"; next.title = "próximo preset";
+    const step = (d) => { const i = (flat.indexOf(state.preset) + d + total) % total; state.preset = flat[i]; sel.value = state.preset; load(); syncNav(); };
+    prev.addEventListener("click", () => step(-1)); next.addEventListener("click", () => step(1));
+    const count = document.createElement("div"); count.className = "presetCount";
+    const syncNav = () => { count.textContent = (flat.indexOf(state.preset) + 1) + " / " + total + (Object.keys(lists).length > 1 ? " · " + (Object.keys(lists).find((k) => lists[k].includes(state.preset)) || "") : ""); };
+    nav.append(prev, sel, next); gp.append(nav, count); syncNav();
+    rail.appendChild(gp);
+    if (F.states) {
+      const gs = group("Estado"); const c = document.createElement("div"); c.className = "chips";
+      for (const s of F.states) c.appendChild(chip(s, s === state.orbState, () => { state.orbState = s; const L = lobo(); if (L && L.setState) { L.setState(s); if (s === "speaking" || s === "listening") L.setLevel(state.level); } else load(); buildRail(); }, "state"));
+      gs.appendChild(c);
+      const kn = document.createElement("label"); kn.className = "knob"; kn.innerHTML = '<span>nível de áudio (simulado)</span><output id="levelOut">' + state.level + '</output><input id="level" type="range" min="0" max="1" step="0.01" value="' + state.level + '">';
+      kn.querySelector("input").addEventListener("input", (e) => { state.level = Number(e.target.value); kn.querySelector("output").textContent = state.level.toFixed(2); const L = lobo(); if (L && L.setLevel) L.setLevel(state.level); });
+      gs.appendChild(kn);
+      const sz = document.createElement("div"); sz.className = "chips"; sz.style.marginTop = "10px";
+      sz.appendChild(chip("widget 264 px", state.size === "widget", () => { state.size = "widget"; buildRail(); load(); })); sz.appendChild(chip("hero", state.size === "hero", () => { state.size = "hero"; buildRail(); load(); }));
+      gs.appendChild(sz); rail.appendChild(gs);
+    }
+    if (state.family === "text") {
+      const gt = group("Texto"); const f = document.createElement("div"); f.className = "field";
+      f.innerHTML = '<input id="textInput" type="text" placeholder="Escreva o título do hero" value="' + state.text.replace(/"/g, "&quot;") + '"><div class="chips"><button class="btn" id="textApply" type="button">Aplicar</button><button class="btn" id="replay" type="button">Tocar de novo</button></div>';
+      f.querySelector("#textApply").addEventListener("click", () => { state.text = f.querySelector("#textInput").value.trim(); load(); });
+      f.querySelector("#replay").addEventListener("click", () => { const L = lobo(); if (L && L.replay) L.replay(); });
+      gt.appendChild(f); rail.appendChild(gt);
+    }
+    // ---- helpers: chave aninhada ("post.vignette") e índice de array (colors[2]) ----
+    const getKey = (L, key) => key.split(".").reduce((o, k) => (o == null ? undefined : o[k]), L.config);
+    const setKey = (key, value) => { const L = lobo(); if (!L) return; const parts = key.split("."); if (parts.length === 1) return apply({ [key]: value }); const top = Object.assign({}, L.config[parts[0]] || {}); top[parts[1]] = value; apply({ [parts[0]]: top }); };
+    function knob(k2, min, max, step, label, parent) {
+      const kn = document.createElement("label"); kn.className = "knob";
+      kn.innerHTML = "<span>" + (label || k2) + "</span><output>…</output><input type=\"range\" min=\"" + min + "\" max=\"" + max + "\" step=\"" + step + "\" id=\"knob-" + k2.replace(/\W/g, "-") + "\">";
+      const input = kn.querySelector("input"), out = kn.querySelector("output");
+      const sync = () => { const L = lobo(); if (!L) return; const v = getKey(L, k2); if (v != null && v !== "") { input.value = v; out.textContent = Number(v).toFixed(step < 0.1 ? 2 : step < 1 ? 1 : 0); } };
+      input.addEventListener("input", () => { out.textContent = Number(input.value).toFixed(step < 0.1 ? 2 : step < 1 ? 1 : 0); setKey(k2, Number(input.value)); });
+      view.addEventListener("load", () => setTimeout(sync, 400)); parent.appendChild(kn); return kn;
+    }
+    if (F.colors) {
+      const gc = group("Cores"); const row = document.createElement("div"); row.className = "colors"; if (F.colors.length > 3) row.style.gridTemplateColumns = "repeat(" + Math.min(5, F.colors.length) + ", 1fr)";
+      for (const [key, label, opt] of F.colors) {
+        const idx = opt && opt.index != null ? opt.index : null;
+        const l = document.createElement("label"); l.className = "color"; l.innerHTML = '<input type="color"><span>' + label + '</span><code>…</code>';
+        const input = l.querySelector("input"), code = l.querySelector("code");
+        const read = (L) => { const v = getKey(L, key); return idx == null ? v : (Array.isArray(v) ? v[idx] : null); };
+        const sync = () => { const L = lobo(); if (!L) return; const v = read(L); if (typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v)) { input.value = v; code.textContent = v.toUpperCase(); } };
+        input.addEventListener("input", () => { const v = input.value.toUpperCase(); code.textContent = v; if (idx == null) setKey(key, v); else { const L = lobo(); const arr = (getKey(L, key) || []).slice(); arr[idx] = v; apply({ [key]: arr }); } });
+        view.addEventListener("load", () => setTimeout(sync, 400)); row.appendChild(l);
+      }
+      gc.appendChild(row); ctl.appendChild(gc);
+    }
+    if (F.selects) {
+      for (const key in F.selects) {
+        const spec = Array.isArray(F.selects[key]) ? { options: F.selects[key] } : F.selects[key];
+        const gsel = group(spec.label || key); const c = document.createElement("div"); c.className = "chips"; gsel.appendChild(c);
+        const sync = () => { const L = lobo(); const cur = L && L.config ? getKey(L, key) : null; c.querySelectorAll(".chip").forEach((b) => b.setAttribute("aria-pressed", b.dataset.v === String(cur) ? "true" : "false")); };
+        const pick = (opt) => { const L = lobo(); if (spec.call && L && typeof L[spec.call] === "function") L[spec.call](opt); else setKey(key, opt); setTimeout(sync, 50); };
+        let dd = null;
+        if (spec.options.length > 8) { dd = document.createElement("select"); dd.className = "presetSelect"; for (const opt of spec.options) { const o = document.createElement("option"); o.value = String(opt); o.textContent = String(opt); dd.appendChild(o); } dd.addEventListener("change", () => pick(spec.options[dd.selectedIndex])); c.replaceWith(dd); }
+        else for (const opt of spec.options) { const b = chip(String(opt), false, () => pick(opt), "state"); b.dataset.v = String(opt); c.appendChild(b); }
+        const sync2 = () => { const L = lobo(); const cur = L && L.config ? getKey(L, key) : null; if (dd) { const i = spec.options.findIndex((o) => String(o) === String(cur)); if (i >= 0) dd.selectedIndex = i; } else sync(); };
+        view.addEventListener("load", () => setTimeout(sync2, 400));
+        for (const [k2, min, max, step, label] of (spec.knobs || [])) knob(k2, min, max, step, label, gsel);
+        if (spec.hint) { const hint = document.createElement("p"); hint.style.cssText = "font-size:.78rem;color:var(--muted);margin:8px 0 0"; hint.textContent = spec.hint; gsel.appendChild(hint); }
+        ctl.appendChild(gsel);
+      }
+    }
+    const gk = group("Knobs ao vivo"); const kgrid = document.createElement("div"); kgrid.className = "knobs2"; gk.appendChild(kgrid);
+    for (const [key, min, max, step, label] of F.knobs) knob(key, min, max, step, label, kgrid);
+    ctl.appendChild(gk);
+    $("familyNote").innerHTML = F.note;
+  }
+
+  document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", x === t ? "true" : "false"));
+    state.family = t.dataset.family; const F = FAMILIES[state.family]; state.preset = Array.isArray(F.presets) ? F.presets[0] : Object.values(F.presets)[0][0]; state.orbState = "idle";
+    buildRail(); load();
+  }));
+  $("reload").addEventListener("click", load);
+  $("phoneToggle").addEventListener("click", (e) => { state.phone = !state.phone; $("frame").classList.toggle("phone", state.phone); e.currentTarget.setAttribute("aria-pressed", state.phone ? "true" : "false"); e.currentTarget.textContent = state.phone ? "Ver como desktop" : "Ver como celular"; load(); });
+  $("copy").addEventListener("click", async (e) => { const txt = configEl.textContent; try { await navigator.clipboard.writeText(txt); e.currentTarget.textContent = "Copiado"; } catch (err) { const r = document.createRange(); r.selectNodeContents(configEl); const s = getSelection(); s.removeAllRanges(); s.addRange(r); e.currentTarget.textContent = "Selecionado: copie com Ctrl+C"; } setTimeout(() => { e.currentTarget.textContent = "Copiar CONFIG"; }, 1800); });
+
+  const hashFam = (location.hash || "").slice(1); if (FAMILIES[hashFam]) { state.family = hashFam; document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", x.dataset.family === hashFam ? "true" : "false")); }
+  const F0 = FAMILIES[state.family]; state.preset = Array.isArray(F0.presets) ? F0.presets[0] : Object.values(F0.presets)[0][0];
+  buildRail(); load();
+})();
+</script>
