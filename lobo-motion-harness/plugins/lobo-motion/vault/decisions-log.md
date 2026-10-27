@@ -29,3 +29,6 @@ updated: 2026-10-25
 - Contexto: o plugin sabe construir, o Motion Labs executa, o catálogo de presets é o produto.
 - Decisão: plugin agora; o catálogo nasce como `catalog/` dentro do Motion Labs e vira repo próprio (`lobo-layers`) ao passar de 30 presets.
 - Consequências: o MCP futuro lê só a library; o plugin nunca carrega presets pesados.
+
+## 2026-10-27 · aurora band a partir de referência
+Referência: reactbits.dev/backgrounds/aurora (MIT + Commons Clause). Inspecionei o fonte pra entender a técnica (faixa com borda em simplex em 2 oitavas + warp, corpo decaindo, lóbulos, rampa OKLCH em x, até 3 camadas, cursor estica a faixa) e reimplementei como campo `band` do shader-background com o CONFIG do harness, sem copiar o código. Comparação lado a lado em screenshot; a versão de 1 camada ficou mais próxima do site que o meu render de teste da referência, porque o mix em OKLab vai pelo caminho curto do matiz. Defeito achado: `fract` na rampa dava costura vertical; clamp resolve.

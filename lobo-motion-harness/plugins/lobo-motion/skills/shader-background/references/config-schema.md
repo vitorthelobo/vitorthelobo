@@ -7,7 +7,7 @@ Um objeto plano. Painel, URL (`?s=` base64url do JSON), favorito e build prompt 
 | preset | string | nome no catálogo | graphite | só rótulo; o CONFIG completo é o que vale |
 | colors | hex[2..6] | #RRGGBB | 5 cinzas | stops de cor, misturados em OKLab |
 | stops | number[] | 0..1 crescente, mesmo tamanho de colors | [0,.25,.5,.75,1] | posição de cada cor no gradiente |
-| shape | enum | linear, radial, conic, mesh, warped, aurora, rays, ripples, stripes, caustics, blobs | warped | como o parâmetro t é calculado a partir da posição |
+| shape | enum | linear, radial, conic, mesh, warped, aurora, rays, ripples, stripes, caustics, blobs, band | warped | como o parâmetro t é calculado a partir da posição |
 | zoom | number | 0.3..3 | 1.3 | escala do campo |
 | swirl | number | 0..1.5 | 0.3 | rotação proporcional ao raio |
 | movement | number | 0..1 | 0.35 | quanto o ruído deforma o gradiente |
@@ -21,6 +21,11 @@ Um objeto plano. Painel, URL (`?s=` base64url do JSON), favorito e build prompt 
 | dither | number | 0..1 | 0 | quantiza t com matriz Bayer 4×4; 0 desliga, 1 = 4 níveis |
 | halftone | number | 0 ou 3..16 | 0 | tamanho da célula em px CSS; pontos de tinta (cor 0) sobre papel (última cor); 0 desliga |
 | vignette | number | 0..1 | 0 | escurece as bordas |
+| bg | hex | | #000000 | só band: cor atrás da faixa (a faixa é screen sobre ela) |
+| layers | integer | 1..3 | 1 | só band: camadas atrás, cada uma mais suave e mais lenta |
+| height | number | 0..1 | 0.45 | só band: altura da borda da faixa, do topo (angle ≥ 90 inverte pra base) |
+| softness | number | 0..1 | 0.5 | só band: suavidade da borda |
+| pointer | number | 0..1 | 0.8 | só band: quanto a faixa se estica em direção ao cursor (mouse, ou dedo arrastando) |
 | seed | integer | 0..9999 | 0 | desloca o campo de ruído |
 | dprMax | number | 1..2 | 1.5 | teto de DPR (phone é clampado em 1.25) |
 
@@ -42,6 +47,7 @@ Um objeto plano. Painel, URL (`?s=` base64url do JSON), favorito e build prompt 
 | stripes | listras diagonais dobradas pelo ruído | angle, movement (dobra), detail |
 | caustics | diferença de dois fbm elevada, veios claros tipo fundo de piscina | contrast, detail, speed |
 | blobs | 6 metaballs orbitando (lava lamp) | movement (raio da órbita), speed |
+| band | faixa de aurora no topo: borda ondulada por 2 oitavas de simplex com warp lento, corpo decaindo, lóbulos ao longo de x, rampa de cor horizontal pelos stops, 1–3 camadas, segue o cursor | colors (rampa em x), bg, height, softness, layers, movement (amplitude), zoom (escala), pointer, speed |
 
 ## Efeitos empilháveis (já no template)
 `dither`, `halftone` e `vignette` são chaves planas, desligadas em 0. Ordem de aplicação: shape → dither (sobre t) → gradient → contrast → halftone → vignette → grain. Ficam para a próxima versão: `light` (glow, iridescence), `glass` (fluted, mosaic, frosted) e `pixelate`.

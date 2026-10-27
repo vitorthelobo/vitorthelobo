@@ -116,10 +116,10 @@
   const FAMILIES = {
     shader: {
       file: "templates/shader-background.html", label: "Shader Background",
-      note: "<b>WebGL2 cru.</b> Um quad e um fragment shader que lê o CONFIG por uniforms: 5 stops misturados em OKLab, shape linear, radial, conic, mesh ou warped, swirl, movimento por ruído e grão. Sem dependência.",
-      presets: { base: ["graphite", "lagoon", "molten", "neon-dream"], campos: ["aurora-veil", "sun-rays", "pond-ripples", "silk-stripes", "pool-caustics", "lava-blobs"], efeitos: ["glacier", "halftone-noir", "cyber-bloom", "twilight-haze"] },
-      colors: [["colors", "cor 1", { index: 0 }], ["colors", "cor 2", { index: 1 }], ["colors", "cor 3", { index: 2 }], ["colors", "cor 4", { index: 3 }], ["colors", "cor 5", { index: 4 }]],
-      selects: { shape: { label: "Campo (shape)", options: ["linear", "radial", "conic", "mesh", "warped", "aurora", "rays", "ripples", "stripes", "caustics", "blobs"], knobs: [["angle", 0, 360, 1, "ângulo"], ["centerX", 0, 1, 0.01, "centro x"], ["centerY", 0, 1, 0.01, "centro y"]] } },
+      note: "<b>WebGL2 cru.</b> Um quad e um fragment shader que lê o CONFIG por uniforms: até 5 stops em OKLab, 12 campos (inclusive a faixa de aurora que segue o cursor), swirl, movimento por ruído, dither, halftone, vinheta e grão. Sem dependência.",
+      presets: { base: ["graphite", "lagoon", "molten", "neon-dream"], campos: ["aurora-veil", "sun-rays", "pond-ripples", "silk-stripes", "pool-caustics", "lava-blobs"], efeitos: ["glacier", "halftone-noir", "cyber-bloom", "twilight-haze"], faixa: ["aurora-band", "aurora-trio"] },
+      colors: [["colors", "cor 1", { index: 0 }], ["colors", "cor 2", { index: 1 }], ["colors", "cor 3", { index: 2 }], ["colors", "cor 4", { index: 3 }], ["colors", "cor 5", { index: 4 }], ["bg", "fundo (band)"]],
+      selects: { shape: { label: "Campo (shape)", options: ["linear", "radial", "conic", "mesh", "warped", "aurora", "rays", "ripples", "stripes", "caustics", "blobs", "band"], knobs: [["angle", 0, 360, 1, "ângulo (band: ≥90 inverte)"], ["centerX", 0, 1, 0.01, "centro x"], ["centerY", 0, 1, 0.01, "centro y"], ["layers", 1, 3, 1, "camadas (band)"], ["height", 0, 1, 0.01, "altura (band)"], ["softness", 0, 1, 0.01, "suavidade (band)"], ["pointer", 0, 1, 0.01, "puxa pro cursor (band)"]] } },
       knobs: [["swirl", 0, 1.5, 0.01], ["movement", 0, 1, 0.01], ["zoom", 0.3, 3, 0.01], ["speed", 0, 2, 0.01], ["detail", 0.25, 3, 0.05], ["contrast", 0.5, 2, 0.01], ["grain", 0, 0.4, 0.005], ["dither", 0, 1, 0.01], ["halftone", 0, 16, 1], ["vignette", 0, 1, 0.01]]
     },
     particles: {

@@ -43,6 +43,8 @@ Todos no template, abrem com `?preset=<nome>`. Screenshots de QA em `catalog/sha
 | glacier | linear | 2d · calm · light · energy 0.3 | dither 0.6 (retro, poucos níveis) |
 | halftone-noir | radial | 2d · editorial · mono · energy 0.4 | halftone 7 px, preto sobre branco |
 | cyber-bloom | conic | 2d · electric · dark · energy 0.6 | swirl 0.5 + vignette 0.4 |
+| aurora-band | band | 2d · calm · dark · energy 0.4 | reconstrução do Aurora do React Bits: faixa roxo→verde→roxo, 1 camada, segue o cursor |
+| aurora-trio | band | 2d · dreamy · dark · energy 0.5 | 3 camadas, teal→ciano→roxo→rosa |
 | twilight-haze | mesh | 2d · soft · mid · energy 0.3 | contrast 0.95, pastel |
 
 ## particle-forms

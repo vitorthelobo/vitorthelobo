@@ -39,6 +39,8 @@ const PRESETS = {
   "glacier":       { colors: ["#0A1A2A", "#1F4E79", "#6FB1E6", "#CFEAFF", "#FFFFFF"], shape: "linear",   zoom: 1.2, swirl: 0.15, movement: 0.3, speed: 0.3, angle: 160, contrast: 1.1,  grain: 0.02, dither: 0.6, halftone: 0, vignette: 0.1 },
   "halftone-noir": { colors: ["#0A0A0A", "#2B2B2B", "#6E6E6E", "#C9C9C9", "#F5F5F5"], shape: "warped",   zoom: 1.1, swirl: 0.4, movement: 0.6, speed: 0.4, angle: 200, contrast: 1.2,  grain: 0.0,  dither: 0, halftone: 7, vignette: 0.2 },
   "cyber-bloom":   { colors: ["#050017", "#2D00F7", "#F20089", "#FF9E00", "#FFFFFF"], shape: "conic",    zoom: 1.1, swirl: 0.5, movement: 0.5, speed: 0.6, angle: 120, contrast: 1.15, grain: 0.05, dither: 0, halftone: 0, vignette: 0.4 },
+  "aurora-band":   { colors: ["#5227FF", "#7CFF67", "#5227FF"], stops: [0, 0.5, 1], shape: "band", bg: "#000000", layers: 1, height: 0.45, softness: 0.5, pointer: 0.8, zoom: 1.0, swirl: 0, movement: 1.0, speed: 1.0, angle: 0, contrast: 1.0, grain: 0.0, dither: 0, halftone: 0, vignette: 0 },
+  "aurora-trio":   { colors: ["#00C2A8", "#38E1FF", "#B04DFF", "#FF6B9D"], stops: [0, 0.33, 0.66, 1], shape: "band", bg: "#05060A", layers: 3, height: 0.4, softness: 0.6, pointer: 0.9, zoom: 1.2, swirl: 0, movement: 1.2, speed: 0.8, angle: 0, contrast: 1.05, grain: 0.02, dither: 0, halftone: 0, vignette: 0 },
   "twilight-haze": { colors: ["#1B1230", "#3F2B63", "#7B5EA7", "#E6A4B4", "#FFE5D4"], shape: "mesh",     zoom: 0.9, swirl: 0.1, movement: 0.4, speed: 0.3, angle: 0,   contrast: 0.95, grain: 0.07, dither: 0, halftone: 0, vignette: 0.2 }
 };
 const CONFIG = {
@@ -50,6 +52,9 @@ const CONFIG = {
   angle: 220, centerX: 0.5, centerY: 0.5,
   detail: 1, contrast: 1.1, grain: 0.1, grainSize: 1,
   dither: 0, halftone: 0, vignette: 0,   // efeitos empilháveis: dither (0..1), halftone (px da célula, 0 = off), vinheta (0..1)
+  bg: "#000000",                         // só o campo band: cor atrás da faixa
+  layers: 1, height: 0.45, softness: 0.5, // só band: camadas (1..3), altura da faixa (0..1, do topo), suavidade da borda (0..1)
+  pointer: 0.8,                          // só band: quanto a faixa se estica em direção ao cursor (mouse ou dedo arrastando)
   seed: 0, dprMax: 1.5
 };
 
@@ -93,7 +98,7 @@ const CONFIG = {
   const FRAG = `#version 300 es
   precision highp float;
   out vec4 fragColor;
-  uniform vec2 uResolution, uCenter; uniform float uTime, uSeed, uZoom, uSwirl, uMovement, uAngle, uDetail, uContrast, uGrain, uGrainSize, uDither, uHalftone, uVignette;
+  uniform vec2 uResolution, uCenter; uniform float uTime, uSeed, uZoom, uSwirl, uMovement, uAngle, uDetail, uContrast, uGrain, uGrainSize, uDither, uHalftone, uVignette, uHeight, uSoftness; uniform vec3 uBg, uPointer; uniform int uLayers;
   uniform vec3 uColors[6]; uniform float uStops[6]; uniform int uShape, uCount;
   vec3 mod289(vec3 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
   vec2 mod289(vec2 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -148,12 +153,42 @@ const CONFIG = {
     for (int i = 1; i < 6; i++){ if (i >= uCount) break; c = mix(c, toOklab(toLinear(uColors[i])), smoothstep(uStops[i - 1], uStops[i], t)); }
     return toSrgb(fromOklab(c));
   }
+  float sstep(float a, float b, float x){ x = clamp((x - a) / (b - a), 0.0, 1.0); return x * x * x * (x * (x * 6.0 - 15.0) + 10.0); }
+  // band: faixa de aurora que mora no topo (ou base) da tela. Borda ondulada por duas oitavas de simplex deformadas por um warp lento,
+  // corpo que decai pra baixo, lóbulos de intensidade ao longo de x, 1 a 3 camadas atrás com ritmo próprio, e o cursor estica a faixa.
+  vec3 band(vec2 frag){
+    float flip = step(90.0, uAngle);
+    float y = mix(1.0 - frag.y / uResolution.y, frag.y / uResolution.y, flip);
+    float u = frag.x / uResolution.x, X = (frag.x - uResolution.x * 0.5) / uResolution.y;
+    float t = uTime * 0.6;
+    float reach = uPointer.z * exp(-pow((X - uPointer.x) / 0.4, 2.0));
+    vec3 glow = vec3(0.0); float cover = 0.0;
+    for (int k = 0; k < 3; k++) {
+      if (k >= uLayers) break;
+      float L = float(k), sd = L * 11.3 + uSeed, pace = t * (1.0 - L * 0.2);
+      float warp = snoise(vec2(X * 0.5 * uZoom + pace * 0.03 + sd, pace * 0.06 + sd));
+      float wave = snoise(vec2(X * 0.8 * uZoom + warp * 0.4 - pace * 0.04 + sd, pace * 0.08 - sd)) * 0.7
+                 + snoise(vec2(X * 1.7 * uZoom + warp * 0.5 + pace * 0.05 - sd, pace * 0.11 + sd * 0.5)) * 0.3;
+      float hem = uHeight + L * 0.07 + wave * 0.15 * uMovement + reach * 0.1 * (k == 0 ? 1.0 : 0.4);
+      float soft = (0.04 + uSoftness * 0.16) * (1.0 + L * 0.9);
+      float rise = hem - y;
+      float body = pow(sstep(-soft - 0.09, 0.26 + soft * 0.6, rise), 1.9);
+      float lobes = 0.85 + 0.15 * snoise(vec2(X * 0.9 * uZoom - pace * 0.03 + sd, y * 0.3 + pace * 0.04));
+      float a = body * lobes * (k == 0 ? 1.0 : 0.32 / L);
+      a = clamp(a * (1.0 + reach * 0.3 * sstep(0.9, 0.0, abs(y - hem))), 0.0, 1.0);
+      vec3 tint = gradient(clamp(u + 0.05 * sin(pace * 0.1 + L * 2.3) + L * 0.1 + max(rise, 0.0) * 0.05, 0.0, 1.0));
+      glow = 1.0 - (1.0 - glow) * (1.0 - tint * a);
+      cover = 1.0 - (1.0 - cover) * (1.0 - a);
+    }
+    return 1.0 - (1.0 - uBg) * (1.0 - glow);   // screen sobre o fundo
+  }
   void main(){
     vec2 uv = gl_FragCoord.xy / uResolution;
     vec2 p = (uv - uCenter) * vec2(uResolution.x / uResolution.y, 1.0);
     float t = uTime * 0.15;
     p = rot(radians(uAngle)) * p / max(uZoom, 0.05);
     p = rot(uSwirl * length(p) * 2.0) * p;
+    if (uShape == 11) { vec3 cb = band(gl_FragCoord.xy); cb = (cb - 0.5) * uContrast + 0.5; if (uVignette > 0.0) { vec2 v = uv - 0.5; cb *= 1.0 - uVignette * dot(v, v) * 2.4; } cb += (hash21(floor(gl_FragCoord.xy / max(uGrainSize, 1.0)) + fract(uTime) * 13.0) - 0.5) * uGrain; fragColor = vec4(clamp(cb, 0.0, 1.0), 1.0); return; }
     float tt = shapeT(p, t);
     if (uDither > 0.0) { float lv = 4.0 + (1.0 - uDither) * 12.0; tt = floor(tt * lv + (bayer4(gl_FragCoord.xy / max(uGrainSize, 1.0)) - 0.5) * uDither * 1.2) / lv; }
     vec3 col = gradient(tt);
@@ -169,10 +204,11 @@ const CONFIG = {
     prog = gl.createProgram(); gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT)); gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG)); gl.linkProgram(prog); stats.links++;
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
     gl.useProgram(prog); U = {};
-    for (const n of ["uResolution", "uCenter", "uTime", "uSeed", "uZoom", "uSwirl", "uMovement", "uAngle", "uDetail", "uContrast", "uGrain", "uGrainSize", "uDither", "uHalftone", "uVignette", "uShape", "uCount"]) U[n] = gl.getUniformLocation(prog, n);
+    for (const n of ["uResolution", "uCenter", "uTime", "uSeed", "uZoom", "uSwirl", "uMovement", "uAngle", "uDetail", "uContrast", "uGrain", "uGrainSize", "uDither", "uHalftone", "uVignette", "uHeight", "uSoftness", "uBg", "uPointer", "uLayers", "uShape", "uCount"]) U[n] = gl.getUniformLocation(prog, n);
     U.uColors = gl.getUniformLocation(prog, "uColors[0]"); U.uStops = gl.getUniformLocation(prog, "uStops[0]");
   }
-  const SHAPES = { linear: 0, radial: 1, conic: 2, mesh: 3, warped: 4, aurora: 5, rays: 6, ripples: 7, stripes: 8, caustics: 9, blobs: 10 };
+  const SHAPES = { linear: 0, radial: 1, conic: 2, mesh: 3, warped: 4, aurora: 5, rays: 6, ripples: 7, stripes: 8, caustics: 9, blobs: 10, band: 11 };
+  const ptr = { x: 0, z: 0, tx: 0, tz: 0 };
   const hex = (h) => { const n = parseInt(h.replace("#", ""), 16); return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]; };
 
   // ---- resize só em mudança real; DPR clampado (phone 1.25, desktop cfg.dprMax) ----
@@ -191,7 +227,7 @@ const CONFIG = {
     gl.uniform2f(U.uResolution, w, h); gl.uniform2f(U.uCenter, cfg.centerX, cfg.centerY);
     gl.uniform1f(U.uTime, time); gl.uniform1f(U.uSeed, cfg.seed); gl.uniform1f(U.uZoom, cfg.zoom); gl.uniform1f(U.uSwirl, cfg.swirl);
     gl.uniform1f(U.uMovement, cfg.movement); gl.uniform1f(U.uAngle, cfg.angle); gl.uniform1f(U.uDetail, cfg.detail); gl.uniform1f(U.uContrast, cfg.contrast);
-    gl.uniform1f(U.uGrain, cfg.grain); gl.uniform1f(U.uGrainSize, cfg.grainSize * dpr); gl.uniform1f(U.uDither, cfg.dither || 0); gl.uniform1f(U.uHalftone, (cfg.halftone || 0) * dpr); gl.uniform1f(U.uVignette, cfg.vignette || 0); gl.uniform1i(U.uShape, SHAPES[cfg.shape] ?? 4); gl.uniform1i(U.uCount, n);
+    gl.uniform1f(U.uGrain, cfg.grain); gl.uniform1f(U.uGrainSize, cfg.grainSize * dpr); gl.uniform1f(U.uDither, cfg.dither || 0); gl.uniform1f(U.uHalftone, (cfg.halftone || 0) * dpr); gl.uniform1f(U.uVignette, cfg.vignette || 0); gl.uniform1f(U.uHeight, cfg.height); gl.uniform1f(U.uSoftness, cfg.softness); const bgc = hex(cfg.bg || "#000000"); gl.uniform3f(U.uBg, bgc[0], bgc[1], bgc[2]); gl.uniform3f(U.uPointer, ptr.x, 0, ptr.z * cfg.pointer); gl.uniform1i(U.uLayers, Math.max(1, Math.min(3, Math.round(cfg.layers)))); gl.uniform1i(U.uShape, SHAPES[cfg.shape] ?? 4); gl.uniform1i(U.uCount, n);
     gl.uniform3fv(U.uColors, colors); gl.uniform1fv(U.uStops, stops);
     gl.drawArrays(gl.TRIANGLES, 0, 3); stats.draws++; stats.frames++;
   }
@@ -201,6 +237,7 @@ const CONFIG = {
     raf = 0;
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (!motionOff) time += dt * cfg.speed;
+    const kp = 1 - Math.pow(1 - 0.08, dt * 60); ptr.x += (ptr.tx - ptr.x) * kp; ptr.z += (ptr.tz - ptr.z) * kp;
     const resized = resize();
     if (motionOff && !dirty && !resized) return;        // reduced motion: assentado, redesenha só em mudança
     if (gl.isContextLost()) return;
@@ -211,6 +248,9 @@ const CONFIG = {
   new IntersectionObserver((es) => { inView = es[0].isIntersecting; if (inView) schedule(); }, { rootMargin: "100% 0px" }).observe(scene);
   document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });
   window.addEventListener("resize", () => { dirty = true; schedule(); }, { passive: true });
+  // ponteiro (só o campo band usa): mouse livre; toque enquanto arrasta. X em unidades de altura, centrado.
+  window.addEventListener("pointermove", (e) => { const r = scene.getBoundingClientRect(); ptr.tx = (e.clientX - r.left - r.width / 2) / r.height; ptr.tz = 1; schedule(); }, { passive: true });
+  window.addEventListener("pointerleave", () => { ptr.tz = 0; }); window.addEventListener("pointerup", (e) => { if (e.pointerType !== "mouse") ptr.tz = 0; }, { passive: true });
 
   // ---- contexto perdido: preventDefault, rebuild no restore ----
   canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); stats.lost++; if (raf) cancelAnimationFrame(raf); raf = 0; });
