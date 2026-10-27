@@ -27,6 +27,7 @@ three.js. Um objeto (GLB do cliente ou procedural), um `MeshPhysicalMaterial`, a
 | wire | 0/1 | | 0 | wireframe (LineSegments) em vez de malha |
 | drag | number | 0..1 | 1 | sensibilidade do arrasto; 0 desliga |
 | seed | integer | | 1 | reservado |
+| parallax, parallaxAmount | bool, number | | false, 0.5 | a câmera inclina com o mouse ou giroscópio; o zoom é `cameraZ` |
 | dprMax | number | 1..2 | 1.5 | teto de DPR (phone 1.25; phone também usa metade da tesselação) |
 
 ## Operações

@@ -45,6 +45,8 @@ const CONFIG = {
   count: 160000, size: 1.8, flow: 0.15, flowScale: 1.6,
   colorA: "#25B8FF", colorB: "#F72585",   // A = forma de origem, B = destino; a cor cruza com o progresso
   glow: 0.8, glowSpread: 0.1, glowCutoff: 0.22,
+  zoom: 1, dof: 0, focus: 0,          // câmera e profundidade de campo (como no particle-forms)
+  parallax: false, parallaxAmount: 0.5,
   autoRotate: true, rotateSpeed: 0.1, seed: 11, dprMax: 1.5
 };
 
@@ -153,8 +155,8 @@ vec3 curlNoise(vec3 p){ const float e = 0.1; vec3 dx = vec3(e, 0.0, 0.0), dy = v
   return vec3((py1.z - py0.z) - (pz1.y - pz0.y), (pz1.x - pz0.x) - (px1.z - px0.z), (px1.y - px0.y) - (py1.x - py0.x)) / (2.0 * e); }`;
 
 const VERT = NOISE + `
-uniform float uTime, uT, uScatter, uStagger, uFlow, uFlowScale, uSize, uPixelScale;
-attribute vec3 aTo; attribute float aRandom; varying float vMix, vFade, vProg;
+uniform float uTime, uT, uScatter, uStagger, uFlow, uFlowScale, uSize, uPixelScale, uDof, uFocus, uCamZ;
+attribute vec3 aTo; attribute float aRandom; varying float vMix, vFade, vProg, vBlur;
 void main(){
   // progresso por partícula: as de aRandom baixo partem antes (stagger)
   float d = aRandom * uStagger; float tp = clamp((uT - d) / max(1.0 - d, 0.001), 0.0, 1.0);
@@ -165,15 +167,17 @@ void main(){
   p += c * (uFlow * 0.25 * (0.5 + aRandom) + uScatter * mid * (0.6 + 0.8 * aRandom));
   vMix = clamp(length(c) * 0.5 + mid * 0.8, 0.0, 1.0); vProg = e; vFade = 0.35 + 0.65 * aRandom;
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
-  gl_PointSize = uSize * uPixelScale * (0.5 + 0.5 * aRandom) * (1.0 + mid * 0.6) * (3.0 / -mv.z);
+  float coc = uDof * clamp(abs((-mv.z) - (uCamZ - uFocus)) / 1.6, 0.0, 1.0); vBlur = coc; vFade *= 1.0 - coc * 0.88;
+  gl_PointSize = uSize * uPixelScale * (0.5 + 0.5 * aRandom) * (1.0 + mid * 0.6) * (1.0 + coc * 3.0) * (3.0 / -mv.z);
   gl_Position = projectionMatrix * mv;
 }`;
 const FRAG = `
-uniform vec3 uColorA, uColorB; varying float vMix, vFade, vProg;
-void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.12, d) * vFade; if (a < 0.01) discard; vec3 col = mix(uColorA, uColorB, clamp(vProg * 0.8 + vMix * 0.3, 0.0, 1.0)); gl_FragColor = vec4(col * a, a); }`;
+uniform vec3 uColorA, uColorB; varying float vMix, vFade, vProg, vBlur;
+void main(){ float d = length(gl_PointCoord - 0.5); float a = mix(smoothstep(0.5, 0.12, d), smoothstep(0.5, 0.05, d), vBlur) * vFade; if (a < 0.01) discard; vec3 col = mix(uColorA, uColorB, clamp(vProg * 0.8 + vMix * 0.3, 0.0, 1.0)); gl_FragColor = vec4(col * a, a); }`;
 
 let THREE, renderer, composer, bloom, camera, points, material, geometry, stage;
 let raf = 0, last = performance.now(), time = 0, visible = !document.hidden, inView = true, w = 0, h = 0, dpr = 0;
+const par = { x: 0, y: 0, tx: 0, ty: 0 };
 function tier() { const t = coarse ? "phone" : (window.innerWidth < 1024 ? "tablet" : "desktop"); stats.tier = t; return { name: t, countMul: t === "phone" ? 0.33 : t === "tablet" ? 0.6 : 1, dprMax: t === "phone" ? 1.25 : 1.5, bloomMul: t === "phone" ? 0.5 : 1 }; }
 const EASE = { smooth: (x) => x * x * (3 - 2 * x), linear: (x) => x, elastic: (x) => x === 0 || x === 1 ? x : Math.pow(2, -8 * x) * Math.sin((x * 8 - 0.75) * 2.0944) * -1 + 1 };
 
@@ -187,7 +191,7 @@ async function boot() {
   stage = new THREE.Scene(); camera = new THREE.PerspectiveCamera(45, 1, 0.1, 50); camera.position.set(0, 0, 3.8);
   geometry = new THREE.BufferGeometry();
   material = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
-    uniforms: { uTime: { value: 0 }, uT: { value: 0 }, uScatter: { value: 0 }, uStagger: { value: 0 }, uFlow: { value: 0 }, uFlowScale: { value: 1 }, uSize: { value: 1 }, uPixelScale: { value: 1 }, uColorA: { value: new THREE.Color() }, uColorB: { value: new THREE.Color() } } });
+    uniforms: { uTime: { value: 0 }, uT: { value: 0 }, uScatter: { value: 0 }, uStagger: { value: 0 }, uFlow: { value: 0 }, uFlowScale: { value: 1 }, uSize: { value: 1 }, uPixelScale: { value: 1 }, uDof: { value: 0 }, uFocus: { value: 0 }, uCamZ: { value: 3.8 }, uColorA: { value: new THREE.Color() }, uColorB: { value: new THREE.Color() } } });
   points = new THREE.Points(geometry, material); points.frustumCulled = false; stage.add(points);
   composer = new EffectComposer(renderer); composer.addPass(new RenderPass(stage, camera));
   bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 1, 0.1, 0.2); composer.addPass(bloom); composer.addPass(new OutputPass());
@@ -198,6 +202,8 @@ async function boot() {
   document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });
   window.addEventListener("resize", () => { dirty = true; schedule(); }, { passive: true });
   if (!coarse) scene.addEventListener("click", () => next());
+  window.addEventListener("pointermove", (e) => { if (e.pointerType !== "mouse") return; const r = scene.getBoundingClientRect(); par.tx = ((e.clientX - r.left) / r.width) * 2 - 1; par.ty = -(((e.clientY - r.top) / r.height) * 2 - 1); if (cfg.parallax) schedule(); }, { passive: true });
+  if (coarse && "DeviceOrientationEvent" in window) window.addEventListener("deviceorientation", (e) => { if (!cfg.parallax || e.gamma == null) return; par.tx = Math.max(-1, Math.min(1, e.gamma / 25)); par.ty = Math.max(-1, Math.min(1, (e.beta - 45) / 25)); schedule(); }, { passive: true });
   resize(); composer.render(); stats.links = renderer.info.programs.length;
   ready = true; seqIndex = Math.max(0, (cfg.sequence || []).indexOf(cfg.to)); holdLeft = cfg.hold; phase = cfg.auto && !motionOff ? "morph" : "manual"; if (phase === "manual" && !params.get("t")) tRaw = +cfg.t;
   schedule();
@@ -215,7 +221,7 @@ function bakeCurrentAsFrom() {   // posição atual (sem o ruído) vira a origem
 }
 function applyConfig() {
   const T = tier(); geometry.setDrawRange(0, Math.floor(geometry.getAttribute("position").count * T.countMul));
-  const u = material.uniforms; u.uFlow.value = cfg.flow; u.uFlowScale.value = cfg.flowScale; u.uSize.value = cfg.size; u.uScatter.value = cfg.scatter; u.uStagger.value = cfg.stagger;
+  const u = material.uniforms; u.uDof.value = cfg.dof; u.uFocus.value = cfg.focus; u.uCamZ.value = 3.8 / Math.max(0.2, cfg.zoom); camera.position.z = u.uCamZ.value; camera.lookAt(0, 0, 0); u.uFlow.value = cfg.flow; u.uFlowScale.value = cfg.flowScale; u.uSize.value = cfg.size; u.uScatter.value = cfg.scatter; u.uStagger.value = cfg.stagger;
   u.uColorA.value.set(cfg.colorA); u.uColorB.value.set(cfg.colorB);
   bloom.strength = cfg.glow * T.bloomMul; bloom.radius = cfg.glowSpread * T.bloomMul; bloom.threshold = cfg.glowCutoff; bloom.enabled = bloom.strength > 0.001;
   scene.style.setProperty("--ca", cfg.colorA); scene.style.setProperty("--cb", cfg.colorB);
@@ -232,6 +238,7 @@ function frame(now) {
   raf = 0;
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   if (!motionOff) { time += dt; if (cfg.autoRotate) points.rotation.y += cfg.rotateSpeed * dt; }
+  if (cfg.parallax) { const kp = 1 - Math.pow(1 - 0.06, dt * 60); par.x += (par.tx - par.x) * kp; par.y += (par.ty - par.y) * kp; camera.position.set(par.x * cfg.parallaxAmount * 1.2, par.y * cfg.parallaxAmount * 0.8, 3.8 / Math.max(0.2, cfg.zoom)); camera.lookAt(0, 0, 0); } else if (camera.position.x !== 0 || camera.position.y !== 0) { camera.position.set(0, 0, 3.8 / Math.max(0.2, cfg.zoom)); camera.lookAt(0, 0, 0); }
   if (phase === "morph" && !motionOff) { tRaw = Math.min(1, tRaw + dt / Math.max(0.1, cfg.duration)); if (tRaw >= 1) { phase = cfg.auto ? "hold" : "manual"; holdLeft = cfg.hold; } }
   else if (phase === "hold" && !motionOff) { holdLeft -= dt; if (holdLeft <= 0) next(); }
   const tE = EASE[cfg.easing] ? EASE[cfg.easing](tRaw) : tRaw; material.uniforms.uT.value = tE; stats.t = +tRaw.toFixed(3); cfg.t = +tRaw.toFixed(3);

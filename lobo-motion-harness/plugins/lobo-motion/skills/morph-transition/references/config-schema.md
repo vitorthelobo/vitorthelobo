@@ -21,6 +21,7 @@ three.js Points com dois buffers (`position` = origem, `aTo` = destino) e um pro
 | glow, glowSpread, glowCutoff | number | | 0.8, 0.1, 0.22 | bloom |
 | autoRotate, rotateSpeed | bool, number | | true, 0.1 | |
 | seed | integer | | 11 | mesma seed = mesmas partículas em todas as formas (correspondência por índice) |
+| zoom, dof, focus, parallax, parallaxAmount | | | 1, 0, 0, false, 0.5 | câmera e profundidade de campo, iguais ao particle-forms |
 | dprMax | number | 1..2 | 1.5 | |
 
 ## API

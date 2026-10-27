@@ -22,6 +22,11 @@
 | bg | hex | | #05060A | fundo (clear color e fallback) |
 | text | string | | LOBO | só a forma glyph |
 | tiltX | number | −1.5..1.5 | 0 | inclina a forma em x (rad); discos e anéis gerados em XZ precisam de 0.7–1.25 |
+| zoom | number | 0.4..2.5 | 1 | distância da câmera (z = 3.8 / zoom) |
+| dof | number | 0..1 | 0 | profundidade de campo: partículas longe do plano de foco crescem até 4×, viram disco suave e perdem até 75 % do alpha (círculo de confusão por partícula, sem passe extra) |
+| focus | number | −1.5..1.5 | 0 | plano de foco em z (0 = centro da forma; positivo = mais perto da câmera) |
+| parallax | bool | | false | a câmera inclina com o mouse (−1..1 → ±0.6 em x, ±0.4 em y, × parallaxAmount) ou com o giroscópio no celular |
+| parallaxAmount | number | 0..1 | 0.5 | intensidade do parallax |
 | volumeX, volumeY, volumeZ | number | 0.5..6 | 3.4, 2.6, 1.6 | só a forma volume (caixa) |
 | seed | integer | 0..9999 | 4821 | variação da forma e do aRandom |
 | count | integer | 20000..300000 | 180000 | pontos alocados; o tier corta por drawRange |
