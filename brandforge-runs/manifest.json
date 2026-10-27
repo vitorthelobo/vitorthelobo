@@ -1,0 +1,40 @@
+{
+  "scenes": ["01-logo-hero", "02-logo-detalhe", "03-cartoes", "04-fachada", "05-recepcao", "06-landing-page", "07-dashboard", "08-instagram", "09-uniforme", "10-kit", "11-papelaria", "12-tote"],
+  "runs": {
+    "01-lume-odontologia": {
+      "name": "LUME Odontologia",
+      "space": "https://www.magnific.com/app/spaces/a31522ff-3ece-49d3-b02a-2c59bd7bfb6c",
+      "cores": "lJpX28sgv9",
+      "tipografia": "xSTDiCQjfW",
+      "mockups": ["rg0ez78xtc", "u5Rn9LRQLD", "dtSyjQRXSL", "p8lJrFIehw", "MBLwkQzDCm", "JN8aeT7Oq4", "hu4R7UGvqL", "bxzTRGo5Y2", "gOeITX3SXO", "SydtV8bUb8", "nV5jQjZYQD", "LwMBWI2swO"]
+    },
+    "02-aura-estetica": {
+      "name": "AURA Estética Avançada",
+      "space": "https://www.magnific.com/app/spaces/a3152303-55fb-4350-b988-f550960565ac",
+      "cores": "u5RAwbNQLD",
+      "tipografia": "JN8mVcwOq4",
+      "mockups": ["YMKLqFsWeC", "LwMB0VJswO", "lJp8Veogv9", "gOeIMo3SXO", "0ergKgyTfW", "gOeIMvhSXO", "9ZvQtKrNYZ", "IfO6wnqtvE", "ksWDzvw16B", "9ZvQtlUNYZ", "Dos7xnhpcl", "u5Rn6hrQLD"]
+    },
+    "03-nuvem-odontologia": {
+      "name": "NUVEM Odontologia",
+      "space": "https://www.magnific.com/app/spaces/a3152307-5711-4662-ac80-1c13abd79842",
+      "cores": "gOeBYdBSXO",
+      "tipografia": "BhwOrXaoQR",
+      "mockups": ["Eb3zi8BuuO", "xSTd05ujfW", "ksWDY5G16B", "tCyiOtXmZJ", "aFN2NEefSh", "LwMBMw0swO", "1lcpcSKr4r", "MBLwLv4DCm", "rg0e09Ixtc", "VXjUjubMMU", "4RhuheG9Aa", "ksWDWZI16B"]
+    },
+    "04-maison-derma": {
+      "name": "MAISON DERMA",
+      "space": "https://www.magnific.com/app/spaces/a315230d-0ced-42cc-a121-e8a683fd2d46",
+      "cores": "JN8mDNqOq4",
+      "tipografia": "5jncGU0Kxe",
+      "mockups": ["5jnVW38Kxe", "SydtBVeUb8", "w4Bh8el7EI", "lJp8dpagv9", "iGCquQ03uK", "mEP393rhJQ", "bxzTYMI5Y2", "ksWD0BK16B", "gOeIXuzSXO", "3zEbQgHREY", "jUVXDF0LD0", "1lcpTQhr4r"]
+    },
+    "05-alinhe-ortodontia": {
+      "name": "ALINHE Ortodontia",
+      "space": "https://www.magnific.com/app/spaces/a3152310-9dc2-4ac5-9e8c-25daef47e4ce",
+      "cores": "ov7y7lp829",
+      "tipografia": "LwMepuSswO",
+      "mockups": ["1lcpMEer4r", "9ZvQEUsNYZ", "8aJN4BPIrU", "hu4R3aHvqL", "6AfHF2GiJO", "bxzT0Lw5Y2", "cp1lsot0eP", "5jnVT7WKxe", "Eb3zGS1uuO", "aFN2ZlafSh", "LwMBXGbswO", "gOeI80ZSXO"]
+    }
+  }
+}
