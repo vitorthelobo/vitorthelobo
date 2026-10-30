@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orb Reactive · Lobo Motion</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #07262B; }
+  .scene { position: relative; width: 100%; height: 100lvh; overflow: hidden; display: grid; place-items: center; transform: translateZ(0); background: var(--base, #07262B); }
+  .scene canvas { display: block; width: var(--size, 100%); height: var(--size, 100%); }
+  /* Robot form e fallback: um orb em CSS com as cores do CONFIG, sem WebGL */
+  .fallback { display: none; width: var(--fallback-size, 264px); height: var(--fallback-size, 264px); border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--stars, #38E1FF) 60%, white) 0%, var(--dust, #00C2A8) 25%, var(--interior, #050809) 70%);
+    box-shadow: 0 0 60px color-mix(in oklab, var(--aurora, #FFC65C) 50%, transparent); }
+  .scene.static .fallback { display: block; }
+  .scene.static canvas { display: none; }
+</style>
+</head>
+<body>
+<div class="scene" data-lobo-scene>
+  <canvas id="orb" aria-hidden="true"></canvas>
+  <div class="fallback" aria-hidden="true"></div>
+</div>
+<script>
+// ============================================================================
+// CONFIG: a fonte da verdade. Schema em ../references/config-schema.md
+// Estados: idle | listening | thinking | speaking | success | error (window.__lobo.setState)
+// Áudio: window.__lobo.startMic() num clique, ou window.__lobo.setLevel(level, bright) vindo do app.
+// ============================================================================
+const PRESETS = {
+  "core-teal":     { colorBase: "#07262B", colorInterior: "#050809", accentDust: "#00C2A8", accentStars: "#38E1FF", accentAurora: "#FFC65C", intensity: 0.95, detail: 0.8, glass: 0.35, glow: 0.9, speed: 0.8, drift: 0.6 },
+  "ember-core":    { colorBase: "#1A0A05", colorInterior: "#0B0302", accentDust: "#FF8A1F", accentStars: "#FFE6A7", accentAurora: "#C8320E", intensity: 1.05, detail: 0.7, glass: 0.3, glow: 1.0, speed: 0.9, drift: 0.5 },
+  "cyan-spiral":   { colorBase: "#04101C", colorInterior: "#02070D", accentDust: "#01BAEF", accentStars: "#8AE9C1", accentAurora: "#3A0CA3", intensity: 1.0, detail: 1.0, glass: 0.4, glow: 0.8, speed: 1.0, drift: 0.8 },
+  "violet-nebula": { colorBase: "#0A0014", colorInterior: "#06000C", accentDust: "#7209B7", accentStars: "#F72585", accentAurora: "#4CC9F0", intensity: 1.1, detail: 0.9, glass: 0.35, glow: 1.1, speed: 0.7, drift: 0.7 },
+  "aurora-field":  { colorBase: "#061410", colorInterior: "#03090A", accentDust: "#19B5A8", accentStars: "#C5F2E6", accentAurora: "#9D4EDD", intensity: 0.9, detail: 0.6, glass: 0.45, glow: 0.85, speed: 0.6, drift: 0.9 },
+  // ---------------- quarta leva (10) ----------------
+  "solar-flare":   { colorBase: "#2A0E02", colorInterior: "#0C0300", accentDust: "#FF6A00", accentStars: "#FFE29A", accentAurora: "#FF2E63", intensity: 1.15, detail: 0.9, glass: 0.25, glow: 1.2, speed: 1.0, drift: 0.7 },
+  "glacier-mind":  { colorBase: "#0A2230", colorInterior: "#04111A", accentDust: "#9FE8FF", accentStars: "#FFFFFF", accentAurora: "#5B8CFF", intensity: 0.9, detail: 0.6, glass: 0.6, glow: 0.8, speed: 0.5, drift: 0.5 },
+  "toxic-lime":    { colorBase: "#0E1A04", colorInterior: "#050A01", accentDust: "#B6FF3B", accentStars: "#F0FFB0", accentAurora: "#00E0A0", intensity: 1.0, detail: 1.1, glass: 0.3, glow: 1.0, speed: 1.1, drift: 0.8 },
+  "rose-quartz":   { colorBase: "#2B1020", colorInterior: "#12060D", accentDust: "#FF8FB8", accentStars: "#FFE3EE", accentAurora: "#B98BFF", intensity: 0.9, detail: 0.7, glass: 0.55, glow: 0.9, speed: 0.6, drift: 0.6 },
+  "deep-sea":      { colorBase: "#021A24", colorInterior: "#010A10", accentDust: "#00B4D8", accentStars: "#90E0EF", accentAurora: "#3A0CA3", intensity: 0.85, detail: 0.8, glass: 0.4, glow: 0.8, speed: 0.5, drift: 0.9 },
+  "gold-oracle":   { colorBase: "#1E1606", colorInterior: "#0B0802", accentDust: "#E8B64A", accentStars: "#FFF3C4", accentAurora: "#A0522D", intensity: 1.0, detail: 0.6, glass: 0.5, glow: 1.1, speed: 0.6, drift: 0.4 },
+  "mono-pearl":    { colorBase: "#1C1C20", colorInterior: "#0A0A0C", accentDust: "#D9D9E0", accentStars: "#FFFFFF", accentAurora: "#8A8A96", intensity: 0.8, detail: 0.5, glass: 0.7, glow: 0.7, speed: 0.5, drift: 0.5 },
+  "cyber-magenta": { colorBase: "#1A0326", colorInterior: "#0A0110", accentDust: "#FF00C8", accentStars: "#00F0FF", accentAurora: "#7A00FF", intensity: 1.2, detail: 1.0, glass: 0.3, glow: 1.2, speed: 1.2, drift: 0.9 },
+  "forest-spirit": { colorBase: "#0B1F14", colorInterior: "#040C08", accentDust: "#3DDC84", accentStars: "#D4FFB2", accentAurora: "#FFC65C", intensity: 0.9, detail: 0.8, glass: 0.4, glow: 0.85, speed: 0.7, drift: 0.7 },
+  "blood-moon":    { colorBase: "#2A0508", colorInterior: "#0E0103", accentDust: "#E5383B", accentStars: "#FFD6A5", accentAurora: "#660708", intensity: 1.05, detail: 0.7, glass: 0.35, glow: 1.0, speed: 0.6, drift: 0.5 }
+};
+const CONFIG = {
+  preset: "core-teal",
+  colorBase: "#07262B", colorInterior: "#050809",
+  accentDust: "#00C2A8", accentStars: "#38E1FF", accentAurora: "#FFC65C", errorColor: "#FF3B30",
+  intensity: 0.95, detail: 0.8, glass: 0.35, glow: 0.9,
+  speed: 0.8, drift: 0.6,
+  audioBrightness: 1.2, audioMotion: 0.55, audioPulse: 0.85,
+  state: "idle",                 // estado inicial
+  quality: "balanced",           // low | balanced | high
+  size: 264,                     // px do orb; 0 = preenche a caixa (hero)
+  transparent: false,            // true = sem fundo, pra sobrepor num layout
+  grain: 0.03, seed: 0, dprMax: 1.5
+};
+
+(function () {
+  const scene = document.querySelector("[data-lobo-scene]");
+  const canvas = document.getElementById("orb");
+  const motionOff = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const coarse = matchMedia("(hover: none) and (pointer: coarse)").matches;
+  const isBot = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed/i.test(navigator.userAgent);
+  const stats = { frames: 0, draws: 0, links: 0, lost: 0, restored: 0, resizes: 0, state: "idle", level: 0, mic: false };
+  // variáveis do loop declaradas antes de qualquer setConfig/schedule (evita TDZ quando a URL traz ?preset= ou ?s=)
+  let prog = null, U = {}, raf = 0, last = performance.now(), time = 0, visible = !document.hidden, inView = true, flashAt = -10, errorAt = -10;
+
+  // ---- estado: preset e URL sobre o CONFIG (só chaves conhecidas) ----
+  const cfg = Object.assign({}, CONFIG);
+  let dirty = true;
+  function setConfig(changes) {
+    const ignored = [];
+    for (const k in changes) { if (k in cfg) cfg[k] = changes[k]; else ignored.push(k); }
+    applyCss(); dirty = true; schedule();
+    return { ignored };
+  }
+  const params = new URLSearchParams(location.search);
+  if (params.get("preset") && PRESETS[params.get("preset")]) { cfg.preset = params.get("preset"); setConfig(PRESETS[cfg.preset]); }
+  if (params.get("s")) { try { setConfig(JSON.parse(atob(params.get("s").replace(/-/g, "+").replace(/_/g, "/")))); } catch (e) {} }
+  if (params.get("state")) cfg.state = params.get("state");
+  function exportState() { return location.origin + location.pathname + "?s=" + btoa(JSON.stringify(cfg)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+  function applyCss() {
+    scene.style.setProperty("--base", cfg.transparent ? "transparent" : cfg.colorBase);
+    scene.style.setProperty("--interior", cfg.colorInterior); scene.style.setProperty("--dust", cfg.accentDust); scene.style.setProperty("--stars", cfg.accentStars); scene.style.setProperty("--aurora", cfg.accentAurora);
+    scene.style.setProperty("--size", cfg.size > 0 ? cfg.size + "px" : "100%"); scene.style.setProperty("--fallback-size", (cfg.size > 0 ? cfg.size : 264) + "px");
+  }
+  applyCss();
+
+  // ---- máquina de estados: parâmetros por estado, transição por smoothstep em 450 ms ----
+  const STATES = {
+    idle:      { speed: 1.0, rim: 0.0, spiral: 0.0, dust: 0.0, bright: 1.0, breath: 0 },
+    listening: { speed: 1.3, rim: 1.0, spiral: 0.0, dust: 0.2, bright: 1.1, breath: 0 },
+    thinking:  { speed: 1.2, rim: 0.2, spiral: 1.0, dust: 1.0, bright: 1.0, breath: 1 },
+    speaking:  { speed: 1.0, rim: 0.3, spiral: 0.0, dust: 0.3, bright: 1.0, breath: 0 },
+    success:   { speed: 0.8, rim: 0.5, spiral: 0.0, dust: 0.0, bright: 1.15, breath: 0 },
+    error:     { speed: 0.6, rim: 0.2, spiral: 0.0, dust: 0.0, bright: 0.9, breath: 0 }
+  };
+  let state = STATES[cfg.state] ? cfg.state : "idle", prev = state, stateT = 1, stateAt = 0;
+  function setState(name) { if (!STATES[name] || name === state) return false; prev = state; state = name; stateT = 0; stateAt = time; stats.state = name; schedule(); return true; }
+
+  // ---- áudio: nível (RMS) e brilho (200 a 2000 Hz), suavizados por dt; mic só num gesto ----
+  let level = 0, bright = 0, levelRaw = 0, brightRaw = 0, lastAudioAt = -10, audio = null;
+  const paramLevel = params.get("level"); if (paramLevel !== null) { levelRaw = Math.min(1, Number(paramLevel) || 0); brightRaw = levelRaw; lastAudioAt = 1e9; }   // gancho de teste e screenshot
+  function setLevel(l, b) { levelRaw = Math.max(0, Math.min(1, l || 0)); brightRaw = b == null ? levelRaw : Math.max(0, Math.min(1, b)); lastAudioAt = time; schedule(); }
+  async function startMic() {
+    if (audio) return true;
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    const ctx = new (window.AudioContext || window.webkitAudioContext)(), src = ctx.createMediaStreamSource(stream), an = ctx.createAnalyser();
+    an.fftSize = 256; an.smoothingTimeConstant = 0.6; src.connect(an);
+    audio = { ctx, stream, an, td: new Uint8Array(an.fftSize), fd: new Uint8Array(an.frequencyBinCount) }; stats.mic = true; schedule(); return true;
+  }
+  function stopMic() { if (!audio) return; audio.stream.getTracks().forEach((t) => t.stop()); audio.ctx.close(); audio = null; stats.mic = false; levelRaw = brightRaw = 0; }
+  function readMic() {
+    const { an, td, fd, ctx } = audio; an.getByteTimeDomainData(td); an.getByteFrequencyData(fd);
+    let s = 0; for (let i = 0; i < td.length; i++) { const v = (td[i] - 128) / 128; s += v * v; }
+    levelRaw = Math.min(1, Math.sqrt(s / td.length) * 4);
+    const hz = ctx.sampleRate / an.fftSize, lo = Math.floor(200 / hz), hi = Math.min(fd.length - 1, Math.ceil(2000 / hz)); let b = 0; for (let i = lo; i <= hi; i++) b += fd[i];
+    brightRaw = Math.min(1, b / ((hi - lo + 1) * 255) * 2.2);
+    if (levelRaw > 0.02) lastAudioAt = time;
+  }
+
+  window.__lobo = { config: cfg, presets: PRESETS, stats, setConfig, exportState, setState, setLevel, startMic, stopMic, states: Object.keys(STATES), get state() { return state; }, family: "orb-reactive" };
+
+  if (isBot) { scene.classList.add("static"); return; }
+  const gl = canvas.getContext("webgl2", { alpha: !!cfg.transparent, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, powerPreference: coarse ? "default" : "high-performance" });
+  if (!gl) { scene.classList.add("static"); return; }
+
+  const VERT = `#version 300 es
+  void main(){ vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`;
+  const FRAG = `#version 300 es
+  precision highp float;
+  out vec4 fragColor;
+  uniform vec2 uResolution, uShake; uniform float uTime, uSeed, uIntensity, uDetail, uGlass, uGlow, uDrift, uGrain, uTransparent;
+  uniform vec3 uColorBase, uColorInterior, uAccentDust, uAccentStars, uAccentAurora, uErrorColor;
+  uniform int uLayers; uniform float uSpiral, uDustRise, uRim, uPulse, uBright, uFlash, uErrorTint, uBreath, uSpeed;
+  vec4 mod289(vec4 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; } vec3 mod289(vec3 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec4 permute(vec4 x){ return mod289(((x * 34.0) + 1.0) * x); } vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314 * r; }
+  float snoise(vec3 v){ const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0); const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+    vec3 i = floor(v + dot(v, C.yyy)); vec3 x0 = v - i + dot(i, C.xxx); vec3 g = step(x0.yzx, x0.xyz); vec3 l = 1.0 - g; vec3 i1 = min(g.xyz, l.zxy); vec3 i2 = max(g.xyz, l.zxy);
+    vec3 x1 = x0 - i1 + C.xxx; vec3 x2 = x0 - i2 + C.yyy; vec3 x3 = x0 - D.yyy; i = mod289(i);
+    vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+    float n_ = 0.142857142857; vec3 ns = n_ * D.wyz - D.xzx; vec4 j = p - 49.0 * floor(p * ns.z * ns.z); vec4 x_ = floor(j * ns.z); vec4 y_ = floor(j - 7.0 * x_);
+    vec4 x = x_ * ns.x + ns.yyyy; vec4 y = y_ * ns.x + ns.yyyy; vec4 h = 1.0 - abs(x) - abs(y); vec4 b0 = vec4(x.xy, y.xy); vec4 b1 = vec4(x.zw, y.zw);
+    vec4 s0 = floor(b0) * 2.0 + 1.0; vec4 s1 = floor(b1) * 2.0 + 1.0; vec4 sh = -step(h, vec4(0.0)); vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy; vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+    vec3 p0 = vec3(a0.xy, h.x); vec3 p1 = vec3(a0.zw, h.y); vec3 p2 = vec3(a1.xy, h.z); vec3 p3 = vec3(a1.zw, h.w);
+    vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3))); p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+    vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0); m = m * m; return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3))); }
+  float fbm3(vec3 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 4; i++){ v += a * snoise(p); p = p * 2.03 + 11.1; a *= 0.5; } return v * 0.5 + 0.5; }
+  float hash21(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+  vec3 aces(vec3 x){ const float a = 2.51, b = 0.03, c = 2.43, d = 0.59, e = 0.14; return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0); }
+  vec3 accent(int i){ return i == 0 ? uAccentAurora : (i == 1 ? uAccentDust : (i == 2 ? uAccentStars : uAccentAurora)); }
+  void main(){
+    vec2 p = (gl_FragCoord.xy - 0.5 * uResolution) / (0.5 * min(uResolution.x, uResolution.y)) + uShake;
+    float R = 0.64 * (1.0 + 0.06 * uPulse);
+    float r2 = dot(p, p), d = length(p) - R, t = uTime * uSpeed;
+    float px = 2.0 / min(uResolution.x, uResolution.y);
+    float inside = 1.0 - smoothstep(-px, px, d);
+    float z = sqrt(max(0.0, R * R - r2));
+    vec3 n = vec3(p, z) / R;
+    // refração aproximada: amostra o interior deslocado pela normal (desligada abaixo de 64 px pelo JS)
+    vec2 q = p - n.xy * uGlass * 0.18 * (1.0 - n.z);
+    vec3 sp = vec3(q, z / R);
+    float ang = uSpiral * (t * 0.6 + length(q) * 4.0);
+    sp.xy = mat2(cos(ang), -sin(ang), sin(ang), cos(ang)) * sp.xy;
+    float speed = 0.12 + 0.25 * uDrift;
+    vec3 interior = uColorInterior;
+    for (int i = 0; i < 4; i++){
+      if (i >= uLayers) break;
+      float fi = float(i);
+      vec3 pp = sp * (2.1 + fi * 1.4 * (0.5 + uDetail)) + vec3(uSeed * 0.13, fi * 7.7, 0.0) + vec3(0.0, uDustRise * t * 0.35 * (1.0 + fi), t * speed * (0.6 + fi * 0.4));
+      float nval = fbm3(pp);
+      float band = smoothstep(0.48, 0.86, nval) * uIntensity * (0.95 - fi * 0.18);
+      interior += accent(i) * band;
+    }
+    // poeira e estrelas: picos de ruído de alta frequência
+    float dust = pow(max(0.0, snoise(sp * 18.0 + vec3(0.0, uDustRise * t * 0.8, t * 0.25))), 7.0) * 2.0 * uIntensity;
+    float stars = pow(max(0.0, snoise(sp * 46.0 + vec3(uSeed, 0.0, t * 0.05))), 14.0) * 3.0;
+    interior += uAccentDust * dust + uAccentStars * stars;
+    float depth = mix(0.3, 1.0, n.z);
+    vec3 core = interior * depth * uBright * (1.0 + 0.15 * uBreath);
+    float fres = pow(1.0 - n.z, 3.0);
+    vec3 rimCol = mix(uAccentStars, uAccentAurora, 0.5);
+    core += rimCol * fres * (0.55 + 1.2 * uRim);
+    vec2 hl = p - vec2(-0.28, 0.32) * R; core += vec3(exp(-dot(hl, hl) * 40.0) * 0.8 * (0.3 + uGlass));
+    core = mix(core, core * 0.4 + uErrorColor * (0.35 + 0.4 * fres), uErrorTint);
+    core += uAccentAurora * uFlash;
+    float cut = 1.0 - smoothstep(0.72, 0.96, length(p));   // o halo morre antes da borda do canvas
+    float halo = (exp(-max(d, 0.0) * 7.0) * 0.45 * (0.6 + 0.4 * uBright) + exp(-max(d, 0.0) * 2.2) * 0.07) * (1.0 - inside) * uGlow * cut;
+    vec3 glowCol = mix(uAccentAurora, uAccentDust, 0.5);
+    float ring = smoothstep(0.03, 0.0, abs(d - 0.05 - 0.06 * uRim)) * uRim * 0.8 * cut;
+    vec3 col = core * inside + glowCol * halo + rimCol * ring;
+    float alpha = clamp(inside + halo * 1.5 + ring, 0.0, 1.0);
+    col = mix(uColorBase * (1.0 - inside) + col, col, uTransparent);
+    col = aces(col);
+    col += (hash21(gl_FragCoord.xy + fract(uTime) * 13.0) - 0.5) * uGrain * (uTransparent > 0.5 ? alpha : 1.0);
+    fragColor = vec4(col, mix(1.0, alpha, uTransparent));
+  }`;
+
+  function compile(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+  function build() {
+    prog = gl.createProgram(); gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT)); gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG)); gl.linkProgram(prog); stats.links++;
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+    gl.useProgram(prog); U = {};
+    for (const n of ["uResolution", "uShake", "uTime", "uSeed", "uIntensity", "uDetail", "uGlass", "uGlow", "uDrift", "uGrain", "uTransparent", "uColorBase", "uColorInterior", "uAccentDust", "uAccentStars", "uAccentAurora", "uErrorColor", "uLayers", "uSpiral", "uDustRise", "uRim", "uPulse", "uBright", "uFlash", "uErrorTint", "uBreath", "uSpeed"]) U[n] = gl.getUniformLocation(prog, n);
+    if (cfg.transparent) { gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.clearColor(0, 0, 0, 0); }
+  }
+  const hex = (h) => { const n = parseInt(h.replace("#", ""), 16); return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]; };
+  const QUALITY = { low: 2, balanced: 3, high: 4 };
+
+  let w = 0, h = 0, dpr = 0, cssSize = 0;
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    const d = Math.min(cfg.dprMax, coarse ? 1.25 : 1.5, window.devicePixelRatio || 1);
+    const nw = Math.max(1, Math.round(r.width * d)), nh = Math.max(1, Math.round(r.height * d));
+    if (nw === w && nh === h && d === dpr) return false;
+    w = nw; h = nh; dpr = d; cssSize = Math.min(r.width, r.height); canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); stats.resizes++; return true;
+  }
+
+  const smooth = (x) => x * x * (3 - 2 * x), lerp = (a, b, k) => a + (b - a) * k;
+  function draw(dt) {
+    if (audio) readMic();
+    const kA = 1 - Math.pow(1 - 0.3, dt * 60);
+    level = lerp(level, levelRaw, kA); bright = lerp(bright, brightRaw, kA); stats.level = +level.toFixed(3);
+    const hasAudio = (time - lastAudioAt) < 1.0;
+    const k = smooth(Math.min(1, stateT)), A = STATES[prev], B = STATES[state];
+    const P = {}; for (const key in B) P[key] = lerp(A[key], B[key], k);
+    let rim = P.rim, pulse = 0, brightMul = P.bright, speedMul = P.speed;
+    if (state === "listening") rim *= 0.35 + 0.65 * (hasAudio ? level : 0.4 + 0.2 * Math.sin(time * 4.0));
+    if (state === "speaking") { const l = hasAudio ? level : 0; pulse = l * cfg.audioPulse; brightMul *= 1 + l * cfg.audioBrightness * 0.5; speedMul *= 1 + l * cfg.audioMotion; }
+    const breath = P.breath * (0.5 + 0.5 * Math.sin(time * 6.2832 * 0.8));
+    const flash = (state === "success" ? Math.exp(-(time - flashAt) * 3.0) : 0) * k;
+    const shakeT = time - errorAt, shake = (state === "error" && shakeT < 0.2) ? 0.012 * Math.sin(shakeT * 160) : 0;
+    const glass = cssSize <= 64 ? 0 : cfg.glass;
+    const layers = Math.min(QUALITY[cfg.quality] || 3, coarse ? 3 : 4);
+    gl.uniform2f(U.uResolution, w, h); gl.uniform2f(U.uShake, shake, 0); gl.uniform1f(U.uTime, time); gl.uniform1f(U.uSeed, cfg.seed);
+    gl.uniform1f(U.uIntensity, cfg.intensity); gl.uniform1f(U.uDetail, cfg.detail); gl.uniform1f(U.uGlass, glass); gl.uniform1f(U.uGlow, cfg.glow); gl.uniform1f(U.uDrift, cfg.drift);
+    gl.uniform1f(U.uGrain, cfg.grain); gl.uniform1f(U.uTransparent, cfg.transparent ? 1 : 0);
+    gl.uniform3fv(U.uColorBase, hex(cfg.colorBase)); gl.uniform3fv(U.uColorInterior, hex(cfg.colorInterior)); gl.uniform3fv(U.uAccentDust, hex(cfg.accentDust)); gl.uniform3fv(U.uAccentStars, hex(cfg.accentStars)); gl.uniform3fv(U.uAccentAurora, hex(cfg.accentAurora)); gl.uniform3fv(U.uErrorColor, hex(cfg.errorColor));
+    gl.uniform1i(U.uLayers, layers); gl.uniform1f(U.uSpiral, P.spiral); gl.uniform1f(U.uDustRise, P.dust); gl.uniform1f(U.uRim, rim); gl.uniform1f(U.uPulse, pulse); gl.uniform1f(U.uBright, brightMul * (1 + 0.25 * bright * (state === "speaking" ? 1 : 0)));
+    gl.uniform1f(U.uFlash, flash); gl.uniform1f(U.uErrorTint, state === "error" ? k : (prev === "error" ? 1 - k : 0)); gl.uniform1f(U.uBreath, breath); gl.uniform1f(U.uSpeed, cfg.speed * speedMul);
+    if (cfg.transparent) gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); stats.draws++; stats.frames++;
+  }
+
+  function frame(now) {
+    raf = 0;
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
+    if (stateT < 1) stateT = Math.min(1, stateT + dt / 0.45);
+    if (!motionOff) time += dt;
+    const resized = resize();
+    const transitioning = stateT < 1 || (state === "error" && time - errorAt < 0.25);
+    if (motionOff && !dirty && !resized && !transitioning) return;   // reduced motion: assentado, redesenha só em mudança
+    if (gl.isContextLost()) return;
+    draw(dt); dirty = false;
+    if (visible && inView && (!motionOff || transitioning)) raf = requestAnimationFrame(frame);
+  }
+  function schedule() { if (!raf && visible && inView && prog) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+  const _setState = setState;
+  window.__lobo.setState = (name) => { const ok = _setState(name); if (ok && name === "success") flashAt = time; if (ok && name === "error") errorAt = time; return ok; };
+  if (state === "success") flashAt = 0; if (state === "error") errorAt = 0;
+  new IntersectionObserver((es) => { inView = es[0].isIntersecting; if (inView) schedule(); }, { rootMargin: "100% 0px" }).observe(scene);
+  document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });
+  window.addEventListener("resize", () => { dirty = true; schedule(); }, { passive: true });
+  canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); stats.lost++; if (raf) cancelAnimationFrame(raf); raf = 0; });
+  canvas.addEventListener("webglcontextrestored", () => { stats.restored++; w = h = dpr = 0; build(); dirty = true; schedule(); });
+  try { build(); } catch (e) { console.error(e); scene.classList.add("static"); return; }
+  schedule();
+})();
+</script>
+</body>
+</html>

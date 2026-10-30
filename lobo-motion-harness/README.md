@@ -18,6 +18,7 @@ lobo-motion-harness/
     ├── hooks/hooks.json                # SessionStart, PostToolUse (GLSL), Stop (catálogo em dia)
     ├── scripts/verify-motion.sh        # verificador mecânico das hard rules
     ├── tools/qa/                       # 4 sondas Playwright + helper
+    ├── tools/showroom/                 # showroom das 11 famílias + aba Studio (prompt → efeito)
     └── vault/                          # hard rules, catálogo, fix-catalog, pitfalls, ADRs
 ```
 
@@ -44,6 +45,7 @@ lobo-motion-harness/
 | `add-family` | **Pronta (doc).** O procedimento de família nova como skill, com checklist de registro. |
 | `tier-calibrate` | **Pronta.** `tools/qa/tier-calibrate.mjs` varre count × dpr × glow por tier e recomenda. |
 | Sondas `tools/qa` | **Testadas** nos dois templates neste ambiente (Chromium headless com SwiftShader). |
+| Showroom + Studio | **Publicado** em https://claude.ai/artifact/6LjeR65wbx691NWpP5Mwy8. A aba Studio recria o "crie com um prompt" do Unicorn Studio compondo dentro dos 11 motores: Criar, Editar (ao vivo), Otimizar, Variações (A/B/C/D) e Explicar, com coerção por spec, histórico de 8 turnos e download do standalone com CONFIG embutido. Só chama o Claude dentro do claude.ai (`sample`). |
 
 ## Instalar
 

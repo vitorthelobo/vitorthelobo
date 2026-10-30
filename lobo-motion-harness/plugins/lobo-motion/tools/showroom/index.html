@@ -65,15 +65,38 @@
   pre { margin: 0; padding: 0 14px 14px; font: 0.8rem/1.5 var(--mono); color: var(--fg); overflow-x: auto; white-space: pre; }
   .note { color: var(--muted); font-size: 0.85rem; max-width: 72ch; }
   .note b { color: var(--fg); }
+  .tab.studio-tab { border-style: dashed; }
+  .tab.studio-tab[aria-selected="true"] { border-style: solid; }
+  .frame .placeholder { position: absolute; inset: 0; display: none; place-items: center; text-align: center; color: var(--muted); padding: 24px; font-size: 0.95rem; }
+  .frame.empty .placeholder { display: grid; }
+  .frame.empty iframe { visibility: hidden; }
+  .placeholder b { color: var(--fg); font-family: var(--display); font-size: 1.2rem; display: block; margin-bottom: 8px; }
+  .prompt { width: 100%; box-sizing: border-box; min-height: 92px; resize: vertical; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: 500 0.92rem/1.45 var(--body); }
+  .modes { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .studioStatus { font: 0.78rem var(--mono); color: var(--muted); min-height: 1.2em; margin-top: 6px; white-space: pre-wrap; }
+  .studioStatus.err { color: #ff8a80; }
+  .history { display: grid; gap: 6px; max-height: 240px; overflow: auto; font-size: 0.8rem; }
+  .history .u { color: var(--fg); }
+  .history .a { color: var(--muted); padding-left: 10px; border-left: 2px solid var(--line); }
+  .history .a b { color: var(--accent); font-weight: 600; }
+  .vars { display: grid; gap: 6px; }
+  .vars button { text-align: left; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; font: 500 0.82rem var(--body); }
+  .vars button small { display: block; color: var(--muted); font-weight: 400; }
+  .current { font-size: 0.82rem; color: var(--muted); }
+  .current b { color: var(--fg); }
+  .examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .examples button { font: 0.76rem var(--body); padding: 5px 9px; border-radius: 999px; border: 1px dashed var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+  .examples button:hover { color: var(--fg); border-style: solid; }
 </style>
 
 <div class="wrap">
   <header>
     <h1>Lobo Motion Showroom</h1>
-    <p>As onze famílias do harness rodando ao vivo, com a GPU do seu navegador. Troque preset, estado e knobs; o CONFIG embaixo é o que o build prompt carrega.</p>
+    <p>As onze famílias do harness rodando ao vivo, com a GPU do seu navegador. Na aba Studio, descreva o efeito e o Claude monta.</p>
   </header>
 
   <nav class="families" role="tablist" aria-label="Famílias">
+    <button class="tab studio-tab" role="tab" data-family="studio" aria-selected="false" id="tab-studio">✦ Studio</button>
     <button class="tab" role="tab" data-family="shader" aria-selected="true" id="tab-shader">Shader Background</button>
     <button class="tab" role="tab" data-family="particles" aria-selected="false" id="tab-particles">Particle Forms</button>
     <button class="tab" role="tab" data-family="orb" aria-selected="false" id="tab-orb">Orb Reactive</button>
@@ -89,7 +112,7 @@
 
   <div class="studio">
     <div class="stage">
-      <div class="frame" id="frame"><iframe id="view" title="Palco do efeito" allow="autoplay"></iframe></div>
+      <div class="frame" id="frame"><iframe id="view" title="Palco do efeito" allow="autoplay"></iframe><div class="placeholder" id="placeholder"><div><b>Lobo Motion Studio</b>Descreva o efeito que você quer na caixa à direita. O Claude escolhe o motor e os parâmetros; o palco mostra o resultado na hora.</div></div></div>
       <div class="bar">
         <div class="left">
           <span class="pill"><span class="dot"></span><span id="status">carregando</span></span>
@@ -204,20 +227,32 @@
     }
   };
   const state = { family: "shader", preset: null, orbState: "idle", size: "widget", level: 0.7, text: "", phone: false };
+  // ---- Studio: efeito por prompt. O Claude da página recebe este spec e devolve { family, config } dentro do espaço das 11 famílias. ----
+  const STUDIO_SPEC = {"shader-background":{"key":"shader","desc":"fundo procedural 2D em WebGL2: gradiente de 2-6 cores (colors+stops) deformado por um campo (shape); dither, halftone, vinheta, grão; shape 'band' é faixa de aurora que segue o cursor","defaults":{"preset":"graphite","colors":["#0A0A0A","#262626","#525252","#A3A3A3","#F5F5F5"],"stops":[0,0.25,0.5,0.75,1],"shape":"warped","zoom":1.3,"swirl":0.3,"movement":0.35,"speed":0.6,"angle":220,"centerX":0.5,"centerY":0.5,"detail":1,"contrast":1.1,"grain":0.1,"grainSize":1,"dither":0,"halftone":0,"vignette":0,"bg":"#000000","layers":1,"height":0.45,"softness":0.5,"pointer":0.8,"seed":0,"dprMax":1.5},"enums":{"shape":["linear","radial","conic","mesh","warped","aurora","rays","ripples","stripes","caustics","blobs","band"]},"ranges":{"swirl":[0,1.5],"movement":[0,1],"zoom":[0.3,3],"speed":[0,2],"detail":[0.25,3],"contrast":[0.5,2],"grain":[0,0.4],"dither":[0,1],"halftone":[0,16],"vignette":[0,1],"angle":[0,360],"centerX":[0,1],"centerY":[0,1],"layers":[1,3],"height":[0,1],"softness":[0,1],"pointer":[0,1]},"colors":["colors[0]","colors[1]","colors[2]","colors[3]","colors[4]","bg"],"presets":["graphite","lagoon","molten","neon-dream","aurora-veil","sun-rays","pond-ripples","silk-stripes","pool-caustics","lava-blobs","glacier","halftone-noir","cyber-bloom","twilight-haze","aurora-band","aurora-trio","northern-band","ember-band","sunset-boulevard","deep-ocean","mint-paper","risograph","vapor-rays","liquid-chrome","ripple-pastel","conic-candy"]},"particle-forms":{"key":"particles","desc":"nuvem de partículas 3D (three.js): forma com seed, sprite por partícula, movimento stateless, modo de cor, hover de 5 modos, zoom/DOF/parallax; blend 'normal' = partículas opacas (neve, confete)","defaults":{"preset":"nebula-drift","shape":"hopf","seed":4821,"count":180000,"size":1.95,"speed":0.45,"sprite":"disc","sizeVar":0.5,"spin":0,"blend":"add","motion":"flow","motionSpeed":1,"twinkle":0,"flow":0.35,"flowScale":1.6,"hover":"push","pointer":0.7,"pointerRadius":1.2,"hoverGlow":0.6,"hoverSoft":0.5,"touch":"drag","colorMode":"flow","colorA":"#25B8FF","colorB":"#B04DFF","colorC":"#FFFFFF","colorD":"#FFD166","bg":"#05060A","text":"LOBO","volumeX":3.4,"volumeY":2.6,"volumeZ":1.6,"glow":0.75,"glowSpread":0.08,"glowCutoff":0.21,"zoom":1,"dof":0,"focus":0,"parallax":false,"parallaxAmount":0.5,"autoRotate":true,"rotateSpeed":0.08,"tiltX":0,"dprMax":1.5},"enums":{"hover":["push","pull","vortex","scatter","glow"],"sprite":["disc","dot","ring","square","diamond","star","cross","streak","bokeh","triangle"],"motion":["flow","fall","rise","drift","orbit","swirl","pulse","jitter"],"colorMode":["flow","depth","axis","random","radial","index"],"blend":["add","normal"],"parallax":[false,true]},"ranges":{"flow":[0,1.5],"size":[0.5,30],"sizeVar":[0,1],"motionSpeed":[0,3],"twinkle":[0,1],"spin":[0,2],"glow":[0,2],"speed":[0,2],"pointer":[0,1],"pointerRadius":[0.2,3],"hoverGlow":[0,2],"hoverSoft":[0,1],"parallaxAmount":[0,1],"zoom":[0.4,2.5],"dof":[0,1],"focus":[-1.5,1.5]},"colors":["colorA","colorB","bg"],"presets":["nebula-drift","ember-knot","frost-galaxy","abyss-lorenz","silk-membrane","coral-bloom","synapse","ribbon-twist","cosmic-wave","dust-tornado","gyro-core","wormhole","vortex-fall","magnetosphere","snowfall","rain-streaks","embers-rise","bubbles-rise","smoke-plume","sand-storm","starfield","fireflies","pollen-drift","jellyfish-glow","heartbeat","phyllotaxis","superformula","atom-orbits","saturn","asteroid-belt","dna-helix","mobius-band","lissajous-string","fountain-spray","hologram-scan","confetti-burst","glitter-dust","pixel-lattice","digital-matrix","neon-cross-field","triangle-mesh","ink-swirl","aurora-curtain","lobo-glyph","ink-on-paper","neon-heart-vortex","motion-glyph","bokeh-city","macro-pollen","dna-depth","galaxy-dolly","saturn-dof","snow-depth","cyber-lattice-orbit"]},"orb-reactive":{"key":"orb","desc":"esfera 3D reativa (assistente de IA): 6 estados (idle, listening, thinking, speaking, success, error), reage a áudio","defaults":{"preset":"core-teal","colorBase":"#07262B","colorInterior":"#050809","accentDust":"#00C2A8","accentStars":"#38E1FF","accentAurora":"#FFC65C","errorColor":"#FF3B30","intensity":0.95,"detail":0.8,"glass":0.35,"glow":0.9,"speed":0.8,"drift":0.6,"audioBrightness":1.2,"audioMotion":0.55,"audioPulse":0.85,"state":"idle","quality":"balanced","size":264,"transparent":false,"grain":0.03,"seed":0,"dprMax":1.5},"enums":{"quality":["low","balanced","high"]},"ranges":{"intensity":[0,2],"detail":[0,1.5],"glass":[0,1],"glow":[0,2],"drift":[0,1],"speed":[0,2],"grain":[0,0.2],"audioPulse":[0,2]},"colors":["colorBase","colorInterior","accentDust","accentStars","accentAurora"],"presets":["core-teal","ember-core","cyan-spiral","violet-nebula","aurora-field","solar-flare","glacier-mind","toxic-lime","rose-quartz","deep-sea","gold-oracle","mono-pearl","cyber-magenta","forest-spirit","blood-moon"]},"text-motion":{"key":"text","desc":"animação de título por letra/palavra/linha com mola (DOM + CSS); o preset define a entrada; tension/friction/speed/stagger ajustam","defaults":{"preset":"rise-settle","tension":1,"friction":1,"stagger":null,"delay":0,"speed":1,"trigger":"inview-once","start":"top bottom-=10%","end":"center center","scope":"all","text":null,"seed":0},"enums":{"trigger":["mount","inview-once","inview-always","progress"]},"ranges":{"tension":[0.5,2],"friction":[0.5,2],"speed":[0.25,3],"delay":[0,2]},"colors":[],"presets":["rise-settle","blur-in","pop-scale","flip-in","typewriter","drop-in","bounce-up","skew-in","tilt-3d","fade-scale","squeeze-in","swing-in","scale-y","fade-letters","center-burst","scatter-in","reverse-rise","elastic-x","glitch-skew","fade-cascade","curtain-up","word-rise","zoom-blur","rotate-in","rise-wide","pop-words","soft-focus","cascade-down","edges-in","flip-words","spin-words","slide-from-left","stagger-reveal-lines","wipe-down","slide-from-right","unblur-lines","lines-reverse","zoom-lines"]},"cursor-fx":{"key":"cursor","desc":"cursor customizado: pointer (substitui o cursor), trail (rastro) ou field (fundo reage); demo automático","defaults":{"preset":"dot-ring","group":"pointer","fx":null,"follow":0.14,"ringSize":36,"dotSize":6,"hoverScale":1.9,"colorMode":"solid","color":"#FFFFFF","color2":"#C8FF5A","trailLength":24,"trailDecay":0.85,"fieldSpacing":28,"fieldStrength":0.8,"hideNative":true,"demo":true,"seed":0,"dprMax":1.5},"enums":{"colorMode":["solid","gradient","difference"]},"ranges":{"follow":[0.05,1],"ringSize":[8,80],"dotSize":[2,20],"hoverScale":[1,3],"trailLength":[4,60],"trailDecay":[0.5,0.98],"fieldSpacing":[12,60],"fieldStrength":[0,1.5]},"colors":["color","color2"],"presets":["dot-ring","velocity-squish","crosshair-hud","custom-pointer","figma-cursor","eyes","butterfly","invert-ring","trail","cascading-dots","swirl","silky-ribbon","pixel-trail","fluid-smoke","cursor-ghost","comet","sparkle-burst","ripple-rings","rainbow-trail","bubble-chain","magnet-lines","ascii-field","dot-grid-warp","spotlight","radar-sweep","matrix-field","magnet-dense"]},"holo-material":{"key":"holo","desc":"tecido holográfico 3D com iridescência física; baseColor, rainbowStrength, finish, metallic, pearl, glitter, scratches","defaults":{"preset":"holo","baseColor":"#d9dde6","rainbowStrength":1,"patternSize":14,"colorShift":0.5,"glitter":0.6,"finish":"glossy","metallic":0.95,"pearl":0.1,"scratches":0.5,"roughness":null,"clearcoat":null,"background":"#0b0c12","brightness":0.6,"reflections":1.1,"toneMapping":"ACES","cloth":{"cols":40,"rows":28,"stiffness":1,"solverIterations":10,"grabSize":0.27,"wind":0.6},"quality":"high","autoSway":true,"seed":7,"dprMax":1.5},"enums":{"finish":["glossy","satin","matte"],"toneMapping":["ACES","AgX","Neutral"]},"ranges":{"rainbowStrength":[0,1],"patternSize":[2,40],"colorShift":[0,1],"metallic":[0,1],"pearl":[0,1],"glitter":[0,1],"scratches":[0,1],"reflections":[0,2],"brightness":[0,1.5],"cloth.wind":[0,2]},"colors":["baseColor","background"],"presets":["holo","black-gloss","chrome","oil-slick","pearl-silk","aurora-foil","rose-gold","midnight-velvet","disco-glitter","matte-sand","emerald-foil","sapphire-silk","candy-iridescent","gunmetal","gold-leaf","soap-bubble"]},"post-image-fx":{"key":"post","desc":"pós-processamento de imagem/vídeo: ascii (charset, cellSize), dither (pattern, dotSize) ou refract (vidro procedural); ink/paper/accent são as cores","defaults":{"preset":"terminal","mode":"ascii","source":"sample","exposure":1.2,"contrast":1.3,"gamma":1,"brightness":0,"temporal":0.5,"ink":"#39FF88","paper":"#020904","accent":"#39FF88","ascii":{"charset":"classic70","cellSize":14,"glow":true,"bands":16,"gamma":0.7,"invert":false},"dither":{"pattern":"bayer8","dotSize":2,"cutoff":0.5,"strength":0.6,"accentAmount":0},"refract":{"pattern":"fluted","cellSize":26,"curve":1,"depth":0.9,"angle":0,"dispersion":0.12,"sheen":0.3,"parallax":1},"post":{"scanlines":0,"vignette":0.25,"grain":0.04,"crt":0,"posterize":0,"chroma":0},"seed":0,"dprMax":1.5},"enums":{"mode":["ascii","dither","refract"]},"ranges":{"exposure":[0,3],"contrast":[0.5,2],"gamma":[0.5,2],"temporal":[0,1],"post.vignette":[0,1],"post.scanlines":[0,1],"post.grain":[0,0.2],"post.chroma":[0,1],"ascii.cellSize":[6,30],"dither.strength":[0,1],"dither.dotSize":[1,6],"refract.depth":[0,2],"refract.cellSize":[8,80]},"colors":["ink","paper","accent"],"presets":["terminal","amber-binary","newsprint","blocks-cyan","code-ide","big-type","film-noir","toxic-grid","cyber-rain","crt-tube","dot-pop","noise-gold","posterized-vhs","fluted","cross-reeded","rain","frosted","glass-blocks","pond-ripple","diagonal-reeds"]},"grid-dots-field":{"key":"grid","desc":"grade 2D de glifos (dots, ring, square, diamond, triangle, star, plus, cross, lines, ascii) deformada por ruído, onda e cursor; color/color2/bg","defaults":{"preset":"dot-matrix","mode":"dots","spacing":28,"size":1.6,"color":"#FFFFFF","color2":"#25B8FF","bg":"#0A0A0C","warp":0.35,"warpScale":1.2,"wave":0,"speed":0.4,"hover":"push","pointer":0.8,"pointerRadius":160,"hoverGlow":1,"hoverSoft":0.6,"fade":0.35,"seed":7,"dprMax":1.5},"enums":{"mode":["dots","ring","square","diamond","triangle","star","plus","cross","lines","ascii"],"hover":["push","pull","vortex","scatter","glow"]},"ranges":{"spacing":[12,64],"size":[0.5,14],"warp":[0,1],"warpScale":[0.3,3],"wave":[0,1],"fade":[0,1],"speed":[0,2],"pointer":[0,1],"pointerRadius":[60,400],"hoverGlow":[0,2],"hoverSoft":[0,1]},"colors":["color","color2","bg"],"presets":["dot-matrix","blueprint","plus-grid","sonar","star-dust","diamond-net","ascii-rain","topo","paper-dots","neon-squares","ring-pond","triangle-storm","cross-blueprint","star-field-dense","diamond-gold","ascii-blue","lines-flow","plus-minimal"]},"image-reveal":{"key":"image","desc":"imagem do cliente com reveal de entrada (liquid, pixel, tiles, wipe) ou interação no hover (ripple, displace); tint multiplica","defaults":{"preset":"liquid-reveal","src":"","mode":"liquid","reveal":0,"autoReveal":true,"duration":1.6,"hover":0.5,"hoverRadius":0.22,"noiseScale":2.2,"pixelSize":0,"tiles":0,"direction":90,"edge":0.08,"tint":"#FFFFFF","speed":1,"seed":3,"dprMax":1.5},"enums":{"mode":["liquid","pixel","tiles","wipe","ripple","displace"]},"ranges":{"reveal":[0,1],"hover":[0,1],"hoverRadius":[0.05,0.6],"noiseScale":[0.5,6],"edge":[0.005,0.4],"duration":[0.3,4],"speed":[0,2],"pixelSize":[0,160],"tiles":[0,40],"direction":[0,360]},"colors":["tint"],"presets":["liquid-reveal","pixel-resolve","tiles-flip","wipe-warp","slow-dissolve","big-pixels","micro-tiles","soft-curtain","diagonal-tiles","ink-bleed","sharp-wipe","glitch-wipe","hover-ripple","hover-liquid","sepia-ripple","cool-liquid"]},"3d-object-scene":{"key":"object3d","desc":"objeto 3D procedural ou GLB (src) com material físico; roughness/metalness/transmission/iridescence/clearcoat; color/bg/keyColor/rimColor","defaults":{"preset":"chrome-knot","src":"","object":"torusKnot","material":"chrome","color":"#E8E8EE","bg":"#0A0A0C","roughness":0.08,"metalness":1,"transmission":0,"ior":1.5,"iridescence":0,"clearcoat":0.6,"envIntensity":1.4,"exposure":1.1,"keyColor":"#FFFFFF","rimColor":"#25B8FF","autoRotate":true,"rotateSpeed":0.35,"tiltX":0.25,"cameraZ":5.8,"scale":1,"wire":0,"drag":1,"parallax":false,"parallaxAmount":0.5,"seed":1,"dprMax":1.5},"enums":{"object":["torusKnot","icosahedron","sphere","capsule","box","dodecahedron","torus"],"wire":[0,1],"parallax":[false,true]},"ranges":{"roughness":[0,1],"metalness":[0,1],"transmission":[0,1],"iridescence":[0,1],"clearcoat":[0,1],"envIntensity":[0,3],"exposure":[0.3,2],"rotateSpeed":[0,2],"tiltX":[-1.2,1.2],"cameraZ":[2,10],"scale":[0.2,3],"parallaxAmount":[0,1]},"colors":["color","bg","keyColor","rimColor"],"presets":["chrome-knot","frosted-glass","clay-sphere","oil-capsule","wire-gem","gold-logo","glass-torus","black-chrome","candy-capsule","copper-knot","opal-icosa","wire-torus","jade-dodeca","matte-cube","neon-wire-sphere","brushed-steel"]},"morph-transition":{"key":"morph","desc":"partículas que mudam de forma (from → to, ou sequence cíclica); t = progresso manual; scatter/stagger dão o caráter","defaults":{"preset":"sphere-to-knot","from":"sphere","to":"torusKnot","sequence":["sphere","torusKnot","galaxy","hopf"],"t":0,"auto":true,"duration":2.2,"hold":1.6,"easing":"smooth","scatter":0.6,"stagger":0.35,"count":160000,"size":1.8,"flow":0.15,"flowScale":1.6,"colorA":"#25B8FF","colorB":"#F72585","glow":0.8,"glowSpread":0.1,"glowCutoff":0.22,"zoom":1,"dof":0,"focus":0,"parallax":false,"parallaxAmount":0.5,"autoRotate":true,"rotateSpeed":0.1,"seed":11,"dprMax":1.5},"enums":{"to":["sphere","torusKnot","hopf","lotus","galaxy","lorenz","membrane","coral","neuron","tornado","gyroscope","wormhole","ribbon","vortex","magnetosphere","phyllotaxis","helixDna","atom","saturn","heart","jellyfish","glyph"],"easing":["smooth","elastic","linear"],"parallax":[false,true]},"ranges":{"t":[0,1],"scatter":[0,1],"stagger":[0,1],"duration":[0.3,6],"hold":[0,10],"flow":[0,1],"glow":[0,2],"size":[0.5,4],"rotateSpeed":[0,1],"parallaxAmount":[0,1],"zoom":[0.4,2.5],"dof":[0,1],"focus":[-1.5,1.5]},"colors":["colorA","colorB"],"presets":["sphere-to-knot","bloom-cycle","tech-rings","storm","scroll-driven","cosmos-cycle","life-cycle","geometry","lobo-heart","helix-mobius","storm-calm","fountain-bloom","orbit-system","slow-dream","glitch-swap"]}};
+  const studio = { family: null, config: null, base: null, note: "", status: "", turns: [], vars: [], busy: false, ctl: null };
+  try { const sv = JSON.parse(localStorage.getItem("lobo-studio") || "null"); if (sv && sv.family && STUDIO_SPEC[sv.family]) Object.assign(studio, { family: sv.family, config: sv.config, base: sv.base || null, note: sv.note || "", turns: sv.turns || [], vars: sv.vars || [] }); } catch (e) {}
+  const studioSave = () => { try { localStorage.setItem("lobo-studio", JSON.stringify({ family: studio.family, config: studio.config, base: studio.base, note: studio.note, turns: studio.turns.slice(-12), vars: studio.vars })); } catch (e) {} };
+  const b64 = (o) => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const famKey = (fam) => STUDIO_SPEC[fam] ? STUDIO_SPEC[fam].key : null;
+  let samplePromise = null; const getSample = () => samplePromise || (samplePromise = (window.claude && window.claude.use ? window.claude.use("sample") : Promise.resolve(null)));
   const $ = (id) => document.getElementById(id);
   const view = $("view"), rail = $("controls"), status = $("status"), meta = $("meta"), configEl = $("config");
   let poll = 0;
 
   function lobo() { try { return view.contentWindow && view.contentWindow.__lobo; } catch (e) { return null; } }
   function srcFor() {
+    if (state.family === "studio") { if (!studio.family) return ""; return FAMILIES[famKey(studio.family)].file + "?s=" + b64(studio.config || {}); }
     const F = FAMILIES[state.family]; const q = new URLSearchParams();
+    if (state.sOverride && state.sOverride.key === state.family && !state.preset) { q.set("s", b64(state.sOverride.config)); }
     if (state.preset) q.set("preset", state.preset);
     if (state.family === "orb") { q.set("state", state.orbState); if (state.orbState === "speaking" || state.orbState === "listening") q.set("level", state.level); if (state.size === "hero") q.set("s", btoa(JSON.stringify({ size: 0 })).replace(/=+$/, "")); }
     if (state.family === "text" && state.text) q.set("text", state.text);
     return F.file + (q.toString() ? "?" + q.toString() : "");
   }
   function load() {
-    status.textContent = "carregando"; view.src = srcFor(); clearInterval(poll);
+    const src = srcFor(); $("frame").classList.toggle("empty", !src);
+    if (!src) { status.textContent = "aguardando prompt"; view.removeAttribute("src"); clearInterval(poll); configEl.textContent = "{ }"; return; }
+    status.textContent = "carregando"; view.src = src; clearInterval(poll);
     poll = setInterval(() => { const L = lobo(); if (!L) return; status.textContent = L.family + " · " + (L.stats.tier ? "tier " + L.stats.tier : "vivo"); showConfig(L); }, 500);
   }
   function showConfig(L) { const c = Object.assign({}, L.config); configEl.textContent = JSON.stringify(c, null, 2); meta.textContent = L.stats ? ("frames " + (L.stats.frames || 0) + (L.stats.links ? " · programas " + L.stats.links : "") + (L.stats.units ? " · unidades " + L.stats.units : "")) : ""; }
@@ -227,6 +262,7 @@
   function group(title) { const g = document.createElement("div"); g.className = "group"; const h = document.createElement("h2"); h.textContent = title; g.appendChild(h); return g; }
 
   function buildRail() {
+    if (state.family === "studio") return buildStudio();
     const F = FAMILIES[state.family]; const ctl = $("controls"); ctl.textContent = ""; const rail = ctl;
     const gp = group("Presets");
     const lists = Array.isArray(F.presets) ? { "": F.presets } : F.presets;
@@ -307,17 +343,126 @@
     $("familyNote").innerHTML = F.note;
   }
 
+
+  // ===================== STUDIO =====================
+  const MODES = {
+    create:   { label: "Criar",      hint: "descreva o efeito do zero" },
+    edit:     { label: "Editar",     hint: "mude o efeito atual (cores, velocidade, forma…)" },
+    optimize: { label: "Otimizar",   hint: "mais leve pra celular ou mais rico pra desktop" },
+    vary:     { label: "Variações",  hint: "4 alternativas do efeito atual" },
+    explain:  { label: "Explicar",   hint: "o que cada parâmetro está fazendo" },
+  };
+  const EXAMPLES = ["fundo aurora verde e roxo bem calmo pra um hero", "chuva de confete opaco colorido caindo", "esfera de IA azul-gelo, estado listening", "título entrando letra por letra do centro", "grade de losangos dourados que acende no cursor", "logo em cromo preto girando devagar", "imagem revelando em tiles na diagonal", "texto em partículas que diz LOBO"];
+  let studioMode = "create";
+  function instructionTurn() {
+    return "Você é o motor do Lobo Motion Studio. Transforma pedidos em português num efeito visual escolhendo UMA família e um CONFIG válido. Spec das famílias (chave → {desc, defaults, enums, ranges, colors, presets}):\n" + JSON.stringify(STUDIO_SPEC) +
+      "\n\nREGRAS\n- Responda SOMENTE JSON, sem texto fora dele.\n- Formato: {\"family\": \"<nome da família>\", \"mode\": \"replace\"|\"patch\", \"config\": {...}, \"note\": \"1 frase em pt-BR dizendo o que escolheu e por quê\"}.\n- \"replace\": config completo (pode omitir chaves que ficam no default). \"patch\": só as chaves alteradas, e só quando a família é a mesma do efeito atual.\n- Parta do preset mais próximo: ponha o nome em config.preset e sobrescreva o que o pedido muda. Os presets de text-motion e cursor-fx DEFINEM a animação/efeito; neles o preset é a escolha principal.\n- Cores em #RRGGBB maiúsculo. Números dentro dos ranges. Enums só com valores da lista. Nunca invente chaves.\n- Fundo claro: shader com colors claras, grid/particles com bg claro e blend normal.\n- Texto: família particle-forms shape glyph com a chave text, ou text-motion pra animar um título.\n- Pra variações: responda um ARRAY de 4 objetos {\"name\", \"config\" (patch), \"note\"} com diferenças claras entre si.\n- Pra otimizar: reduza count, dprMax (≤ 1.25 em celular), glow/glowSpread, layers, cloth.solverIterations, detail; mantenha cores e forma; diga no note o que cortou.";
+  }
+  function currentTurn() { return studio.family ? "EFEITO ATUAL: family " + studio.family + ", config " + JSON.stringify(studio.config) : "EFEITO ATUAL: nenhum."; }
+  const ERR = { not_granted: "Você não permitiu que esta página use o Claude. Permita no menu de permissões do artifact.", sampling_disabled: "O Claude não está disponível nesta conta.", rate_limited: "Muitas chamadas. Espere um pouco e tente de novo.", session_expired: "Sessão expirada: entre de novo no claude.ai.", refused: "O Claude não quis responder a esse pedido. Reformule.", invalid_json: "A resposta veio fora do formato. Tente de novo ou simplifique o pedido.", empty_completion: "Resposta vazia. Simplifique o pedido.", prompt_too_large: "Histórico grande demais. Limpe o histórico.", cancelled: "" };
+  function coerce(fam, cfg) {   // clamp por ranges e descarta chave que a família não tem (nível 1)
+    const sp = STUDIO_SPEC[fam]; if (!sp || !cfg || typeof cfg !== "object") return {};
+    const out = {}; for (const k in cfg) { if (!(k in sp.defaults)) continue; let v = cfg[k]; const r = sp.ranges[k]; if (r && typeof v === "number") v = Math.max(r[0], Math.min(r[1], v)); if (typeof sp.defaults[k] === "number" && typeof v === "string" && v.trim() !== "" && !isNaN(+v)) v = +v; out[k] = v; }
+    return out;
+  }
+  function applyResult(res, { live = true } = {}) {
+    const fam = STUDIO_SPEC[res.family] ? res.family : (studio.family || "shader-background");
+    const patch = coerce(fam, res.config); const sameFam = fam === studio.family;
+    if (res.mode === "patch" && sameFam && studio.config) { studio.config = Object.assign({}, studio.config, patch); if (live) { const L = lobo(); if (L && L.setConfig) { L.setConfig(patch); showConfig(L); } else load(); } }
+    else { studio.family = fam; studio.config = Object.assign({}, STUDIO_SPEC[fam].defaults, patch); studio.base = patch.preset || null; if (live) load(); }
+    studio.note = res.note || ""; studioSave();
+  }
+  async function runStudio(prompt, mode) {
+    const sample = await getSample(); const st = $("studioStatus");
+    if (!sample) { st.className = "studioStatus err"; st.textContent = "Esta página só consegue chamar o Claude aberta no claude.ai (artifact)."; return; }
+    if (mode === "edit" || mode === "optimize" || mode === "vary" || mode === "explain") { if (!studio.family) { st.className = "studioStatus err"; st.textContent = "Crie um efeito primeiro."; return; } }
+    studio.busy = true; studio.ctl = new AbortController(); $("studioGo").disabled = true; $("studioStop").hidden = false; st.className = "studioStatus"; st.textContent = "Pensando…";
+    const ask = { create: prompt, edit: "EDITE o efeito atual: " + prompt + "\n" + currentTurn() + "\nResponda com mode \"patch\" (ou \"replace\" com outra família se o pedido exigir).", optimize: "OTIMIZE o efeito atual " + (prompt || "pra celular") + ".\n" + currentTurn() + "\nResponda com mode \"patch\".", vary: "VARIAÇÕES do efeito atual" + (prompt ? " (" + prompt + ")" : "") + ".\n" + currentTurn() + "\nResponda um ARRAY de 4 {name, config (patch), note}.", explain: "Explique em pt-BR, em até 6 linhas curtas, o que este efeito faz e o que cada chave relevante está controlando. Sem JSON.\n" + currentTurn() }[mode];
+    const turns = [{ role: "user", content: instructionTurn() }, ...studio.turns.slice(-8), { role: "user", content: ask }];
+    try {
+      if (mode === "explain") {
+        const r = await sample(turns, { cache: false, signal: studio.ctl.signal, modelTier: "quick", onText: ({ text }) => { st.textContent = text; } });
+        studio.status = r.text;
+        studio.turns.push({ role: "user", content: ask.slice(0, 400) }, { role: "assistant", content: r.text.slice(0, 600) });
+      } else {
+        const res = await sample.json(turns, { cache: false, signal: studio.ctl.signal });
+        if (mode === "vary") { if (!Array.isArray(res)) throw { code: "invalid_json", message: "esperava array" }; studio.vars = res.slice(0, 4).map((v) => ({ name: String(v.name || "variação"), config: coerce(studio.family, v.config), note: String(v.note || "") })); studio.status = "4 variações prontas. Clique numa pra aplicar."; }
+        else { applyResult(res); studio.status = studio.note || "aplicado"; }
+        studio.turns.push({ role: "user", content: ask.slice(0, 400) }, { role: "assistant", content: JSON.stringify(res).slice(0, 1200) });
+      }
+      studioSave(); buildStudio();
+    } catch (e) {
+      const code = e && e.code; if (code === "cancelled") { st.textContent = e.text ? e.text : "parado."; } else { st.className = "studioStatus err"; st.textContent = ERR[code] || ("Falhou (" + (code || "erro") + "). Tente de novo."); }
+      if (code === "not_granted" || code === "sampling_disabled" || code === "not_declared") { $("studioGo").disabled = true; return; }
+    } finally { studio.busy = false; studio.ctl = null; const go = $("studioGo"); if (go) go.disabled = false; const stop = $("studioStop"); if (stop) stop.hidden = true; }
+  }
+  async function studioDownload() {
+    const key = famKey(studio.family); const F = FAMILIES[key];
+    let html; try { html = await (await fetch(F.file)).text(); } catch (e) { $("studioStatus").textContent = "Não consegui ler o template pra montar o HTML."; return; }
+    const m = html.match(/const CONFIG = \{[\s\S]*?\n\};/); if (m) html = html.replace(m[0], "const CONFIG = " + JSON.stringify(studio.config, null, 2) + ";");
+    html = html.replace(/<title>.*?<\/title>/, "<title>" + (studio.base || "studio") + " · " + studio.family + " · Lobo Motion</title>");
+    const name = "lobo-" + studio.family + "-" + (studio.base || "custom") + ".html";
+    const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+    if (dl) { try { await dl.save({ filename: name, data: html }); return; } catch (e) { if (e && e.code === "cancelled") return; } }
+    const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+  function buildStudio() {
+    const ctl = $("controls"); ctl.textContent = "";
+    const g1 = group("Prompt");
+    const modes = document.createElement("div"); modes.className = "modes";
+    for (const m in MODES) modes.appendChild(chip(MODES[m].label, m === studioMode, () => { studioMode = m; buildStudio(); }, "state"));
+    const ta = document.createElement("textarea"); ta.className = "prompt"; ta.id = "studioPrompt"; ta.placeholder = MODES[studioMode].hint; ta.value = studio._draft || "";
+    ta.addEventListener("input", () => { studio._draft = ta.value; });
+    ta.addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") go.click(); });
+    const row = document.createElement("div"); row.className = "chips"; row.style.marginTop = "8px";
+    const go = document.createElement("button"); go.className = "btn primary"; go.id = "studioGo"; go.type = "button"; go.textContent = MODES[studioMode].label + " (⌘↵)";
+    go.addEventListener("click", () => { const t = ta.value.trim(); if (!t && (studioMode === "create" || studioMode === "edit")) { ta.focus(); return; } studio._draft = ""; runStudio(t, studioMode); });
+    const stop = document.createElement("button"); stop.className = "btn"; stop.id = "studioStop"; stop.type = "button"; stop.textContent = "Parar"; stop.hidden = true; stop.addEventListener("click", () => { if (studio.ctl) studio.ctl.abort(); });
+    row.append(go, stop);
+    const st = document.createElement("div"); st.className = "studioStatus"; st.id = "studioStatus"; st.textContent = studio.status || studio.note || "";
+    g1.append(modes, ta, row, st);
+    if (studioMode === "create") { const ex = document.createElement("div"); ex.className = "examples"; for (const e of EXAMPLES) ex.appendChild(Object.assign(document.createElement("button"), { type: "button", textContent: e, onclick: () => { ta.value = e; studio._draft = e; ta.focus(); } })); g1.appendChild(ex); }
+    ctl.appendChild(g1);
+    if (studio.vars.length) {
+      const gv = group("Variações"); const vs = document.createElement("div"); vs.className = "vars";
+      for (const v of studio.vars) { const b = document.createElement("button"); b.type = "button"; b.innerHTML = "<span></span><small></small>"; b.firstChild.textContent = v.name; b.lastChild.textContent = v.note; b.addEventListener("click", () => { applyResult({ family: studio.family, mode: "patch", config: v.config, note: v.note }); buildStudio(); }); vs.appendChild(b); }
+      gv.appendChild(vs); ctl.appendChild(gv);
+    }
+    const g2 = group("Efeito atual"); const cur = document.createElement("div"); cur.className = "current";
+    cur.innerHTML = studio.family ? "<b></b> · base <code></code>" : "nenhum efeito ainda";
+    if (studio.family) { cur.querySelector("b").textContent = studio.family; cur.querySelector("code").textContent = studio.base || "custom"; }
+    const acts = document.createElement("div"); acts.className = "chips"; acts.style.marginTop = "8px";
+    const mk = (label, fn, dis) => { const b = document.createElement("button"); b.className = "btn"; b.type = "button"; b.textContent = label; b.disabled = !!dis; b.addEventListener("click", fn); return b; };
+    acts.append(
+      mk("Copiar CONFIG", async (e) => { try { await navigator.clipboard.writeText(JSON.stringify({ family: studio.family, config: studio.config }, null, 2)); e.currentTarget.textContent = "Copiado"; setTimeout(() => { e.currentTarget.textContent = "Copiar CONFIG"; }, 1500); } catch (err) {} }, !studio.family),
+      mk("Copiar URL", async (e) => { try { await navigator.clipboard.writeText(new URL(srcFor(), location.href).href); e.currentTarget.textContent = "Copiado"; setTimeout(() => { e.currentTarget.textContent = "Copiar URL"; }, 1500); } catch (err) {} }, !studio.family),
+      mk("Baixar HTML", studioDownload, !studio.family),
+      mk("Abrir na aba da família", () => { const key = famKey(studio.family); state.sOverride = { key, config: studio.config }; state.family = key; state.preset = null; document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", x.dataset.family === key ? "true" : "false")); buildRail(); load(); }, !studio.family),
+      mk("Limpar", () => { Object.assign(studio, { family: null, config: null, base: null, note: "", turns: [], vars: [] }); studioSave(); buildStudio(); load(); })
+    );
+    g2.append(cur, acts); ctl.appendChild(g2);
+    if (studio.turns.length) {
+      const g3 = group("Histórico"); const h = document.createElement("div"); h.className = "history";
+      for (const t of studio.turns.slice(-8)) { const d = document.createElement("div"); d.className = t.role === "user" ? "u" : "a"; if (t.role === "assistant") { let note = ""; try { const j = JSON.parse(t.content); note = Array.isArray(j) ? j.map((v) => v.name).join(" · ") : (j.note || j.family || ""); } catch (e) { note = t.content.slice(0, 160); } d.innerHTML = "<b>→</b> "; d.appendChild(document.createTextNode(note)); } else d.textContent = t.content.replace(/\nEFEITO ATUAL[\s\S]*$/, "").slice(0, 160); h.appendChild(d); }
+      g3.appendChild(h); ctl.appendChild(g3);
+    }
+    $("familyNote").innerHTML = "<b>Studio.</b> Cada pedido vira uma escolha de família + CONFIG dentro dos 11 motores do harness; o Claude da página não escreve shader novo, ele compõe. Editar aplica ao vivo; Otimizar reduz custo mantendo o look; Variações dá 4 alternativas. Baixar HTML entrega o standalone com o CONFIG embutido.";
+    // ponteiro vivo: liga o status à família carregada
+    getSample().then((sm) => { if (!sm) { const el = $("studioStatus"); if (el && !el.textContent) { el.className = "studioStatus err"; el.textContent = "Fora do claude.ai o Studio não consegue chamar o Claude; o resto do showroom funciona."; } } });
+  }
+
   document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", x === t ? "true" : "false"));
-    state.family = t.dataset.family; const F = FAMILIES[state.family]; state.preset = Array.isArray(F.presets) ? F.presets[0] : Object.values(F.presets)[0][0]; state.orbState = "idle";
+    state.family = t.dataset.family; state.sOverride = null;
+    if (state.family !== "studio") { const F = FAMILIES[state.family]; state.preset = Array.isArray(F.presets) ? F.presets[0] : Object.values(F.presets)[0][0]; state.orbState = "idle"; }
     buildRail(); load();
   }));
   $("reload").addEventListener("click", load);
   $("phoneToggle").addEventListener("click", (e) => { state.phone = !state.phone; $("frame").classList.toggle("phone", state.phone); e.currentTarget.setAttribute("aria-pressed", state.phone ? "true" : "false"); e.currentTarget.textContent = state.phone ? "Ver como desktop" : "Ver como celular"; load(); });
   $("copy").addEventListener("click", async (e) => { const txt = configEl.textContent; try { await navigator.clipboard.writeText(txt); e.currentTarget.textContent = "Copiado"; } catch (err) { const r = document.createRange(); r.selectNodeContents(configEl); const s = getSelection(); s.removeAllRanges(); s.addRange(r); e.currentTarget.textContent = "Selecionado: copie com Ctrl+C"; } setTimeout(() => { e.currentTarget.textContent = "Copiar CONFIG"; }, 1800); });
 
-  const hashFam = (location.hash || "").slice(1); if (FAMILIES[hashFam]) { state.family = hashFam; document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", x.dataset.family === hashFam ? "true" : "false")); }
-  const F0 = FAMILIES[state.family]; state.preset = Array.isArray(F0.presets) ? F0.presets[0] : Object.values(F0.presets)[0][0];
+  const hashFam = (location.hash || "").slice(1); if (FAMILIES[hashFam] || hashFam === "studio") { state.family = hashFam; document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", x.dataset.family === hashFam ? "true" : "false")); }
+  if (state.family !== "studio") { const F0 = FAMILIES[state.family]; state.preset = Array.isArray(F0.presets) ? F0.presets[0] : Object.values(F0.presets)[0][0]; }
   buildRail(); load();
 })();
 </script>

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Object Scene · Lobo Motion</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0a0a0c; }
+  .scene { position: relative; width: 100%; height: 100lvh; overflow: hidden; background: var(--bg, #0a0a0c); transform: translateZ(0); touch-action: pan-y; }
+  .scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+  .scene.dragging canvas { cursor: grabbing; }
+  .fallback { position: absolute; inset: 0; display: none; background: radial-gradient(55% 55% at 50% 45%, var(--c, #cfcfd4) 0%, color-mix(in oklab, var(--c, #cfcfd4) 30%, var(--bg, #0a0a0c)) 30%, var(--bg, #0a0a0c) 75%); }
+  .scene.static .fallback { display: block; }
+  .scene.static canvas { display: none; }
+</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+</head>
+<body>
+<div class="scene" data-lobo-scene>
+  <canvas id="os" aria-hidden="true"></canvas>
+  <div class="fallback" aria-hidden="true"></div>
+</div>
+<script type="module">
+// ============================================================================
+// CONFIG: a fonte da verdade. Schema em ../references/config-schema.md; materiais em ../references/materials.md
+// Objeto (GLB do cliente ou procedural) + MeshPhysicalMaterial + env PMREM + 3 luzes + órbita limitada por arrasto.
+// ============================================================================
+const PRESETS = {
+  "chrome-knot":   { object: "torusKnot",   material: "chrome",     color: "#E8E8EE", bg: "#0A0A0C", roughness: 0.08, metalness: 1.0, transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0.6, envIntensity: 1.4, exposure: 1.1, keyColor: "#FFFFFF", rimColor: "#25B8FF", autoRotate: true, rotateSpeed: 0.35, tiltX: 0.25, cameraZ: 5.8, scale: 1.0, wire: 0 },
+  "frosted-glass": { object: "icosahedron", material: "glass",      color: "#DDF4FF", bg: "#14283A", roughness: 0.18, metalness: 0,   transmission: 0.9, ior: 1.45, iridescence: 0.35, clearcoat: 0.5, envIntensity: 2.2, exposure: 1.15, keyColor: "#FFFFFF", rimColor: "#8AE9C1", autoRotate: true, rotateSpeed: 0.25, tiltX: 0.2, cameraZ: 5.6, scale: 1.15, wire: 0 },
+  "clay-sphere":   { object: "sphere",      material: "clay",       color: "#E6A4B4", bg: "#1B1230", roughness: 0.9, metalness: 0,    transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0, envIntensity: 0.8, exposure: 1.0, keyColor: "#FFE5D4", rimColor: "#7B5EA7", autoRotate: true, rotateSpeed: 0.2, tiltX: 0.1, cameraZ: 5.6, scale: 1.1, wire: 0 },
+  "oil-capsule":   { object: "capsule",     material: "iridescent", color: "#101014", bg: "#050507", roughness: 0.2, metalness: 0.6,  transmission: 0, ior: 1.5, iridescence: 1, clearcoat: 1, envIntensity: 1.5, exposure: 1.2, keyColor: "#FFFFFF", rimColor: "#F72585", autoRotate: true, rotateSpeed: 0.4, tiltX: 0.35, cameraZ: 6.0, scale: 1.0, wire: 0 },
+  "wire-gem":      { object: "dodecahedron", material: "wire",      color: "#C8FF5A", bg: "#0B0F08", roughness: 0.5, metalness: 0,    transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0, envIntensity: 0.5, exposure: 1.0, keyColor: "#FFFFFF", rimColor: "#C8FF5A", autoRotate: true, rotateSpeed: 0.3, tiltX: 0.3, cameraZ: 5.6, scale: 1.2, wire: 1 },
+  "gold-logo":     { object: "box",         material: "metal",      color: "#D4A017", bg: "#120E04", roughness: 0.3, metalness: 1.0,  transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0.3, envIntensity: 1.3, exposure: 1.05, keyColor: "#FFF4D6", rimColor: "#FF8A1F", autoRotate: true, rotateSpeed: 0.3, tiltX: 0.3, cameraZ: 5.8, scale: 1.0, wire: 0 },
+  // ---------------- quarta leva (10) ----------------
+  "glass-torus":       { object: "torus",        material: "glass",      color: "#E6F6FF", bg: "#10202E", roughness: 0.1,  metalness: 0,   transmission: 0.95, ior: 1.5, iridescence: 0.2, clearcoat: 0.6, envIntensity: 2.4, exposure: 1.15, keyColor: "#FFFFFF", rimColor: "#8AE9FF", autoRotate: true, rotateSpeed: 0.3, tiltX: 0.6, cameraZ: 5.8, scale: 1.0, wire: 0 },
+  "black-chrome":      { object: "sphere",       material: "chrome",     color: "#222228", bg: "#050505", roughness: 0.05, metalness: 1.0, transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 1.0, envIntensity: 1.8, exposure: 1.1, keyColor: "#FFFFFF", rimColor: "#FF5500", autoRotate: true, rotateSpeed: 0.3, tiltX: 0.2, cameraZ: 5.6, scale: 1.1, wire: 0 },
+  "candy-capsule":     { object: "capsule",      material: "clay",       color: "#FF7AB6", bg: "#2A1030", roughness: 0.6, metalness: 0,    transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0.4, envIntensity: 0.9, exposure: 1.05, keyColor: "#FFF0F7", rimColor: "#7CF7D4", autoRotate: true, rotateSpeed: 0.35, tiltX: 0.4, cameraZ: 6.0, scale: 1.0, wire: 0 },
+  "copper-knot":       { object: "torusKnot",    material: "metal",      color: "#B87333", bg: "#140A05", roughness: 0.25, metalness: 1.0, transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0.3, envIntensity: 1.4, exposure: 1.1, keyColor: "#FFE2C6", rimColor: "#FFB27A", autoRotate: true, rotateSpeed: 0.3, tiltX: 0.3, cameraZ: 5.8, scale: 1.0, wire: 0 },
+  "opal-icosa":        { object: "icosahedron",  material: "iridescent", color: "#F2F2F8", bg: "#0E0E16", roughness: 0.15, metalness: 0.3, transmission: 0, ior: 1.5, iridescence: 1, clearcoat: 1.0, envIntensity: 1.6, exposure: 1.1, keyColor: "#FFFFFF", rimColor: "#B98BFF", autoRotate: true, rotateSpeed: 0.25, tiltX: 0.25, cameraZ: 5.6, scale: 1.15, wire: 0 },
+  "wire-torus":        { object: "torus",        material: "wire",       color: "#00F0FF", bg: "#020A10", roughness: 0.5, metalness: 0,    transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0, envIntensity: 0.5, exposure: 1.0, keyColor: "#FFFFFF", rimColor: "#00F0FF", autoRotate: true, rotateSpeed: 0.3, tiltX: 0.7, cameraZ: 5.6, scale: 1.1, wire: 1 },
+  "jade-dodeca":       { object: "dodecahedron", material: "glass",      color: "#3FB58A", bg: "#04120C", roughness: 0.3, metalness: 0,    transmission: 0.6, ior: 1.6, iridescence: 0.1, clearcoat: 0.8, envIntensity: 1.8, exposure: 1.1, keyColor: "#E8FFF4", rimColor: "#B6FF3B", autoRotate: true, rotateSpeed: 0.25, tiltX: 0.3, cameraZ: 5.6, scale: 1.2, wire: 0 },
+  "matte-cube":        { object: "box",          material: "clay",       color: "#EDEDED", bg: "#D9D9D9", roughness: 0.95, metalness: 0,   transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0, envIntensity: 0.8, exposure: 1.0, keyColor: "#FFFFFF", rimColor: "#9A9A9A", autoRotate: true, rotateSpeed: 0.25, tiltX: 0.45, cameraZ: 5.8, scale: 1.0, wire: 0 },
+  "neon-wire-sphere":  { object: "sphere",       material: "wire",       color: "#FF2D95", bg: "#0B0108", roughness: 0.5, metalness: 0,    transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0, envIntensity: 0.5, exposure: 1.0, keyColor: "#FFFFFF", rimColor: "#FF2D95", autoRotate: true, rotateSpeed: 0.2, tiltX: 0.3, cameraZ: 5.6, scale: 1.1, wire: 1 },
+  "brushed-steel":     { object: "capsule",      material: "metal",      color: "#C8CCD2", bg: "#0A0C10", roughness: 0.4, metalness: 1.0,  transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0.2, envIntensity: 1.3, exposure: 1.05, keyColor: "#FFFFFF", rimColor: "#6BB8FF", autoRotate: true, rotateSpeed: 0.3, tiltX: 0.35, cameraZ: 6.0, scale: 1.0, wire: 0 }
+};
+const CONFIG = {
+  preset: "chrome-knot",
+  src: "",                       // URL de um .glb/.gltf; vazio = objeto procedural
+  object: "torusKnot",           // torusKnot | icosahedron | sphere | capsule | box | dodecahedron | torus (ignorado com src)
+  material: "chrome",            // chrome | glass | clay | iridescent | metal | wire  (rótulo; o que vale são as chaves abaixo)
+  color: "#E8E8EE", bg: "#0A0A0C",
+  roughness: 0.08, metalness: 1.0, transmission: 0, ior: 1.5, iridescence: 0, clearcoat: 0.6,
+  envIntensity: 1.4, exposure: 1.1,
+  keyColor: "#FFFFFF", rimColor: "#25B8FF",
+  autoRotate: true, rotateSpeed: 0.35, tiltX: 0.25,
+  cameraZ: 5.8, scale: 1.0, wire: 0,
+  drag: 1,                       // 0..1 quanto o arrasto gira (0 desliga)
+  parallax: false, parallaxAmount: 0.5,   // a câmera inclina com o mouse (ou giroscópio); cameraZ é o zoom
+  seed: 1, dprMax: 1.5
+};
+
+const scene = document.querySelector("[data-lobo-scene]");
+const canvas = document.getElementById("os");
+const motionOff = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const coarse = matchMedia("(hover: none) and (pointer: coarse)").matches;
+const isBot = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed/i.test(navigator.userAgent);
+const stats = { frames: 0, draws: 0, links: 0, lost: 0, restored: 0, resizes: 0, tier: "", triangles: 0 };
+const cfg = Object.assign({}, CONFIG);
+let dirty = true, ready = false;
+function setConfig(changes) { const ignored = []; let rebuild = false; for (const k in changes) { if (k in cfg) { if ((k === "object" || k === "src" || k === "wire") && changes[k] !== cfg[k]) rebuild = true; cfg[k] = changes[k]; } else ignored.push(k); } dirty = true; if (ready) { if (rebuild) buildObject(); applyConfig(); schedule(); } return { ignored }; }
+const params = new URLSearchParams(location.search);
+if (params.get("preset") && PRESETS[params.get("preset")]) { cfg.preset = params.get("preset"); setConfig(PRESETS[cfg.preset]); }
+if (params.get("src")) cfg.src = params.get("src");
+if (params.get("s")) { try { setConfig(JSON.parse(atob(params.get("s").replace(/-/g, "+").replace(/_/g, "/")))); } catch (e) {} }
+function exportState() { return location.origin + location.pathname + "?s=" + btoa(JSON.stringify(cfg)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+window.__lobo = { config: cfg, presets: PRESETS, stats, setConfig, exportState, family: "3d-object-scene" };
+scene.style.setProperty("--bg", cfg.bg); scene.style.setProperty("--c", cfg.color);
+
+if (isBot) { scene.classList.add("static"); }
+else { boot().catch((e) => { console.error(e); scene.classList.add("static"); }); }
+
+let THREE, renderer, stage, camera, pivot, mesh, mat, keyLight, rimLight, fillLight, pmrem;
+let raf = 0, last = performance.now(), visible = !document.hidden, inView = true, w = 0, h = 0, dpr = 0;
+const rot = { x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, dragging: false, lx: 0, ly: 0 };
+const par = { x: 0, y: 0, tx: 0, ty: 0 };
+
+function tier() { const t = coarse ? "phone" : (window.innerWidth < 1024 ? "tablet" : "desktop"); stats.tier = t; return { name: t, dprMax: t === "phone" ? 1.25 : 1.5, detail: t === "phone" ? 0.5 : 1 }; }
+
+async function boot() {
+  THREE = await import("three");
+  const { RoomEnvironment } = await import("three/addons/environments/RoomEnvironment.js");
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: coarse ? "default" : "high-performance" });
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.debug.checkShaderErrors = false;
+  stage = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+  pmrem = new THREE.PMREMGenerator(renderer); stage.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; pmrem.dispose();
+  keyLight = new THREE.DirectionalLight(0xffffff, 2.0); keyLight.position.set(2.5, 3, 2.5); stage.add(keyLight);
+  rimLight = new THREE.DirectionalLight(0xffffff, 1.6); rimLight.position.set(-3, 1.5, -2.5); stage.add(rimLight);
+  fillLight = new THREE.HemisphereLight(0xffffff, 0x222222, 0.35); stage.add(fillLight);
+  pivot = new THREE.Group(); stage.add(pivot);
+  mat = new THREE.MeshPhysicalMaterial({});
+  await buildObject();
+  applyConfig();
+  canvas.addEventListener("webglcontextlost", () => { stats.lost++; if (raf) cancelAnimationFrame(raf); raf = 0; });
+  canvas.addEventListener("webglcontextrestored", () => { stats.restored++; w = h = dpr = 0; dirty = true; schedule(); });
+  new IntersectionObserver((es) => { inView = es[0].isIntersecting; if (inView) schedule(); }, { rootMargin: "100% 0px" }).observe(scene);
+  document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });
+  window.addEventListener("resize", () => { dirty = true; schedule(); }, { passive: true });
+  // órbita limitada por arrasto (sem OrbitControls: um só eixo de inércia, nada de zoom/pan)
+  canvas.addEventListener("pointerdown", (e) => { if (!cfg.drag) return; rot.dragging = true; rot.lx = e.clientX; rot.ly = e.clientY; scene.classList.add("dragging"); canvas.setPointerCapture(e.pointerId); schedule(); });
+  canvas.addEventListener("pointermove", (e) => { if (!rot.dragging) return; const dx = e.clientX - rot.lx, dy = e.clientY - rot.ly; rot.lx = e.clientX; rot.ly = e.clientY; rot.vy = dx * 0.006 * cfg.drag; rot.vx = dy * 0.006 * cfg.drag; rot.ty += rot.vy; rot.tx = Math.max(-1.2, Math.min(1.2, rot.tx + rot.vx)); });
+  const up = () => { rot.dragging = false; scene.classList.remove("dragging"); };
+  window.addEventListener("pointermove", (e) => { if (e.pointerType !== "mouse") return; const r = scene.getBoundingClientRect(); par.tx = ((e.clientX - r.left) / r.width) * 2 - 1; par.ty = -(((e.clientY - r.top) / r.height) * 2 - 1); if (cfg.parallax) schedule(); }, { passive: true });
+  if (coarse && "DeviceOrientationEvent" in window) window.addEventListener("deviceorientation", (e) => { if (!cfg.parallax || e.gamma == null) return; par.tx = Math.max(-1, Math.min(1, e.gamma / 25)); par.ty = Math.max(-1, Math.min(1, (e.beta - 45) / 25)); schedule(); }, { passive: true });
+  canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel", up);
+  resize(); renderer.render(stage, camera); stats.links = renderer.info.programs.length;   // prewarm
+  ready = true; schedule();
+}
+
+async function buildObject() {
+  if (mesh) { pivot.remove(mesh); mesh.traverse?.((o) => { if (o.geometry && o !== mesh) o.geometry.dispose(); }); mesh.geometry?.dispose(); }
+  const T = tier(), d = T.detail;
+  let geo = null;
+  if (cfg.src) {
+    try {
+      const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+      const gltf = await new GLTFLoader().loadAsync(cfg.src);
+      const root = gltf.scene; const box = new THREE.Box3().setFromObject(root); const size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+      const s = 2.0 / Math.max(size.x, size.y, size.z); root.position.sub(center).multiplyScalar(s); root.scale.setScalar(s);
+      root.traverse((o) => { if (o.isMesh) { o.material = mat; } });
+      mesh = root; pivot.add(mesh); return;
+    } catch (e) { console.error("GLB falhou, usando objeto procedural: " + e.message); }
+  }
+  switch (cfg.object) {
+    case "icosahedron": geo = new THREE.IcosahedronGeometry(1.1, Math.round(3 * d) + 1); break;
+    case "sphere": geo = new THREE.SphereGeometry(1.1, Math.round(96 * d), Math.round(64 * d)); break;
+    case "capsule": geo = new THREE.CapsuleGeometry(0.6, 1.2, Math.round(16 * d) + 4, Math.round(48 * d)); break;
+    case "box": geo = new THREE.BoxGeometry(1.5, 1.5, 1.5, 2, 2, 2); break;
+    case "dodecahedron": geo = new THREE.DodecahedronGeometry(1.15, 0); break;
+    case "torus": geo = new THREE.TorusGeometry(0.9, 0.36, Math.round(48 * d) + 8, Math.round(96 * d) + 16); break;
+    default: geo = new THREE.TorusKnotGeometry(0.75, 0.26, Math.round(220 * d) + 40, Math.round(32 * d) + 8, 2, 3);
+  }
+  mesh = cfg.wire ? new THREE.LineSegments(new THREE.WireframeGeometry(geo), new THREE.LineBasicMaterial({ color: cfg.color, transparent: true, opacity: 0.85 })) : new THREE.Mesh(geo, mat);
+  if (cfg.wire) geo.dispose();
+  pivot.add(mesh);
+}
+function applyConfig() {
+  mat.color.set(cfg.color); mat.roughness = cfg.roughness; mat.metalness = cfg.metalness; mat.transmission = cfg.transmission; mat.ior = cfg.ior; mat.thickness = cfg.transmission > 0 ? 1.2 : 0;
+  mat.iridescence = cfg.iridescence; mat.iridescenceIOR = 1.3; mat.clearcoat = cfg.clearcoat; mat.clearcoatRoughness = 0.1; mat.envMapIntensity = cfg.envIntensity; mat.transparent = cfg.transmission > 0; mat.needsUpdate = true;
+  if (mesh && mesh.material && mesh.material.isLineBasicMaterial) mesh.material.color.set(cfg.color);
+  renderer.toneMappingExposure = cfg.exposure; renderer.setClearColor(cfg.bg, 1);
+  keyLight.color.set(cfg.keyColor); rimLight.color.set(cfg.rimColor);
+  camera.position.set(0, 0, cfg.cameraZ); camera.lookAt(0, 0, 0);
+  pivot.scale.setScalar(cfg.scale); rot.tx = rot.tx || cfg.tiltX; if (motionOff) { rot.x = rot.tx; rot.y = rot.ty; }
+  scene.style.setProperty("--bg", cfg.bg); scene.style.setProperty("--c", cfg.color);
+}
+function resize() {
+  const r = scene.getBoundingClientRect(), T = tier();
+  const d = Math.min(cfg.dprMax, T.dprMax, window.devicePixelRatio || 1), nw = Math.max(1, Math.round(r.width)), nh = Math.max(1, Math.round(r.height));
+  if (nw === w && nh === h && d === dpr) return false;
+  w = nw; h = nh; dpr = d; stats.resizes++;
+  renderer.setPixelRatio(d); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); return true;
+}
+function frame(now) {
+  raf = 0;
+  const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
+  const k = 1 - Math.pow(1 - 0.12, dt * 60);
+  if (!motionOff && cfg.autoRotate && !rot.dragging) rot.ty += cfg.rotateSpeed * dt;
+  if (!rot.dragging) { rot.vx *= Math.pow(0.9, dt * 60); rot.vy *= Math.pow(0.9, dt * 60); rot.ty += rot.vy * (motionOff ? 0 : 1); rot.tx += rot.vx * (motionOff ? 0 : 1); rot.tx = Math.max(-1.2, Math.min(1.2, rot.tx)); }
+  if (motionOff) { rot.x = rot.tx; rot.y = rot.ty; } else { rot.x += (rot.tx - rot.x) * k; rot.y += (rot.ty - rot.y) * k; }   // reduced motion: sem lerp, assenta no frame
+  pivot.rotation.set(rot.x, rot.y, 0);
+  let parMoving = false;
+  if (cfg.parallax) { const kp = 1 - Math.pow(1 - 0.06, dt * 60); par.x += (par.tx - par.x) * kp; par.y += (par.ty - par.y) * kp; parMoving = Math.abs(par.tx - par.x) + Math.abs(par.ty - par.y) > 1e-3; camera.position.set(par.x * cfg.parallaxAmount * cfg.cameraZ * 0.3, par.y * cfg.parallaxAmount * cfg.cameraZ * 0.2, cfg.cameraZ); camera.lookAt(0, 0, 0); } else if (camera.position.x !== 0 || camera.position.y !== 0) { camera.position.set(0, 0, cfg.cameraZ); camera.lookAt(0, 0, 0); }
+  const settling = Math.abs(rot.tx - rot.x) + Math.abs(rot.ty - rot.y) > 1e-3 || rot.dragging || parMoving;
+  const resized = resize();
+  if (motionOff && !dirty && !resized && !settling) return;
+  renderer.render(stage, camera); stats.frames++; stats.draws += renderer.info.render.calls; stats.drawCallsPerFrame = renderer.info.render.calls; stats.triangles = renderer.info.render.triangles; stats.links = renderer.info.programs.length; dirty = false;
+  if (visible && inView && (!motionOff ? (cfg.autoRotate || settling) : settling)) raf = requestAnimationFrame(frame);
+}
+function schedule() { if (!raf && visible && inView && ready) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+</script>
+</body>
+</html>

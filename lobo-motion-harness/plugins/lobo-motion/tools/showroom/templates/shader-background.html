@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shader Background · Lobo Motion</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0a0a0a; }
+  /* Caixa no large viewport: a barra do Safari não realoca o canvas (rule, fix-catalog §4). */
+  .scene { position: relative; width: 100%; height: 100lvh; overflow: hidden; transform: translateZ(0); }
+  .scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* Robot form e fallback sem WebGL: um gradiente CSS com as mesmas cores, sem download de shader. */
+  .fallback { position: absolute; inset: 0; display: none; background: linear-gradient(220deg, var(--c0, #0a0a0a), var(--c2, #525252), var(--c4, #f5f5f5)); }
+  .scene.static .fallback { display: block; }
+  .scene.static canvas { display: none; }
+</style>
+</head>
+<body>
+<div class="scene" data-lobo-scene>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="fallback" aria-hidden="true"></div>
+</div>
+<script>
+// ============================================================================
+// CONFIG: a fonte da verdade. Painel, URL (?s=), favorito e build prompt leem daqui.
+// Schema e ranges: ../references/config-schema.md
+// ============================================================================
+const PRESETS = {
+  graphite:   { colors: ["#0A0A0A", "#262626", "#525252", "#A3A3A3", "#F5F5F5"], shape: "warped", zoom: 1.3, swirl: 0.3,  movement: 0.35, speed: 0.6, angle: 220, contrast: 1.1,  grain: 0.1 },
+  lagoon:     { colors: ["#041A2E", "#0B4F6C", "#01BAEF", "#8AE9C1", "#F6FFF8"], shape: "warped", zoom: 1.1, swirl: 0.45, movement: 0.5,  speed: 0.5, angle: 200, contrast: 1.05, grain: 0.06 },
+  molten:     { colors: ["#0B0302", "#5A0F07", "#C8320E", "#FF8A1F", "#FFE6A7"], shape: "mesh",   zoom: 1.0, swirl: 0.2,  movement: 0.6,  speed: 0.8, angle: 160, contrast: 1.15, grain: 0.12 },
+  "neon-dream": { colors: ["#0A0014", "#3A0CA3", "#7209B7", "#F72585", "#FFD6FF"], shape: "radial", zoom: 1.4, swirl: 0.6, movement: 0.4, speed: 0.7, angle: 240, contrast: 1.1, grain: 0.08 },
+  "aurora-veil":   { colors: ["#02060C", "#063B2F", "#19B5A8", "#9D4EDD", "#F6FFF8"], shape: "aurora",   zoom: 1.0, swirl: 0.1, movement: 0.7, speed: 0.5, angle: 0,   contrast: 1.15, grain: 0.05, dither: 0, halftone: 0, vignette: 0.35 },
+  "sun-rays":      { colors: ["#1A0A05", "#5A1F07", "#FF8A1F", "#FFE6A7", "#FFFFFF"], shape: "rays",     zoom: 1.1, swirl: 0.05, movement: 0.5, speed: 0.4, angle: 0,   contrast: 1.1,  grain: 0.06, dither: 0, halftone: 0, vignette: 0.3, centerX: 0.5, centerY: 0.65 },
+  "pond-ripples":  { colors: ["#031A2E", "#0B4F6C", "#01BAEF", "#8AE9C1", "#FFFFFF"], shape: "ripples",  zoom: 1.2, detail: 1.6, swirl: 0.0, movement: 0.35, speed: 0.6, angle: 0,   contrast: 1.05, grain: 0.04, dither: 0, halftone: 0, vignette: 0.25 },
+  "silk-stripes":  { colors: ["#120A1E", "#3A0CA3", "#F72585", "#FFD166", "#FFF4D6"], shape: "stripes",  zoom: 1.3, swirl: 0.25, movement: 0.6, speed: 0.5, angle: 35,  contrast: 1.1,  grain: 0.05, dither: 0, halftone: 0, vignette: 0.15 },
+  "pool-caustics": { colors: ["#03333A", "#0F6E7A", "#2EC4B6", "#9FF5E8", "#FFFFFF"], shape: "caustics", zoom: 1.6, swirl: 0.0, movement: 0.4, speed: 0.7, angle: 0,   contrast: 1.0, grain: 0.03, dither: 0, halftone: 0, vignette: 0.2 },
+  "lava-blobs":    { colors: ["#0B0302", "#3B0A05", "#C8320E", "#FF8A1F", "#FFE6A7"], shape: "blobs",    zoom: 1.0, swirl: 0.1, movement: 0.5, speed: 0.6, angle: 0,   contrast: 1.2,  grain: 0.06, dither: 0, halftone: 0, vignette: 0.3 },
+  "glacier":       { colors: ["#0A1A2A", "#1F4E79", "#6FB1E6", "#CFEAFF", "#FFFFFF"], shape: "linear",   zoom: 1.2, swirl: 0.15, movement: 0.3, speed: 0.3, angle: 160, contrast: 1.1,  grain: 0.02, dither: 0.6, halftone: 0, vignette: 0.1 },
+  "halftone-noir": { colors: ["#0A0A0A", "#2B2B2B", "#6E6E6E", "#C9C9C9", "#F5F5F5"], shape: "warped",   zoom: 1.1, swirl: 0.4, movement: 0.6, speed: 0.4, angle: 200, contrast: 1.2,  grain: 0.0,  dither: 0, halftone: 7, vignette: 0.2 },
+  "cyber-bloom":   { colors: ["#050017", "#2D00F7", "#F20089", "#FF9E00", "#FFFFFF"], shape: "conic",    zoom: 1.1, swirl: 0.5, movement: 0.5, speed: 0.6, angle: 120, contrast: 1.15, grain: 0.05, dither: 0, halftone: 0, vignette: 0.4 },
+  "aurora-band":   { colors: ["#5227FF", "#7CFF67", "#5227FF"], stops: [0, 0.5, 1], shape: "band", bg: "#000000", layers: 1, height: 0.45, softness: 0.5, pointer: 0.8, zoom: 1.0, swirl: 0, movement: 1.0, speed: 1.0, angle: 0, contrast: 1.0, grain: 0.0, dither: 0, halftone: 0, vignette: 0 },
+  "aurora-trio":   { colors: ["#00C2A8", "#38E1FF", "#B04DFF", "#FF6B9D"], stops: [0, 0.33, 0.66, 1], shape: "band", bg: "#05060A", layers: 3, height: 0.4, softness: 0.6, pointer: 0.9, zoom: 1.2, swirl: 0, movement: 1.2, speed: 0.8, angle: 0, contrast: 1.05, grain: 0.02, dither: 0, halftone: 0, vignette: 0 },
+  "twilight-haze": { colors: ["#1B1230", "#3F2B63", "#7B5EA7", "#E6A4B4", "#FFE5D4"], shape: "mesh",     zoom: 0.9, swirl: 0.1, movement: 0.4, speed: 0.3, angle: 0,   contrast: 0.95, grain: 0.07, dither: 0, halftone: 0, vignette: 0.2 },
+  // ---------------- quarta leva (10) ----------------
+  "sunset-boulevard": { colors: ["#1A0B2E", "#7A1F5C", "#E8475F", "#FF9E5E", "#FFE3A3"], shape: "warped",   zoom: 1.1, swirl: 0.4, movement: 0.5, speed: 0.5, angle: 200, contrast: 1.1, grain: 0.08, dither: 0, halftone: 0, vignette: 0.25 },
+  "deep-ocean":       { colors: ["#020B1A", "#06264A", "#0E5E8C", "#3FB6D9", "#C9F4FF"], shape: "caustics", zoom: 1.3, swirl: 0.0, movement: 0.35, speed: 0.5, angle: 0, contrast: 1.05, grain: 0.03, dither: 0, halftone: 0, vignette: 0.4 },
+  "mint-paper":       { colors: ["#F4FBF6", "#D9F2E3", "#A7E3C4", "#5FC9A0", "#1F8F6B"], shape: "mesh",     zoom: 0.9, swirl: 0.15, movement: 0.4, speed: 0.3, angle: 0, contrast: 0.95, grain: 0.05, dither: 0, halftone: 0, vignette: 0 },
+  "risograph":        { colors: ["#2B3AFF", "#3D2BFF", "#FF5DA2", "#FFB3D1", "#F4EFE6"], shape: "blobs",    zoom: 1.0, swirl: 0.1, movement: 0.5, speed: 0.5, angle: 0, contrast: 1.1, grain: 0.0, dither: 0, halftone: 6, vignette: 0 },
+  "vapor-rays":       { colors: ["#12002B", "#4B0E6E", "#FF2E88", "#FF9E3D", "#FFE66D"], shape: "rays",     zoom: 1.1, swirl: 0.05, movement: 0.5, speed: 0.4, angle: 0, contrast: 1.1, grain: 0.04, dither: 0.5, halftone: 0, vignette: 0.3, centerX: 0.5, centerY: 0.25 },
+  "liquid-chrome":    { colors: ["#050505", "#3A3A3F", "#C9C9D1", "#5A5A63", "#F8F8FA"], shape: "warped",   zoom: 1.2, swirl: 0.9, movement: 0.8, speed: 0.6, angle: 120, contrast: 1.4, grain: 0.03, dither: 0, halftone: 0, vignette: 0.2 },
+  "northern-band":    { colors: ["#00FFA3", "#00C2FF", "#7B61FF"], stops: [0, 0.5, 1], shape: "band", bg: "#030712", layers: 2, height: 0.5, softness: 0.4, pointer: 0.8, zoom: 1.1, swirl: 0, movement: 1.1, speed: 0.8, angle: 0, contrast: 1.0, grain: 0.02, dither: 0, halftone: 0, vignette: 0 },
+  "ember-band":       { colors: ["#FF3D00", "#FFB800", "#FF3D00"], stops: [0, 0.5, 1], shape: "band", bg: "#0A0302", layers: 3, height: 0.42, softness: 0.55, pointer: 0.9, zoom: 1.3, swirl: 0, movement: 1.3, speed: 1.0, angle: 180, contrast: 1.05, grain: 0.04, dither: 0, halftone: 0, vignette: 0 },
+  "ripple-pastel":    { colors: ["#FFF6F0", "#FFE0E9", "#E8D5FF", "#C7E4FF", "#FFFFFF"], shape: "ripples",  zoom: 1.2, detail: 1.4, swirl: 0.0, movement: 0.3, speed: 0.5, angle: 0, contrast: 1.0, grain: 0.03, dither: 0, halftone: 0, vignette: 0 },
+  "conic-candy":      { colors: ["#FF8AD8", "#FFD36E", "#7CF7D4", "#8AB6FF", "#FF8AD8"], shape: "conic",    zoom: 1.0, swirl: 0.8, movement: 0.3, speed: 0.5, angle: 0, contrast: 1.0, grain: 0.04, dither: 0, halftone: 0, vignette: 0.15 }
+};
+const CONFIG = {
+  preset: "graphite",
+  colors: PRESETS.graphite.colors,
+  stops: [0, 0.25, 0.5, 0.75, 1],
+  shape: "warped",             // linear | radial | conic | mesh | warped | aurora | rays | ripples | stripes | caustics | blobs
+  zoom: 1.3, swirl: 0.3, movement: 0.35, speed: 0.6,
+  angle: 220, centerX: 0.5, centerY: 0.5,
+  detail: 1, contrast: 1.1, grain: 0.1, grainSize: 1,
+  dither: 0, halftone: 0, vignette: 0,   // efeitos empilháveis: dither (0..1), halftone (px da célula, 0 = off), vinheta (0..1)
+  bg: "#000000",                         // só o campo band: cor atrás da faixa
+  layers: 1, height: 0.45, softness: 0.5, // só band: camadas (1..3), altura da faixa (0..1, do topo), suavidade da borda (0..1)
+  pointer: 0.8,                          // só band: quanto a faixa se estica em direção ao cursor (mouse ou dedo arrastando)
+  seed: 0, dprMax: 1.5
+};
+
+(function () {
+  const scene = document.querySelector("[data-lobo-scene]");
+  const canvas = document.getElementById("bg");
+  const motionOff = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const coarse = matchMedia("(hover: none) and (pointer: coarse)").matches;
+  const isBot = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed/i.test(navigator.userAgent);
+  const stats = { frames: 0, draws: 0, links: 0, lost: 0, restored: 0, resizes: 0 };
+  // variáveis do loop declaradas antes de qualquer setConfig/schedule (evita TDZ quando a URL traz ?preset= ou ?s=)
+  let prog = null, U = {}, raf = 0, last = performance.now(), time = 0, dirty = true, visible = !document.hidden, inView = true;
+
+  // ---- estado: preset e URL sobre o CONFIG (só chaves conhecidas) ----
+  const cfg = Object.assign({}, CONFIG);
+  const params = new URLSearchParams(location.search);
+  function setConfig(changes) {
+    const ignored = [];
+    for (const k in changes) { if (k in cfg) cfg[k] = changes[k]; else ignored.push(k); }
+    dirty = true; schedule();
+    return { ignored };
+  }
+  if (params.get("preset") && PRESETS[params.get("preset")]) { cfg.preset = params.get("preset"); setConfig(PRESETS[cfg.preset]); }
+  if (params.get("s")) { try { setConfig(JSON.parse(atob(params.get("s").replace(/-/g, "+").replace(/_/g, "/")))); } catch (e) { /* estado inválido: ignora */ } }
+  function exportState() {
+    const b = btoa(JSON.stringify(cfg)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    return location.origin + location.pathname + "?s=" + b;
+  }
+  window.__lobo = { config: cfg, presets: PRESETS, stats, setConfig, exportState, family: "shader-background" };
+  scene.style.setProperty("--c0", cfg.colors[0]); scene.style.setProperty("--c2", cfg.colors[Math.floor(cfg.colors.length / 2)]); scene.style.setProperty("--c4", cfg.colors[cfg.colors.length - 1]);
+
+  // ---- robot form: crawler recebe o fallback estático, sem WebGL ----
+  if (isBot) { scene.classList.add("static"); return; }
+
+  const gl = canvas.getContext("webgl2", { alpha: false, antialias: false, depth: false, stencil: false, powerPreference: coarse ? "default" : "high-performance" });
+  if (!gl) { scene.classList.add("static"); return; }
+
+  // ---- shaders (ruído e OKLab vêm do cookbook da skill) ----
+  const VERT = `#version 300 es
+  void main(){ vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`;
+  const FRAG = `#version 300 es
+  precision highp float;
+  out vec4 fragColor;
+  uniform vec2 uResolution, uCenter; uniform float uTime, uSeed, uZoom, uSwirl, uMovement, uAngle, uDetail, uContrast, uGrain, uGrainSize, uDither, uHalftone, uVignette, uHeight, uSoftness; uniform vec3 uBg, uPointer; uniform int uLayers;
+  uniform vec3 uColors[6]; uniform float uStops[6]; uniform int uShape, uCount;
+  vec3 mod289(vec3 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec2 mod289(vec2 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec3 permute(vec3 x){ return mod289(((x * 34.0) + 1.0) * x); }
+  float snoise(vec2 v){
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+    vec2 i = floor(v + dot(v, C.yy)); vec2 x0 = v - i + dot(i, C.xx);
+    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1; i = mod289(i);
+    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+    vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0); m = m * m; m = m * m;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0; vec3 h = abs(x) - 0.5; vec3 ox = floor(x + 0.5); vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+    vec3 g; g.x = a0.x * x0.x + h.x * x0.y; g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+  }
+  float fbm(vec2 p){ float v = 0.0, a = 0.5; mat2 r = mat2(0.8, 0.6, -0.6, 0.8); for (int i = 0; i < 5; i++){ v += a * snoise(p); p = r * p * 2.0 + 17.3; a *= 0.5; } return v * 0.5 + 0.5; }
+  float hash21(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+  vec3 toLinear(vec3 c){ return pow(c, vec3(2.2)); }
+  vec3 toSrgb(vec3 c){ return pow(max(c, 0.0), vec3(1.0 / 2.2)); }
+  vec3 toOklab(vec3 c){
+    float l = 0.4122214708 * c.r + 0.5363325363 * c.g + 0.0514459929 * c.b;
+    float m = 0.2119034982 * c.r + 0.6806995451 * c.g + 0.1073969566 * c.b;
+    float s = 0.0883024619 * c.r + 0.2817188376 * c.g + 0.6299787005 * c.b;
+    float l_ = pow(max(l, 0.0), 1.0 / 3.0), m_ = pow(max(m, 0.0), 1.0 / 3.0), s_ = pow(max(s, 0.0), 1.0 / 3.0);
+    return vec3(0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_, 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_, 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_);
+  }
+  vec3 fromOklab(vec3 c){
+    float l_ = c.x + 0.3963377774 * c.y + 0.2158037573 * c.z, m_ = c.x - 0.1055613458 * c.y - 0.0638541728 * c.z, s_ = c.x - 0.0894841775 * c.y - 1.2914855480 * c.z;
+    float l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_;
+    return vec3(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s);
+  }
+  mat2 rot(float a){ return mat2(cos(a), -sin(a), sin(a), cos(a)); }
+  float shapeT(vec2 p, float t){
+    float n = fbm(p * (1.5 * uDetail) + uSeed * 0.37 + t);
+    if (uShape == 0) return clamp(p.x * 0.6 + 0.5 + (n - 0.5) * uMovement * 0.8, 0.0, 1.0);
+    if (uShape == 1) return clamp(length(p) * 1.1 + (n - 0.5) * uMovement * 0.6, 0.0, 1.0);
+    if (uShape == 2) { float a = fract(atan(p.y, p.x) / 6.28318530718 + 0.5 + (n - 0.5) * uMovement * 0.4); return 1.0 - abs(a * 2.0 - 1.0); }
+    if (uShape == 3) { float m = fbm(p * 1.2 * uDetail + t * 0.7 + 10.0 + uSeed); return clamp(m * 0.55 + 0.25 + (n - 0.5) * uMovement * 0.5, 0.0, 1.0); }
+    if (uShape == 5) { float band = fbm(vec2(p.x * 2.0 + t * 0.6, t * 0.25 + uSeed)); float curtain = 0.5 + 0.5 * sin(p.x * 9.0 + band * 7.0 + t); return clamp(0.38 + p.y * 0.42 + (band - 0.5) * uMovement * 1.6 + curtain * 0.16 + (n - 0.5) * 0.22, 0.0, 1.0); }   // aurora
+    if (uShape == 6) { float ang = atan(p.y, p.x); float rays = pow(0.5 + 0.5 * sin(ang * (10.0 + 8.0 * uDetail) + fbm(vec2(ang * 2.0, t * 0.7)) * 6.0), 1.7); return clamp(rays * exp(-length(p) * 1.6) * 0.95 + 0.1 + (n - 0.5) * uMovement * 0.35, 0.0, 1.0); }   // rays
+    if (uShape == 7) { float r = length(p); return clamp((0.5 + 0.5 * sin(r * 16.0 * uDetail - t * 2.5 + (n - 0.5) * uMovement * 6.0)) * exp(-r * 0.9) + 0.08, 0.0, 1.0); }   // ripples
+    if (uShape == 8) { return clamp(0.5 + 0.5 * sin(p.x * 14.0 * uDetail + (n - 0.5) * uMovement * 4.5 + t * 0.8), 0.0, 1.0); }   // stripes
+    if (uShape == 9) { float c1 = fbm(p * 2.2 * uDetail + t * 0.9 + uSeed), c2 = fbm(p * 2.0 * uDetail - t * 0.7 + 3.1); float c = pow(min(abs(c1 - c2) * 3.4, 1.0), 0.55); return clamp(1.0 - c + (n - 0.5) * uMovement * 0.3, 0.0, 1.0); }   // caustics
+    if (uShape == 10) { float f = 0.0; for (int i = 0; i < 6; i++) { float fi = float(i); vec2 c = vec2(sin(t * (0.6 + fi * 0.17) + fi * 1.7), cos(t * (0.5 + fi * 0.13) + fi * 2.3)) * (0.45 + 0.25 * uMovement); float d = length(p - c); f += 0.09 / (d * d + 0.035); } return clamp(f * 0.36 - 0.12 + (n - 0.5) * 0.1, 0.0, 1.0); }   // blobs
+    vec2 q = p + uMovement * vec2(fbm(p * uDetail + t + uSeed) - 0.5, fbm(p * uDetail + 5.2 - t) - 0.5) * 2.0;
+    return clamp(length(q) * 0.95 + 0.12 * sin(q.x * 3.0 + t), 0.0, 1.0);
+  }
+  float bayer4(vec2 c){ ivec2 i = ivec2(mod(c, 4.0)); float m[16] = float[16](0.0, 8.0, 2.0, 10.0, 12.0, 4.0, 14.0, 6.0, 3.0, 11.0, 1.0, 9.0, 15.0, 7.0, 13.0, 5.0); return m[i.x + i.y * 4] / 16.0; }
+  vec3 gradient(float t){
+    vec3 c = toOklab(toLinear(uColors[0]));
+    for (int i = 1; i < 6; i++){ if (i >= uCount) break; c = mix(c, toOklab(toLinear(uColors[i])), smoothstep(uStops[i - 1], uStops[i], t)); }
+    return toSrgb(fromOklab(c));
+  }
+  float sstep(float a, float b, float x){ x = clamp((x - a) / (b - a), 0.0, 1.0); return x * x * x * (x * (x * 6.0 - 15.0) + 10.0); }
+  // band: faixa de aurora que mora no topo (ou base) da tela. Borda ondulada por duas oitavas de simplex deformadas por um warp lento,
+  // corpo que decai pra baixo, lóbulos de intensidade ao longo de x, 1 a 3 camadas atrás com ritmo próprio, e o cursor estica a faixa.
+  vec3 band(vec2 frag){
+    float flip = step(90.0, uAngle);
+    float y = mix(1.0 - frag.y / uResolution.y, frag.y / uResolution.y, flip);
+    float u = frag.x / uResolution.x, X = (frag.x - uResolution.x * 0.5) / uResolution.y;
+    float t = uTime * 0.6;
+    float reach = uPointer.z * exp(-pow((X - uPointer.x) / 0.4, 2.0));
+    vec3 glow = vec3(0.0); float cover = 0.0;
+    for (int k = 0; k < 3; k++) {
+      if (k >= uLayers) break;
+      float L = float(k), sd = L * 11.3 + uSeed, pace = t * (1.0 - L * 0.2);
+      float warp = snoise(vec2(X * 0.5 * uZoom + pace * 0.03 + sd, pace * 0.06 + sd));
+      float wave = snoise(vec2(X * 0.8 * uZoom + warp * 0.4 - pace * 0.04 + sd, pace * 0.08 - sd)) * 0.7
+                 + snoise(vec2(X * 1.7 * uZoom + warp * 0.5 + pace * 0.05 - sd, pace * 0.11 + sd * 0.5)) * 0.3;
+      float hem = uHeight + L * 0.07 + wave * 0.15 * uMovement + reach * 0.1 * (k == 0 ? 1.0 : 0.4);
+      float soft = (0.04 + uSoftness * 0.16) * (1.0 + L * 0.9);
+      float rise = hem - y;
+      float body = pow(sstep(-soft - 0.09, 0.26 + soft * 0.6, rise), 1.9);
+      float lobes = 0.85 + 0.15 * snoise(vec2(X * 0.9 * uZoom - pace * 0.03 + sd, y * 0.3 + pace * 0.04));
+      float a = body * lobes * (k == 0 ? 1.0 : 0.32 / L);
+      a = clamp(a * (1.0 + reach * 0.3 * sstep(0.9, 0.0, abs(y - hem))), 0.0, 1.0);
+      vec3 tint = gradient(clamp(u + 0.05 * sin(pace * 0.1 + L * 2.3) + L * 0.1 + max(rise, 0.0) * 0.05, 0.0, 1.0));
+      glow = 1.0 - (1.0 - glow) * (1.0 - tint * a);
+      cover = 1.0 - (1.0 - cover) * (1.0 - a);
+    }
+    return 1.0 - (1.0 - uBg) * (1.0 - glow);   // screen sobre o fundo
+  }
+  void main(){
+    vec2 uv = gl_FragCoord.xy / uResolution;
+    vec2 p = (uv - uCenter) * vec2(uResolution.x / uResolution.y, 1.0);
+    float t = uTime * 0.15;
+    p = rot(radians(uAngle)) * p / max(uZoom, 0.05);
+    p = rot(uSwirl * length(p) * 2.0) * p;
+    if (uShape == 11) { vec3 cb = band(gl_FragCoord.xy); cb = (cb - 0.5) * uContrast + 0.5; if (uVignette > 0.0) { vec2 v = uv - 0.5; cb *= 1.0 - uVignette * dot(v, v) * 2.4; } cb += (hash21(floor(gl_FragCoord.xy / max(uGrainSize, 1.0)) + fract(uTime) * 13.0) - 0.5) * uGrain; fragColor = vec4(clamp(cb, 0.0, 1.0), 1.0); return; }
+    float tt = shapeT(p, t);
+    if (uDither > 0.0) { float lv = 4.0 + (1.0 - uDither) * 12.0; tt = floor(tt * lv + (bayer4(gl_FragCoord.xy / max(uGrainSize, 1.0)) - 0.5) * uDither * 1.2) / lv; }
+    vec3 col = gradient(tt);
+    col = (col - 0.5) * uContrast + 0.5;
+    if (uHalftone > 0.5) { vec2 cell = gl_FragCoord.xy / uHalftone; float d = length(fract(cell) - 0.5); float l = clamp(dot(col, vec3(0.299, 0.587, 0.114)), 0.0, 1.0); float rad = (1.0 - l) * 0.72; float ink = 1.0 - smoothstep(rad - 0.08, rad + 0.08, d); col = mix(uColors[uCount - 1], uColors[0], ink); }
+    if (uVignette > 0.0) { vec2 v = uv - 0.5; col *= 1.0 - uVignette * dot(v, v) * 2.4; }
+    col += (hash21(floor(gl_FragCoord.xy / max(uGrainSize, 1.0)) + fract(uTime) * 13.0) - 0.5) * uGrain;
+    fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+  }`;
+
+  function compile(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+  function build() {
+    prog = gl.createProgram(); gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT)); gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG)); gl.linkProgram(prog); stats.links++;
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+    gl.useProgram(prog); U = {};
+    for (const n of ["uResolution", "uCenter", "uTime", "uSeed", "uZoom", "uSwirl", "uMovement", "uAngle", "uDetail", "uContrast", "uGrain", "uGrainSize", "uDither", "uHalftone", "uVignette", "uHeight", "uSoftness", "uBg", "uPointer", "uLayers", "uShape", "uCount"]) U[n] = gl.getUniformLocation(prog, n);
+    U.uColors = gl.getUniformLocation(prog, "uColors[0]"); U.uStops = gl.getUniformLocation(prog, "uStops[0]");
+  }
+  const SHAPES = { linear: 0, radial: 1, conic: 2, mesh: 3, warped: 4, aurora: 5, rays: 6, ripples: 7, stripes: 8, caustics: 9, blobs: 10, band: 11 };
+  const ptr = { x: 0, z: 0, tx: 0, tz: 0 };
+  const hex = (h) => { const n = parseInt(h.replace("#", ""), 16); return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]; };
+
+  // ---- resize só em mudança real; DPR clampado (phone 1.25, desktop cfg.dprMax) ----
+  let w = 0, h = 0, dpr = 0;
+  function resize() {
+    const r = scene.getBoundingClientRect();
+    const d = Math.min(cfg.dprMax, coarse ? 1.25 : 1.5, window.devicePixelRatio || 1);
+    const nw = Math.max(1, Math.round(r.width * d)), nh = Math.max(1, Math.round(r.height * d));
+    if (nw === w && nh === h && d === dpr) return false;
+    w = nw; h = nh; dpr = d; canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); stats.resizes++; return true;
+  }
+
+  function draw() {
+    const colors = new Float32Array(18), stops = new Float32Array(6), n = Math.min(6, cfg.colors.length);
+    for (let i = 0; i < n; i++) { const c = hex(cfg.colors[i]); colors.set(c, i * 3); stops[i] = cfg.stops[i] ?? i / Math.max(1, n - 1); }
+    gl.uniform2f(U.uResolution, w, h); gl.uniform2f(U.uCenter, cfg.centerX, cfg.centerY);
+    gl.uniform1f(U.uTime, time); gl.uniform1f(U.uSeed, cfg.seed); gl.uniform1f(U.uZoom, cfg.zoom); gl.uniform1f(U.uSwirl, cfg.swirl);
+    gl.uniform1f(U.uMovement, cfg.movement); gl.uniform1f(U.uAngle, cfg.angle); gl.uniform1f(U.uDetail, cfg.detail); gl.uniform1f(U.uContrast, cfg.contrast);
+    gl.uniform1f(U.uGrain, cfg.grain); gl.uniform1f(U.uGrainSize, cfg.grainSize * dpr); gl.uniform1f(U.uDither, cfg.dither || 0); gl.uniform1f(U.uHalftone, (cfg.halftone || 0) * dpr); gl.uniform1f(U.uVignette, cfg.vignette || 0); gl.uniform1f(U.uHeight, cfg.height); gl.uniform1f(U.uSoftness, cfg.softness); const bgc = hex(cfg.bg || "#000000"); gl.uniform3f(U.uBg, bgc[0], bgc[1], bgc[2]); gl.uniform3f(U.uPointer, ptr.x, 0, ptr.z * cfg.pointer); gl.uniform1i(U.uLayers, Math.max(1, Math.min(3, Math.round(cfg.layers)))); gl.uniform1i(U.uShape, SHAPES[cfg.shape] ?? 4); gl.uniform1i(U.uCount, n);
+    gl.uniform3fv(U.uColors, colors); gl.uniform1fv(U.uStops, stops);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); stats.draws++; stats.frames++;
+  }
+
+  // ---- loop: um relógio em segundos, dt clampado, só quando visível e na viewport, sem frame cap ----
+  function frame(now) {
+    raf = 0;
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
+    if (!motionOff) time += dt * cfg.speed;
+    const kp = 1 - Math.pow(1 - 0.08, dt * 60); ptr.x += (ptr.tx - ptr.x) * kp; ptr.z += (ptr.tz - ptr.z) * kp;
+    const resized = resize();
+    if (motionOff && !dirty && !resized) return;        // reduced motion: assentado, redesenha só em mudança
+    if (gl.isContextLost()) return;
+    draw(); dirty = false;
+    if (visible && inView && !motionOff) raf = requestAnimationFrame(frame);
+  }
+  function schedule() { if (!raf && visible && inView && prog) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+  new IntersectionObserver((es) => { inView = es[0].isIntersecting; if (inView) schedule(); }, { rootMargin: "100% 0px" }).observe(scene);
+  document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });
+  window.addEventListener("resize", () => { dirty = true; schedule(); }, { passive: true });
+  // ponteiro (só o campo band usa): mouse livre; toque enquanto arrasta. X em unidades de altura, centrado.
+  window.addEventListener("pointermove", (e) => { const r = scene.getBoundingClientRect(); ptr.tx = (e.clientX - r.left - r.width / 2) / r.height; ptr.tz = 1; schedule(); }, { passive: true });
+  window.addEventListener("pointerleave", () => { ptr.tz = 0; }); window.addEventListener("pointerup", (e) => { if (e.pointerType !== "mouse") ptr.tz = 0; }, { passive: true });
+
+  // ---- contexto perdido: preventDefault, rebuild no restore ----
+  canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); stats.lost++; if (raf) cancelAnimationFrame(raf); raf = 0; });
+  canvas.addEventListener("webglcontextrestored", () => { stats.restored++; w = h = dpr = 0; build(); dirty = true; schedule(); });
+
+  try { build(); } catch (e) { console.error(e); scene.classList.add("static"); return; }
+  schedule();
+})();
+</script>
+</body>
+</html>
