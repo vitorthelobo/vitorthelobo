@@ -55,3 +55,7 @@ Leituras que enganam e armadilhas de ferramenta. Cada uma custou tempo real em a
 - **Evento sintético desliga demo.** O navegador dispara `pointermove` sem deslocamento quando o layout muda sob o cursor parado (no headless, em 0,0). O cursor-fx tratava isso como movimento real e o demo morria no carregamento. Ignore eventos com `movementX` e `movementY` zero até o primeiro movimento real.
 - **Morph não tem tiltX.** Formas geradas no plano XZ (phyllotaxis, disc, ring) viram uma linha de frente quando são o destino do morph. Em sequências, use formas volumétricas ou em XY.
 - **Zoom + DOF + bloom aditivo estoura.** Aproximar a câmera aumenta os sprites, o DOF aumenta mais 4× fora de foco e o aditivo soma: galaxy-dolly saiu branco. Com zoom > 1.4, baixe count e glow e suba glowCutoff.
+
+## Studio: família com nome curto caía no efeito anterior
+A spec mandada pro Claude trazia `key` curto (`object3d`, `grid`) junto do nome longo; ele respondia `family: "object3d"`, a página não reconhecia e usava `studio.family` anterior em silêncio. Resultado: pedido de cubo 3D, palco com grid de pontos, note falando de cubo. Correção: spec sem `key`, lista explícita dos 11 nomes + tabela "quando usar" na instrução, `resolveFamily()` aceita nome longo, chave curta e nome de exibição, e família desconhecida vira erro visível sem tocar o palco. `coerce()` também descarta preset inexistente, enum fora da lista (corrigindo caixa) e cor fora de `#RRGGBB`; Criar não leva histórico pra não puxar a família anterior; `verifyStage()` confere `__lobo.family` depois do load.
+

@@ -354,20 +354,47 @@
   };
   const EXAMPLES = ["fundo aurora verde e roxo bem calmo pra um hero", "chuva de confete opaco colorido caindo", "esfera de IA azul-gelo, estado listening", "título entrando letra por letra do centro", "grade de losangos dourados que acende no cursor", "logo em cromo preto girando devagar", "imagem revelando em tiles na diagonal", "texto em partículas que diz LOBO"];
   let studioMode = "create";
+  const FAMILY_NAMES = Object.keys(STUDIO_SPEC);
+  const ROUTING = "QUANDO USAR CADA FAMÍLIA\n- shader-background: fundo 2D (gradiente, aurora, ondas, raios, caustics, halftone, faixa que segue o cursor).\n- particle-forms: partículas formando forma (esfera, anel, logo, texto, galáxia, confete, chuva, poeira), com hover.\n- orb-reactive: esfera/orb de IA ou assistente com estados (idle, listening, thinking, speaking).\n- text-motion: título ou frase animando (entrada letra a letra, scramble, máscara, onda).\n- cursor-fx: efeito que segue o cursor (trail, spotlight, mira, lanterna, repulsão).\n- holo-material: tecido/pano holográfico ou iridescente que balança.\n- post-image-fx: foto ou imagem tratada (ASCII, halftone, dither, scan, glitch).\n- grid-dots-field: grade de pontos/glifos reagindo ao cursor (HUD, radar, campo técnico).\n- image-reveal: imagem revelando em tiles, wipe, blur ou máscara.\n- 3d-object-scene: UM objeto 3D (cubo, esfera, torus, knot, cápsula, logo GLB) girando com material físico, wireframe, luz de contorno.\n- morph-transition: nuvem de partículas trocando de forma (A → B).\n";
+  function specForModel() { const o = {}; for (const k of FAMILY_NAMES) { const f = STUDIO_SPEC[k]; o[k] = { desc: f.desc, defaults: f.defaults, enums: f.enums, ranges: f.ranges, colors: f.colors, presets: f.presets }; } return o; }
   function instructionTurn() {
-    return "Você é o motor do Lobo Motion Studio. Transforma pedidos em português num efeito visual escolhendo UMA família e um CONFIG válido. Spec das famílias (chave → {desc, defaults, enums, ranges, colors, presets}):\n" + JSON.stringify(STUDIO_SPEC) +
-      "\n\nREGRAS\n- Responda SOMENTE JSON, sem texto fora dele.\n- Formato: {\"family\": \"<nome da família>\", \"mode\": \"replace\"|\"patch\", \"config\": {...}, \"note\": \"1 frase em pt-BR dizendo o que escolheu e por quê\"}.\n- \"replace\": config completo (pode omitir chaves que ficam no default). \"patch\": só as chaves alteradas, e só quando a família é a mesma do efeito atual.\n- Parta do preset mais próximo: ponha o nome em config.preset e sobrescreva o que o pedido muda. Os presets de text-motion e cursor-fx DEFINEM a animação/efeito; neles o preset é a escolha principal.\n- Cores em #RRGGBB maiúsculo. Números dentro dos ranges. Enums só com valores da lista. Nunca invente chaves.\n- Fundo claro: shader com colors claras, grid/particles com bg claro e blend normal.\n- Texto: família particle-forms shape glyph com a chave text, ou text-motion pra animar um título.\n- Pra variações: responda um ARRAY de 4 objetos {\"name\", \"config\" (patch), \"note\"} com diferenças claras entre si.\n- Pra otimizar: reduza count, dprMax (≤ 1.25 em celular), glow/glowSpread, layers, cloth.solverIterations, detail; mantenha cores e forma; diga no note o que cortou.";
+    return "Você é o motor do Lobo Motion Studio. Transforma pedidos em português num efeito visual escolhendo UMA família e um CONFIG válido.\n\nFAMÍLIAS (o campo family tem que ser EXATAMENTE um destes nomes): " + FAMILY_NAMES.join(", ") + "\n\n" + ROUTING + "\nSPEC (família → {desc, defaults, enums, ranges, colors, presets}):\n" + JSON.stringify(specForModel()) +
+      "\n\nREGRAS\n- Responda SOMENTE JSON, sem texto fora dele.\n- Formato: {\"family\": \"<um dos nomes acima>\", \"mode\": \"replace\"|\"patch\", \"config\": {...}, \"note\": \"1 frase em pt-BR dizendo o que escolheu e por quê\"}.\n- Escolha a família pelo SUJEITO do pedido (o que aparece na tela), não por um detalhe. Pedido de cubo/objeto 3D é 3d-object-scene mesmo que fale em HUD; pedido de fundo é shader-background mesmo que fale em partículas finas. Se nenhuma família faz o que foi pedido, escolha a mais próxima e diga no note o que não dá.\n- Pedido novo (CRIAR) ignora o efeito atual e usa mode \"replace\".\n- \"replace\": config completo (pode omitir chaves que ficam no default). \"patch\": só as chaves alteradas, e só quando a família é a mesma do efeito atual.\n- Parta do preset mais próximo: ponha o nome em config.preset e sobrescreva o que o pedido muda. Os presets de text-motion e cursor-fx DEFINEM a animação/efeito; neles o preset é a escolha principal.\n- Cores em #RRGGBB maiúsculo. Números dentro dos ranges. Enums só com valores da lista. Nunca invente chaves.\n- Fundo claro: shader com colors claras, grid/particles com bg claro e blend normal.\n- Texto: família particle-forms shape glyph com a chave text, ou text-motion pra animar um título.\n- Pra variações: responda um ARRAY de 4 objetos {\"name\", \"config\" (patch), \"note\"} com diferenças claras entre si.\n- Pra otimizar: reduza count, dprMax (≤ 1.25 em celular), glow/glowSpread, layers, cloth.solverIterations, detail; mantenha cores e forma; diga no note o que cortou.";
   }
   function currentTurn() { return studio.family ? "EFEITO ATUAL: family " + studio.family + ", config " + JSON.stringify(studio.config) : "EFEITO ATUAL: nenhum."; }
   const ERR = { not_granted: "Você não permitiu que esta página use o Claude. Permita no menu de permissões do artifact.", sampling_disabled: "O Claude não está disponível nesta conta.", rate_limited: "Muitas chamadas. Espere um pouco e tente de novo.", session_expired: "Sessão expirada: entre de novo no claude.ai.", refused: "O Claude não quis responder a esse pedido. Reformule.", invalid_json: "A resposta veio fora do formato. Tente de novo ou simplifique o pedido.", empty_completion: "Resposta vazia. Simplifique o pedido.", prompt_too_large: "Histórico grande demais. Limpe o histórico.", cancelled: "" };
-  function coerce(fam, cfg) {   // clamp por ranges e descarta chave que a família não tem (nível 1)
+  function resolveFamily(name) {   // aceita nome longo, chave curta (object3d, grid…), caixa e separador variados
+    if (!name) return null; const n = String(name).toLowerCase().replace(/[^a-z0-9]/g, "");
+    for (const k of FAMILY_NAMES) { if (k.replace(/[^a-z0-9]/g, "") === n || STUDIO_SPEC[k].key.replace(/[^a-z0-9]/g, "") === n) return k; }
+    for (const k of FAMILY_NAMES) { if (n && (k.replace(/[^a-z0-9]/g, "").startsWith(n) || n.startsWith(STUDIO_SPEC[k].key))) return k; }
+    return null;
+  }
+  const HEX = /^#[0-9a-f]{6}$/i;
+  function coerce(fam, cfg) {   // descarta chave que a família não tem, preset inexistente, enum inválido, cor fora de #RRGGBB; clampa por ranges
     const sp = STUDIO_SPEC[fam]; if (!sp || !cfg || typeof cfg !== "object") return {};
-    const out = {}; for (const k in cfg) { if (!(k in sp.defaults)) continue; let v = cfg[k]; const r = sp.ranges[k]; if (r && typeof v === "number") v = Math.max(r[0], Math.min(r[1], v)); if (typeof sp.defaults[k] === "number" && typeof v === "string" && v.trim() !== "" && !isNaN(+v)) v = +v; out[k] = v; }
+    const out = {}; const colorKeys = new Set((sp.colors || []).map((c) => c.replace(/\[\d+\]$/, "")));
+    for (const k in cfg) {
+      if (!(k in sp.defaults)) continue; let v = cfg[k]; const d = sp.defaults[k];
+      if (k === "preset") { if (typeof v === "string" && sp.presets.indexOf(v) >= 0) out[k] = v; continue; }
+      if (typeof d === "number" && typeof v === "string" && v.trim() !== "" && !isNaN(+v)) v = +v;
+      if (typeof d === "boolean" && typeof v === "string") v = v === "true";
+      const r = sp.ranges[k]; if (r && typeof v === "number") v = Math.max(r[0], Math.min(r[1], v));
+      if (typeof d === "number" && typeof v !== "number") continue;
+      const en = sp.enums && sp.enums[k]; if (en && en.indexOf(v) < 0) { const alt = en.find((e) => String(e).toLowerCase() === String(v).toLowerCase()); if (alt === undefined) continue; v = alt; }
+      if (colorKeys.has(k)) { if (Array.isArray(d)) { if (!Array.isArray(v)) continue; v = v.map((c) => typeof c === "string" && HEX.test(c) ? c.toUpperCase() : null); if (v.some((c) => c === null)) continue; } else { if (typeof v !== "string" || !HEX.test(v)) continue; v = v.toUpperCase(); } }
+      out[k] = v;
+    }
     return out;
   }
+  function normalizeResult(res) {   // tolera resposta em array, config no nível de cima ou família com nome curto
+    if (Array.isArray(res)) res = res[0];
+    if (!res || typeof res !== "object") throw { code: "invalid_json", message: "resposta não é objeto" };
+    if (!res.config || typeof res.config !== "object") { const c = {}; for (const k in res) if (k !== "family" && k !== "mode" && k !== "note") c[k] = res[k]; res = { family: res.family, mode: res.mode, note: res.note, config: c }; }
+    const fam = resolveFamily(res.family); if (!fam) throw { code: "bad_family", message: String(res.family) };
+    return { family: fam, mode: res.mode === "patch" ? "patch" : "replace", config: res.config, note: res.note };
+  }
   function applyResult(res, { live = true } = {}) {
-    const fam = STUDIO_SPEC[res.family] ? res.family : (studio.family || "shader-background");
-    const patch = coerce(fam, res.config); const sameFam = fam === studio.family;
+    const fam = res.family; const patch = coerce(fam, res.config); const sameFam = fam === studio.family;
     if (res.mode === "patch" && sameFam && studio.config) { studio.config = Object.assign({}, studio.config, patch); if (live) { const L = lobo(); if (L && L.setConfig) { L.setConfig(patch); showConfig(L); } else load(); } }
     else { studio.family = fam; studio.config = Object.assign({}, STUDIO_SPEC[fam].defaults, patch); studio.base = patch.preset || null; if (live) load(); }
     studio.note = res.note || ""; studioSave();
@@ -378,23 +405,29 @@
     if (mode === "edit" || mode === "optimize" || mode === "vary" || mode === "explain") { if (!studio.family) { st.className = "studioStatus err"; st.textContent = "Crie um efeito primeiro."; return; } }
     studio.busy = true; studio.ctl = new AbortController(); $("studioGo").disabled = true; $("studioStop").hidden = false; st.className = "studioStatus"; st.textContent = "Pensando…";
     const ask = { create: prompt, edit: "EDITE o efeito atual: " + prompt + "\n" + currentTurn() + "\nResponda com mode \"patch\" (ou \"replace\" com outra família se o pedido exigir).", optimize: "OTIMIZE o efeito atual " + (prompt || "pra celular") + ".\n" + currentTurn() + "\nResponda com mode \"patch\".", vary: "VARIAÇÕES do efeito atual" + (prompt ? " (" + prompt + ")" : "") + ".\n" + currentTurn() + "\nResponda um ARRAY de 4 {name, config (patch), note}.", explain: "Explique em pt-BR, em até 6 linhas curtas, o que este efeito faz e o que cada chave relevante está controlando. Sem JSON.\n" + currentTurn() }[mode];
-    const turns = [{ role: "user", content: instructionTurn() }, ...studio.turns.slice(-8), { role: "user", content: ask }];
+    const turns = [{ role: "user", content: instructionTurn() }, ...(mode === "create" ? [] : studio.turns.slice(-8)), { role: "user", content: ask }];
     try {
       if (mode === "explain") {
         const r = await sample(turns, { cache: false, signal: studio.ctl.signal, modelTier: "quick", onText: ({ text }) => { st.textContent = text; } });
         studio.status = r.text;
         studio.turns.push({ role: "user", content: ask.slice(0, 400) }, { role: "assistant", content: r.text.slice(0, 600) });
       } else {
-        const res = await sample.json(turns, { cache: false, signal: studio.ctl.signal });
+        let res = await sample.json(turns, { cache: false, signal: studio.ctl.signal });
+        if (mode !== "vary") res = normalizeResult(res);
         if (mode === "vary") { if (!Array.isArray(res)) throw { code: "invalid_json", message: "esperava array" }; studio.vars = res.slice(0, 4).map((v) => ({ name: String(v.name || "variação"), config: coerce(studio.family, v.config), note: String(v.note || "") })); studio.status = "4 variações prontas. Clique numa pra aplicar."; }
-        else { applyResult(res); studio.status = studio.note || "aplicado"; }
-        studio.turns.push({ role: "user", content: ask.slice(0, 400) }, { role: "assistant", content: JSON.stringify(res).slice(0, 1200) });
+        else { applyResult(res); const fam = studio.family; studio.status = fam + (studio.base ? " · base " + studio.base : "") + "\n" + (studio.note || "aplicado"); verifyStage(); }
+        studio.turns.push({ role: "user", content: ask.slice(0, 400) }, { role: "assistant", content: JSON.stringify(mode === "vary" ? res : { family: res.family, mode: res.mode, config: coerce(res.family, res.config), note: res.note }).slice(0, 1200) });
       }
       studioSave(); buildStudio();
     } catch (e) {
-      const code = e && e.code; if (code === "cancelled") { st.textContent = e.text ? e.text : "parado."; } else { st.className = "studioStatus err"; st.textContent = ERR[code] || ("Falhou (" + (code || "erro") + "). Tente de novo."); }
+      const code = e && e.code; if (code === "cancelled") { st.textContent = e.text ? e.text : "parado."; } else if (code === "bad_family") { st.className = "studioStatus err"; st.textContent = "O Claude respondeu uma família que não existe (" + e.message + "). Nada foi aplicado; tente de novo com o pedido mais direto."; } else { st.className = "studioStatus err"; st.textContent = ERR[code] || ("Falhou (" + (code || "erro") + "). Tente de novo."); }
       if (code === "not_granted" || code === "sampling_disabled" || code === "not_declared") { $("studioGo").disabled = true; return; }
     } finally { studio.busy = false; studio.ctl = null; const go = $("studioGo"); if (go) go.disabled = false; const stop = $("studioStop"); if (stop) stop.hidden = true; }
+  }
+  function verifyStage() {   // confere que o palco carregou a família que o Studio acha que carregou
+    let tries = 0; const t = setInterval(() => { const L = lobo(); tries++; if (!L && tries < 20) return; clearInterval(t); const el = $("studioStatus"); if (!el) return;
+      if (!L) { el.className = "studioStatus err"; el.textContent += "\nO palco não respondeu (template não carregou?)."; return; }
+      if (L.family !== studio.family) { el.className = "studioStatus err"; el.textContent += "\nPalco carregou " + L.family + " em vez de " + studio.family + "."; } }, 300);
   }
   async function studioDownload() {
     const key = famKey(studio.family); const F = FAMILIES[key];
@@ -416,7 +449,7 @@
     ta.addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") go.click(); });
     const row = document.createElement("div"); row.className = "chips"; row.style.marginTop = "8px";
     const go = document.createElement("button"); go.className = "btn primary"; go.id = "studioGo"; go.type = "button"; go.textContent = MODES[studioMode].label + " (⌘↵)";
-    go.addEventListener("click", () => { const t = ta.value.trim(); if (!t && (studioMode === "create" || studioMode === "edit")) { ta.focus(); return; } studio._draft = ""; runStudio(t, studioMode); });
+    go.addEventListener("click", () => { const t = ta.value.trim(); if (!t && (studioMode === "create" || studioMode === "edit")) { ta.focus(); return; } studio._draft = t; runStudio(t, studioMode); });
     const stop = document.createElement("button"); stop.className = "btn"; stop.id = "studioStop"; stop.type = "button"; stop.textContent = "Parar"; stop.hidden = true; stop.addEventListener("click", () => { if (studio.ctl) studio.ctl.abort(); });
     row.append(go, stop);
     const st = document.createElement("div"); st.className = "studioStatus"; st.id = "studioStatus"; st.textContent = studio.status || studio.note || "";
