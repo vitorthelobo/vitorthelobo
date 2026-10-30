@@ -33,7 +33,18 @@ const PRESETS = {
   "ascii-rain": { mode: "ascii", hover: "glow", spacing: 18, size: 11,  color: "#39FF88", color2: "#E6FFF0", bg: "#040806", warp: 0.6, warpScale: 1.4, wave: 0.3, speed: 0.9, pointer: 0.7, pointerRadius: 150, fade: 0.4 },
   "star-dust":  { mode: "star",  spacing: 34, size: 5.0, color: "#FFD166", color2: "#FFFFFF", bg: "#0B0804", warp: 0.3, warpScale: 1.0, wave: 0.2, speed: 0.4, hover: "glow", pointer: 0.9, pointerRadius: 200, fade: 0.3 },
   "diamond-net":{ mode: "diamond", spacing: 30, size: 4.0, color: "#F72585", color2: "#4CC9F0", bg: "#0A0612", warp: 0.45, warpScale: 1.3, wave: 0.0, speed: 0.5, hover: "push", pointer: 0.8, pointerRadius: 170, fade: 0.3 },
-  "topo":       { mode: "triangle", hover: "scatter", spacing: 26, size: 4.0, color: "#FF8A1F", color2: "#FFE6A7", bg: "#120804", warp: 0.8, warpScale: 0.7, wave: 0.0, speed: 0.25, pointer: 0.6, pointerRadius: 220, fade: 0.3 }
+  "topo":       { mode: "triangle", hover: "scatter", spacing: 26, size: 4.0, color: "#FF8A1F", color2: "#FFE6A7", bg: "#120804", warp: 0.8, warpScale: 0.7, wave: 0.0, speed: 0.25, pointer: 0.6, pointerRadius: 220, fade: 0.3 },
+  // ---------------- quarta leva (10) ----------------
+  "paper-dots":       { mode: "dots",     spacing: 24, size: 1.8, color: "#1A1A1A", color2: "#FF4D2E", bg: "#F3F0EA", warp: 0.2, warpScale: 1.0, wave: 0.0, speed: 0.4, hover: "pull", pointer: 0.8, pointerRadius: 180, fade: 0.2 },
+  "neon-squares":     { mode: "square",   spacing: 30, size: 4.0, color: "#00F0FF", color2: "#FF00E5", bg: "#05010A", warp: 0.4, warpScale: 1.2, wave: 0.0, speed: 0.5, hover: "vortex", pointer: 0.9, pointerRadius: 200, fade: 0.3 },
+  "ring-pond":        { mode: "ring",     spacing: 28, size: 5.0, color: "#3A86FF", color2: "#FFFFFF", bg: "#020814", warp: 0.1, warpScale: 1.0, wave: 0.8, speed: 0.6, hover: "push", pointer: 0.7, pointerRadius: 170, fade: 0.35 },
+  "triangle-storm":   { mode: "triangle", spacing: 26, size: 4.5, color: "#FF006E", color2: "#FFBE0B", bg: "#0E0306", warp: 0.9, warpScale: 2.2, wave: 0.0, speed: 1.0, hover: "scatter", pointer: 0.9, pointerRadius: 190, fade: 0.3 },
+  "cross-blueprint":  { mode: "cross",    spacing: 32, size: 4.0, color: "#2F6BFF", color2: "#FFFFFF", bg: "#061024", warp: 0.15, warpScale: 0.9, wave: 0.0, speed: 0.3, hover: "push", pointer: 0.6, pointerRadius: 200, fade: 0.25 },
+  "star-field-dense": { mode: "star",     spacing: 26, size: 5.5, color: "#FFFFFF", color2: "#FFD166", bg: "#02030A", warp: 0.2, warpScale: 1.0, wave: 0.3, speed: 0.4, hover: "glow", pointer: 0.9, pointerRadius: 220, fade: 0.3 },
+  "diamond-gold":     { mode: "diamond",  spacing: 26, size: 4.0, color: "#8A6A2B", color2: "#FFE6A3", bg: "#0C0904", warp: 0.3, warpScale: 1.1, wave: 0.0, speed: 0.4, hover: "glow", pointer: 0.9, pointerRadius: 200, fade: 0.3 },
+  "ascii-blue":       { mode: "ascii",    spacing: 16, size: 13,  color: "#5CB3FF", color2: "#FFFFFF", bg: "#01060F", warp: 0.6, warpScale: 1.3, wave: 0.5, speed: 0.7, hover: "push", pointer: 0.8, pointerRadius: 160, fade: 0.15 },
+  "lines-flow":       { mode: "lines",    spacing: 22, size: 4.0, color: "#B57CFF", color2: "#F72585", bg: "#0A0612", warp: 1.0, warpScale: 0.8, wave: 0.0, speed: 0.5, hover: "vortex", pointer: 0.8, pointerRadius: 200, fade: 0.3 },
+  "plus-minimal":     { mode: "plus",     spacing: 44, size: 6.0, color: "#BDBDBD", color2: "#000000", bg: "#FFFFFF", warp: 0.1, warpScale: 1.0, wave: 0.0, speed: 0.3, hover: "pull", pointer: 0.8, pointerRadius: 220, fade: 0.1 }
 };
 const CONFIG = {
   preset: "dot-matrix",
@@ -153,7 +164,7 @@ const CONFIG = {
 
   function frame(now) {
     raf = 0;
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
     if (!motionOff) time += dt * cfg.speed;
     const k = 1 - Math.pow(1 - 0.18, dt * 60);
     if (pointer.active) { pointer.x += (pointer.tx - pointer.x) * k; pointer.y += (pointer.ty - pointer.y) * k; if (now - pointer.idleAt > 2500 && Math.hypot(pointer.tx - pointer.x, pointer.ty - pointer.y) < 0.5) { pointer.active = false; pointer.tx = pointer.ty = -9999; dirty = true; } }

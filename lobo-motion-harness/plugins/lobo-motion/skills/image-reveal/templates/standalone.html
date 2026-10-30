@@ -31,7 +31,18 @@ const PRESETS = {
   "tiles-flip":    { mode: "tiles",  reveal: 0, autoReveal: true, duration: 1.8, hover: 0.3, hoverRadius: 0.2,  noiseScale: 1.0, pixelSize: 0, tiles: 10, direction: 45, edge: 0.15, tint: "#FFFFFF" },
   "wipe-warp":     { mode: "wipe",   reveal: 0, autoReveal: true, duration: 1.3, hover: 0.6, hoverRadius: 0.25, noiseScale: 3.0, pixelSize: 0, tiles: 0, direction: 20, edge: 0.12, tint: "#FFFFFF" },
   "hover-ripple":  { mode: "ripple", reveal: 1, autoReveal: false, duration: 1.0, hover: 1.0, hoverRadius: 0.3, noiseScale: 1.0, pixelSize: 0, tiles: 0, direction: 0, edge: 0.1, tint: "#FFFFFF" },
-  "hover-liquid":  { mode: "displace", reveal: 1, autoReveal: false, duration: 1.0, hover: 0.9, hoverRadius: 0.28, noiseScale: 2.5, pixelSize: 0, tiles: 0, direction: 0, edge: 0.1, tint: "#FFFFFF" }
+  "hover-liquid":  { mode: "displace", reveal: 1, autoReveal: false, duration: 1.0, hover: 0.9, hoverRadius: 0.28, noiseScale: 2.5, pixelSize: 0, tiles: 0, direction: 0, edge: 0.1, tint: "#FFFFFF" },
+  // ---------------- quarta leva (10) ----------------
+  "slow-dissolve":   { mode: "liquid", reveal: 0, autoReveal: true, duration: 3.2, hover: 0.3, hoverRadius: 0.2, noiseScale: 5.0, pixelSize: 0, tiles: 0, direction: 90, edge: 0.04, tint: "#FFFFFF" },
+  "big-pixels":      { mode: "pixel",  reveal: 0, autoReveal: true, duration: 2.0, hover: 0.0, hoverRadius: 0.2, noiseScale: 1.0, pixelSize: 140, tiles: 0, direction: 0, edge: 0.1, tint: "#FFFFFF" },
+  "micro-tiles":     { mode: "tiles",  reveal: 0, autoReveal: true, duration: 2.2, hover: 0.2, hoverRadius: 0.2, noiseScale: 1.0, pixelSize: 0, tiles: 28, direction: 0, edge: 0.1, tint: "#FFFFFF" },
+  "soft-curtain":    { mode: "wipe",   reveal: 0, autoReveal: true, duration: 1.6, hover: 0.4, hoverRadius: 0.25, noiseScale: 1.5, pixelSize: 0, tiles: 0, direction: 90, edge: 0.2, tint: "#FFFFFF" },
+  "diagonal-tiles":  { mode: "tiles",  reveal: 0, autoReveal: true, duration: 1.8, hover: 0.3, hoverRadius: 0.2, noiseScale: 1.0, pixelSize: 0, tiles: 14, direction: 135, edge: 0.15, tint: "#FFFFFF" },
+  "ink-bleed":       { mode: "liquid", reveal: 0, autoReveal: true, duration: 2.0, hover: 0.5, hoverRadius: 0.22, noiseScale: 1.2, pixelSize: 0, tiles: 0, direction: 90, edge: 0.2, tint: "#FFE9D6" },
+  "sharp-wipe":      { mode: "wipe",   reveal: 0, autoReveal: true, duration: 0.9, hover: 0.5, hoverRadius: 0.25, noiseScale: 6.0, pixelSize: 0, tiles: 0, direction: 0, edge: 0.01, tint: "#FFFFFF" },
+  "glitch-wipe":     { mode: "wipe",   reveal: 0, autoReveal: true, duration: 1.1, hover: 0.6, hoverRadius: 0.25, noiseScale: 8.0, pixelSize: 0, tiles: 0, direction: 180, edge: 0.06, tint: "#FFFFFF" },
+  "sepia-ripple":    { mode: "ripple", reveal: 1, autoReveal: false, duration: 1.0, hover: 1.0, hoverRadius: 0.35, noiseScale: 1.0, pixelSize: 0, tiles: 0, direction: 0, edge: 0.1, tint: "#F2D7B6" },
+  "cool-liquid":     { mode: "displace", reveal: 1, autoReveal: false, duration: 1.0, hover: 1.0, hoverRadius: 0.3, noiseScale: 4.0, pixelSize: 0, tiles: 0, direction: 0, edge: 0.1, tint: "#CFE8FF" }
 };
 const CONFIG = {
   preset: "liquid-reveal",
@@ -163,7 +174,7 @@ const CONFIG = {
   let revealRaw = 0;
   function frame(now) {
     raf = 0;
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
     if (!motionOff) time += dt * cfg.speed;
     if (animating) { revealRaw = Math.min(1, revealRaw + dt / Math.max(0.1, cfg.duration)); revealT = ease(revealRaw); if (revealRaw >= 1) { animating = false; cfg.reveal = 1; } }
     const k = 1 - Math.pow(1 - 0.2, dt * 60); const px = pointer.x, py = pointer.y;

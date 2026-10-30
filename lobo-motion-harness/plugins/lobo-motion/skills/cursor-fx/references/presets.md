@@ -1,4 +1,4 @@
-# Presets · cursor-fx (17)
+# Presets · cursor-fx (27)
 
 | Grupo | Preset | O que faz | Knobs que importam |
 | --- | --- | --- | --- |
@@ -19,3 +19,15 @@
 | field | magnet-lines | grade de traços que aponta pro cursor | fieldSpacing, fieldStrength |
 | field | ascii-field | glifos mais densos perto do cursor | fieldSpacing, fieldStrength |
 | field | dot-grid-warp | pontos empurrados pelo cursor | fieldSpacing, fieldStrength |
+| field | spotlight | escurece a página e abre um círculo de luz suave no cursor, com anel de acento | ringSize (raio = 4.5×), color (véu), color2 (anel) |
+| trail | comet | cauda aditiva que engrossa até a cabeça brilhante | trailLength, dotSize, colorMode gradient |
+| trail | sparkle-burst | estrelas de 4 pontas emitidas pela velocidade, caem com gravidade | dotSize, trailDecay (vida) |
+| trail | ripple-rings | anéis que se expandem a cada `fieldSpacing` px percorridos | ringSize (velocidade), fieldSpacing, trailDecay |
+| field | radar-sweep | varredura giratória acende a grade de pontos em volta do cursor; gira mesmo parado | fieldSpacing, fieldStrength (velocidade do giro) |
+| trail | rainbow-trail | `fx: trail` com gradiente magenta→ciano e 40 pontos | trailLength, dotSize |
+| trail | bubble-chain | `fx: cascading-dots` com bolhas grandes em gradiente | trailLength, dotSize |
+| pointer | invert-ring | `fx: dot-ring` grande em `difference` (inverte o que passa embaixo) | ringSize, hoverScale |
+| field | matrix-field | `fx: ascii-field` verde denso | fieldSpacing, fieldStrength |
+| field | magnet-dense | `fx: magnet-lines` em grade de 20 px, gradiente quente | fieldSpacing, fieldStrength |
+
+`fx` (chave de preset): a implementação a usar. Sem `fx`, vale a de mesmo nome do preset. Variações de estilo (cor, tamanho, densidade) entram como preset novo com `fx` apontando pra um efeito existente, sem duplicar código.

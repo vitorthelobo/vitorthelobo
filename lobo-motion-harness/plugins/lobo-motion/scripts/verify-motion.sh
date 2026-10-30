@@ -28,6 +28,9 @@ report FAIL "sem frame cap fixo por orçamento (1000/30, 1000 / 30, 33.3)" \
 report WARN "incremento por frame sem dt (time += 0.01, t += .0)" \
   "um celular de 120 Hz roda o dobro; escale por dt em segundos" \
   "$(code '\b(time|t|uTime|angle|rot|phase)\s*\+=\s*0?\.[0-9]+\s*;')"
+report FAIL "dt de frame sem piso em zero (Math.min(x, (now - last) / 1000) sem Math.max(0, ...))" \
+  "o timestamp do rAF pode ser anterior ao último performance.now(); dt negativo amplifica amortecimento e explode simulação" \
+  "$(code 'const dt = Math\.min\(' )"
 report WARN "rAF sem prefers-reduced-motion no mesmo arquivo" \
   "reduced motion precisa parar de avançar o tempo e manter o conteúdo visível" \
   "$(for f in $(grep -lE 'requestAnimationFrame' $(src) 2>/dev/null); do grep -qE 'prefers-reduced-motion|reducedMotion|motionOff' "$f" || echo "$f"; done)"

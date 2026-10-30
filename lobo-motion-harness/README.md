@@ -25,18 +25,18 @@ lobo-motion-harness/
 
 | Peça | Estado |
 | --- | --- |
-| `shader-background` | **Pronta.** Template WebGL2 testado pelas 4 sondas (1 programa, reduced motion assenta, bot sem WebGL, contexto volta). 14 presets, 11 campos (linear, radial, conic, mesh, warped, aurora, rays, ripples, stripes, caustics, blobs) e efeitos dither, halftone e vinheta. Cookbook GLSL e schema. |
-| `particle-forms` | **Pronta.** Template three.js testado, 35 formas com seed, 10 sprites, 8 movimentos stateless, 6 modos de cor, 5 efeitos de hover com sliders, blend aditivo ou opaco, curl noise, bloom, tiers. 44 presets. Geradores e GPGPU documentados. |
+| `shader-background` | **Pronta.** Template WebGL2 testado pelas 4 sondas (1 programa, reduced motion assenta, bot sem WebGL, contexto volta). 26 presets, 12 campos (linear, radial, conic, mesh, warped, aurora, rays, ripples, stripes, caustics, blobs, band) e efeitos dither, halftone e vinheta. Cookbook GLSL e schema. |
+| `particle-forms` | **Pronta.** Template three.js testado, 35 formas com seed, 10 sprites, 8 movimentos stateless, 6 modos de cor, 5 efeitos de hover com sliders, zoom, profundidade de campo e parallax, blend aditivo ou opaco, curl noise, bloom, tiers. 54 presets. Geradores e GPGPU documentados. |
 | `effect-tool-ui`, `build-prompt`, `qa-motion`, `optimize-3d-scene`, `catalog-entry` | **Prontas** como procedimento; o contrato `window.__lobo` já está nos dois templates. |
-| `orb-reactive` | **Pronta.** Template WebGL2 testado: 5 presets, 6 estados com transição, áudio por microfone ou `setLevel`, modo widget (264 px) e hero (`size: 0`), fundo transparente opcional. |
-| `text-motion` | **Pronta.** Template vanilla JS + CSS testado: 28 presets por letra, palavra e linha, mola própria, 4 gatilhos, texto no DOM pra SEO, reduced motion sem split. |
-| `cursor-fx` | **Pronta.** 17 efeitos em vanilla JS + CSS (pointer, trail, field), demo automático, desligado em touch. |
-| `holo-material` | **Pronta.** Tecido verlet com iridescência física do three.js, 6 presets, agarre e cutucão. |
-| `post-image-fx` | **Pronta.** ASCII, dither e refração num shader WebGL2, 10 presets, upload de imagem ou vídeo. |
-| `image-reveal` | **Pronta.** Reveal líquido, pixel, tiles, wipe, ripple e líquido no hover num shader sobre a imagem, 6 presets, `<img>` no fallback. |
-| `grid-dots-field` | **Pronta.** Grade em canvas 2D com 10 glifos (dots, ring, square, diamond, triangle, star, plus, cross, lines, ascii), warp, onda, 5 efeitos de hover com sliders e toque, 8 presets. |
-| `3d-object-scene` | **Pronta.** GLB ou objeto procedural com material físico, PMREM, órbita por arrasto, 6 presets. |
-| `morph-transition` | **Pronta.** Transição entre as 18 formas de partícula com stagger e scatter, ciclo ou scroll, 5 presets. |
+| `orb-reactive` | **Pronta.** Template WebGL2 testado: 15 presets, 6 estados com transição, áudio por microfone ou `setLevel`, modo widget (264 px) e hero (`size: 0`), fundo transparente opcional. |
+| `text-motion` | **Pronta.** Template vanilla JS + CSS testado: 38 presets por letra, palavra e linha, ordem da cascata (início, fim, centro, bordas, aleatória), mola própria, 4 gatilhos, texto no DOM pra SEO, reduced motion sem split. |
+| `cursor-fx` | **Pronta.** 22 efeitos e 27 presets em vanilla JS + CSS (pointer, trail, field; variações reaproveitam efeitos por `fx`), demo automático, desligado em touch. |
+| `holo-material` | **Pronta.** Tecido verlet com iridescência física do three.js, 16 presets, agarre e cutucão. |
+| `post-image-fx` | **Pronta.** ASCII, dither e refração num shader WebGL2, 20 presets, upload de imagem ou vídeo. |
+| `image-reveal` | **Pronta.** Reveal líquido, pixel, tiles, wipe, ripple e líquido no hover num shader sobre a imagem, 16 presets, `<img>` no fallback. |
+| `grid-dots-field` | **Pronta.** Grade em canvas 2D com 10 glifos (dots, ring, square, diamond, triangle, star, plus, cross, lines, ascii), warp, onda, 5 efeitos de hover com sliders e toque, 18 presets. |
+| `3d-object-scene` | **Pronta.** GLB ou objeto procedural com material físico, PMREM, órbita por arrasto, parallax, 16 presets. |
+| `morph-transition` | **Pronta.** Transição entre as 35 formas de partícula com stagger e scatter, ciclo ou scroll, DOF e parallax, 15 presets. |
 | `integrate-effect` | **Pronta (doc).** Receitas React/Next, Vue, Astro/HTML, Framer, Webflow; cleanup, SSR, uma lib de motion. |
 | `scroll-grammar` | **Pronta (doc).** switch/scrub/progress/pin, driver próprio ou ScrollTrigger/Lenis, receitas por família. |
 | `brand-to-preset` | **Pronta (doc).** Paleta em OKLab, tom → energia, onde vai → densidade, nome e tags. |

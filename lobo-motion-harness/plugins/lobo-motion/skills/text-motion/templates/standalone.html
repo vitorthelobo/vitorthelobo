@@ -72,7 +72,21 @@ const PRESETS = {
   "stagger-reveal-lines": { unit: "line", from: { y: "100%" }, to: { y: 0 }, stagger: 110, tension: 1.1, friction: 1.0, clip: true },
   "wipe-down":            { unit: "line", from: { y: "-100%" }, to: { y: 0 }, stagger: 100, tension: 1.1, friction: 1.0, clip: true },
   "slide-from-right":     { unit: "line", from: { x: 60, opacity: 0 }, to: { x: 0, opacity: 1 }, stagger: 120, tension: 1.0, friction: 1.0 },
-  "unblur-lines":         { unit: "line", from: { blur: 14, opacity: 0 }, to: { blur: 0, opacity: 1 }, stagger: 110, tension: 0.9, friction: 1.1 }
+  "unblur-lines":         { unit: "line", from: { blur: 14, opacity: 0 }, to: { blur: 0, opacity: 1 }, stagger: 110, tension: 0.9, friction: 1.1 },
+  // ---------------- quarta leva (10) ----------------
+  // letra
+  "center-burst":  { unit: "letter", from: { scale: 0, opacity: 0 }, to: { scale: 1, opacity: 1 }, stagger: 30, tension: 1.4, friction: 0.7, order: "center" },
+  "scatter-in":    { unit: "letter", from: { y: "40%", opacity: 0, blur: 10 }, to: { y: 0, opacity: 1, blur: 0 }, stagger: 16, tension: 1.0, friction: 1.0, order: "random" },
+  "reverse-rise":  { unit: "letter", from: { y: "110%" }, to: { y: 0 }, stagger: 26, tension: 1.2, friction: 1.0, clip: true, order: "end" },
+  "elastic-x":     { unit: "letter", from: { scaleX: 2.2, opacity: 0 }, to: { scaleX: 1, opacity: 1 }, stagger: 22, tension: 1.6, friction: 0.45 },
+  "glitch-skew":   { unit: "letter", from: { skewX: 40, x: "30%", opacity: 0 }, to: { skewX: 0, x: 0, opacity: 1 }, stagger: 14, tension: 2.2, friction: 0.8, order: "random" },
+  // palavra
+  "edges-in":      { unit: "word", from: { y: "40%", opacity: 0 }, to: { y: 0, opacity: 1 }, stagger: 70, tension: 1.1, friction: 1.0, order: "edges" },
+  "flip-words":    { unit: "word", from: { rotateY: 90, opacity: 0 }, to: { rotateY: 0, opacity: 1 }, stagger: 60, tension: 1.0, friction: 0.9, perspective: true },
+  "spin-words":    { unit: "word", from: { rotate: -15, scale: 0.8, opacity: 0 }, to: { rotate: 0, scale: 1, opacity: 1 }, stagger: 55, tension: 1.3, friction: 0.7 },
+  // linha
+  "lines-reverse": { unit: "line", from: { y: "100%" }, to: { y: 0 }, stagger: 110, tension: 1.1, friction: 1.0, clip: true, order: "end" },
+  "zoom-lines":    { unit: "line", from: { scale: 0.85, blur: 10, opacity: 0 }, to: { scale: 1, blur: 0, opacity: 1 }, stagger: 120, tension: 0.9, friction: 1.0 }
 };
 const CONFIG = {
   preset: "rise-settle",      // preset do hero (data-hero); os outros elementos têm data-preset próprio
@@ -123,7 +137,7 @@ const CONFIG = {
   const instances = [];
   let raf = 0, last = 0;
   function tick(now) {
-    raf = 0; const dt = Math.min(1 / 30, (now - last) / 1000); last = now; let active = 0;
+    raf = 0; const dt = Math.max(0, Math.min(1 / 30, (now - last) / 1000)); last = now; let active = 0;
     for (const inst of instances) active += inst.update(now, dt);
     stats.frames++; stats.active = active;
     if (active > 0) raf = requestAnimationFrame(tick);
@@ -168,6 +182,13 @@ const CONFIG = {
     return t.trim() || "none";
   }
 
+  // ordem da cascata: rank de cada unidade (0 = primeira a entrar). random é determinístico pela seed.
+  function rankFor(order, n) {
+    const r = new Array(n), m = (n - 1) / 2;
+    for (let i = 0; i < n; i++) r[i] = order === "end" ? n - 1 - i : order === "center" ? Math.abs(i - m) : order === "edges" ? m - Math.abs(i - m) : i;
+    if (order === "random") { const h = (i) => { const x = Math.sin((i + 1) * 127.1 + cfg.seed * 311.7) * 43758.5453; return x - Math.floor(x); }; [...Array(n).keys()].sort((a, b) => h(a) - h(b)).forEach((idx, pos) => { r[idx] = pos; }); }
+    return r;
+  }
   function mount(el) {
     const name = el.dataset.preset && PRESETS[el.dataset.preset] ? el.dataset.preset : cfg.preset;
     const P = PRESETS[name];
@@ -179,8 +200,9 @@ const CONFIG = {
       const stagger = (cfg.stagger ?? P.stagger) / cfg.speed;
       // blur é propriedade da LINHA, nunca da letra ou da palavra (uma camada por linha)
       const fromU = Object.assign({}, P.from), toU = Object.assign({}, P.to); const hasBlur = "blur" in fromU; delete fromU.blur; delete toU.blur;
-      inst.units = units.map((u, i) => ({ u, i, spring: new Spring(resolve(fromU, u), resolve(toU, u), k, c), startAt: inst.delay + i * stagger, started: false, done: false }));
-      inst.lineSprings = lineEls.map((L, li) => { const first = inst.units.find((x) => x.u.line === li); return { el: L.line, clip: L.clip, spring: hasBlur ? new Spring({ blur: P.from.blur }, { blur: P.to.blur }, k, c) : null, startAt: first ? first.startAt : 0, started: false, done: !hasBlur }; });
+      const rk = rankFor(P.order || "start", units.length);   // ordem da cascata: start | end | center | edges | random
+      inst.units = units.map((u, i) => ({ u, i, spring: new Spring(resolve(fromU, u), resolve(toU, u), k, c), startAt: inst.delay + rk[i] * stagger, started: false, done: false }));
+      inst.lineSprings = lineEls.map((L, li) => { const own = inst.units.filter((x) => x.u.line === li); const first = own.length ? own.reduce((a, b) => (b.startAt < a.startAt ? b : a)) : null; return { el: L.line, clip: L.clip, spring: hasBlur ? new Spring({ blur: P.from.blur }, { blur: P.to.blur }, k, c) : null, startAt: first ? first.startAt : 0, started: false, done: !hasBlur }; });
       for (const L of lineEls) L.clip.style.overflow = P.clip ? "hidden" : "visible";
       for (const x of inst.units) { if (P.origin) x.u.el.style.transformOrigin = P.origin; paint(x, true); }
       for (const L of inst.lineSprings) if (L.spring) paintLine(L);

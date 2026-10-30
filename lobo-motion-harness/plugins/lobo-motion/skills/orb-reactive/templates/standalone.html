@@ -32,7 +32,18 @@ const PRESETS = {
   "ember-core":    { colorBase: "#1A0A05", colorInterior: "#0B0302", accentDust: "#FF8A1F", accentStars: "#FFE6A7", accentAurora: "#C8320E", intensity: 1.05, detail: 0.7, glass: 0.3, glow: 1.0, speed: 0.9, drift: 0.5 },
   "cyan-spiral":   { colorBase: "#04101C", colorInterior: "#02070D", accentDust: "#01BAEF", accentStars: "#8AE9C1", accentAurora: "#3A0CA3", intensity: 1.0, detail: 1.0, glass: 0.4, glow: 0.8, speed: 1.0, drift: 0.8 },
   "violet-nebula": { colorBase: "#0A0014", colorInterior: "#06000C", accentDust: "#7209B7", accentStars: "#F72585", accentAurora: "#4CC9F0", intensity: 1.1, detail: 0.9, glass: 0.35, glow: 1.1, speed: 0.7, drift: 0.7 },
-  "aurora-field":  { colorBase: "#061410", colorInterior: "#03090A", accentDust: "#19B5A8", accentStars: "#C5F2E6", accentAurora: "#9D4EDD", intensity: 0.9, detail: 0.6, glass: 0.45, glow: 0.85, speed: 0.6, drift: 0.9 }
+  "aurora-field":  { colorBase: "#061410", colorInterior: "#03090A", accentDust: "#19B5A8", accentStars: "#C5F2E6", accentAurora: "#9D4EDD", intensity: 0.9, detail: 0.6, glass: 0.45, glow: 0.85, speed: 0.6, drift: 0.9 },
+  // ---------------- quarta leva (10) ----------------
+  "solar-flare":   { colorBase: "#2A0E02", colorInterior: "#0C0300", accentDust: "#FF6A00", accentStars: "#FFE29A", accentAurora: "#FF2E63", intensity: 1.15, detail: 0.9, glass: 0.25, glow: 1.2, speed: 1.0, drift: 0.7 },
+  "glacier-mind":  { colorBase: "#0A2230", colorInterior: "#04111A", accentDust: "#9FE8FF", accentStars: "#FFFFFF", accentAurora: "#5B8CFF", intensity: 0.9, detail: 0.6, glass: 0.6, glow: 0.8, speed: 0.5, drift: 0.5 },
+  "toxic-lime":    { colorBase: "#0E1A04", colorInterior: "#050A01", accentDust: "#B6FF3B", accentStars: "#F0FFB0", accentAurora: "#00E0A0", intensity: 1.0, detail: 1.1, glass: 0.3, glow: 1.0, speed: 1.1, drift: 0.8 },
+  "rose-quartz":   { colorBase: "#2B1020", colorInterior: "#12060D", accentDust: "#FF8FB8", accentStars: "#FFE3EE", accentAurora: "#B98BFF", intensity: 0.9, detail: 0.7, glass: 0.55, glow: 0.9, speed: 0.6, drift: 0.6 },
+  "deep-sea":      { colorBase: "#021A24", colorInterior: "#010A10", accentDust: "#00B4D8", accentStars: "#90E0EF", accentAurora: "#3A0CA3", intensity: 0.85, detail: 0.8, glass: 0.4, glow: 0.8, speed: 0.5, drift: 0.9 },
+  "gold-oracle":   { colorBase: "#1E1606", colorInterior: "#0B0802", accentDust: "#E8B64A", accentStars: "#FFF3C4", accentAurora: "#A0522D", intensity: 1.0, detail: 0.6, glass: 0.5, glow: 1.1, speed: 0.6, drift: 0.4 },
+  "mono-pearl":    { colorBase: "#1C1C20", colorInterior: "#0A0A0C", accentDust: "#D9D9E0", accentStars: "#FFFFFF", accentAurora: "#8A8A96", intensity: 0.8, detail: 0.5, glass: 0.7, glow: 0.7, speed: 0.5, drift: 0.5 },
+  "cyber-magenta": { colorBase: "#1A0326", colorInterior: "#0A0110", accentDust: "#FF00C8", accentStars: "#00F0FF", accentAurora: "#7A00FF", intensity: 1.2, detail: 1.0, glass: 0.3, glow: 1.2, speed: 1.2, drift: 0.9 },
+  "forest-spirit": { colorBase: "#0B1F14", colorInterior: "#040C08", accentDust: "#3DDC84", accentStars: "#D4FFB2", accentAurora: "#FFC65C", intensity: 0.9, detail: 0.8, glass: 0.4, glow: 0.85, speed: 0.7, drift: 0.7 },
+  "blood-moon":    { colorBase: "#2A0508", colorInterior: "#0E0103", accentDust: "#E5383B", accentStars: "#FFD6A5", accentAurora: "#660708", intensity: 1.05, detail: 0.7, glass: 0.35, glow: 1.0, speed: 0.6, drift: 0.5 }
 };
 const CONFIG = {
   preset: "core-teal",
@@ -237,7 +248,7 @@ const CONFIG = {
 
   function frame(now) {
     raf = 0;
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
     if (stateT < 1) stateT = Math.min(1, stateT + dt / 0.45);
     if (!motionOff) time += dt;
     const resized = resize();

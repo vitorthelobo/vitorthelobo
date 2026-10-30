@@ -65,10 +65,24 @@ const PRESETS = {
   // field (3)
   "magnet-lines":    { group: "field", follow: 0.2, fieldSpacing: 34, fieldStrength: 0.9 },
   "ascii-field":     { group: "field", follow: 0.2, fieldSpacing: 18, fieldStrength: 0.8 },
-  "dot-grid-warp":   { group: "field", follow: 0.2, fieldSpacing: 26, fieldStrength: 0.9 }
+  "dot-grid-warp":   { group: "field", follow: 0.2, fieldSpacing: 26, fieldStrength: 0.9 },
+  // ---------------- quarta leva (10) ----------------
+  // efeitos novos
+  "spotlight":       { group: "field", follow: 0.12, ringSize: 46, colorMode: "solid", color: "#05060A", color2: "#C8FF5A" },
+  "comet":           { group: "trail", follow: 0.35, trailLength: 36, dotSize: 7, trailDecay: 0.85, colorMode: "gradient", color: "#FF8A1F", color2: "#FFE6A7" },
+  "sparkle-burst":   { group: "trail", follow: 0.4, dotSize: 5, trailDecay: 0.82, colorMode: "gradient", color: "#FFD166", color2: "#FF5DA2" },
+  "ripple-rings":    { group: "trail", follow: 0.25, ringSize: 30, fieldSpacing: 40, trailDecay: 0.8, colorMode: "gradient", color: "#4CC9F0", color2: "#7209B7" },
+  "radar-sweep":     { group: "field", follow: 0.15, fieldSpacing: 22, fieldStrength: 1.0, colorMode: "gradient", color: "#1B5E3A", color2: "#7CFFB2" },
+  // variações (fx reaproveita um efeito com outro estilo)
+  "rainbow-trail":   { group: "trail", fx: "trail", follow: 1, trailLength: 40, trailDecay: 0.8, dotSize: 8, colorMode: "gradient", color: "#FF2D95", color2: "#00F0FF" },
+  "bubble-chain":    { group: "trail", fx: "cascading-dots", follow: 0.3, trailLength: 22, trailDecay: 0.9, dotSize: 10, colorMode: "gradient", color: "#7CF7D4", color2: "#3A86FF" },
+  "invert-ring":     { group: "pointer", fx: "dot-ring", follow: 0.12, ringSize: 64, dotSize: 10, hoverScale: 2.4, colorMode: "difference", color: "#FFFFFF" },
+  "matrix-field":    { group: "field", fx: "ascii-field", follow: 0.2, fieldSpacing: 14, fieldStrength: 1.0, colorMode: "gradient", color: "#1F7A3F", color2: "#D4FFE4" },
+  "magnet-dense":    { group: "field", fx: "magnet-lines", follow: 0.2, fieldSpacing: 20, fieldStrength: 1.2, colorMode: "gradient", color: "#FFD166", color2: "#EF476F" }
 };
 const CONFIG = {
   preset: "dot-ring", group: "pointer",
+  fx: null,                    // implementação a usar; null = a de mesmo nome do preset (permite presets que reusam um efeito com outro estilo)
   follow: 0.14, ringSize: 36, dotSize: 6, hoverScale: 1.9,
   colorMode: "solid",          // solid | gradient | difference
   color: "#FFFFFF", color2: "#C8FF5A",
@@ -87,7 +101,7 @@ const CONFIG = {
   const params = new URLSearchParams(location.search);
   let fx = null, ready = false;
   function setConfig(changes) { const ignored = []; for (const k in changes) { if (k in cfg) cfg[k] = changes[k]; else ignored.push(k); } if (ready) mount(); return { ignored }; }
-  function usePreset(name) { if (!PRESETS[name]) return false; cfg.preset = name; Object.assign(cfg, PRESETS[name]); return true; }
+  function usePreset(name) { if (!PRESETS[name]) return false; cfg.preset = name; cfg.fx = null; Object.assign(cfg, PRESETS[name]); return true; }
   if (params.get("preset")) usePreset(params.get("preset")); else usePreset(cfg.preset);
   if (params.get("s")) { try { setConfig(JSON.parse(atob(params.get("s").replace(/-/g, "+").replace(/_/g, "/")))); } catch (e) {} }
   if (params.get("demo") === "0") cfg.demo = false;
@@ -160,17 +174,28 @@ const CONFIG = {
     "cursor-ghost": () => ({ init() {}, frame() { clear(); const R = cfg.ringSize * 1.2, n = 28; ctx.beginPath(); for (let i = 0; i <= n; i++) { const a = i / n * 6.2832, r = R * (1 + 0.18 * Math.sin(a * 3 + time * 2.2) + 0.1 * Math.sin(a * 5 - time * 1.7)); const x = ptr.lx + Math.cos(a) * r, y = ptr.ly + Math.sin(a) * r; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.closePath(); ctx.fillStyle = col(0.5); ctx.globalAlpha = 0.35; ctx.fill(); ctx.globalAlpha = 1; }, destroy: clear }),
     "magnet-lines": () => ({ init() {}, frame() { clear(); const s = cfg.fieldSpacing, len = s * 0.55; ctx.lineWidth = 1.2; for (let y = s / 2; y < innerHeight; y += s) for (let x = s / 2; x < innerWidth; x += s) { const dx = ptr.lx - x, dy = ptr.ly - y, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx), inf = Math.max(0, 1 - d / 320) * cfg.fieldStrength; ctx.strokeStyle = col(inf); ctx.globalAlpha = 0.25 + inf * 0.75; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * len / 2, y - Math.sin(a) * len / 2); ctx.lineTo(x + Math.cos(a) * len / 2, y + Math.sin(a) * len / 2); ctx.stroke(); } ctx.globalAlpha = 1; }, destroy: clear }),
     "ascii-field": () => ({ init() {}, frame() { clear(); const s = cfg.fieldSpacing, G = " .:-=+*#%@"; ctx.font = `${s * 0.8}px ui-monospace, monospace`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; for (let y = s / 2; y < innerHeight; y += s) for (let x = s / 2; x < innerWidth; x += s) { const d = Math.hypot(ptr.lx - x, ptr.ly - y), v = Math.max(0, 1 - d / 260) * cfg.fieldStrength + 0.08 * hash(x * 0.37 + y * 1.13); const ch = G[Math.min(G.length - 1, (v * G.length) | 0)]; if (ch === " ") continue; ctx.fillStyle = col(v); ctx.globalAlpha = 0.25 + v * 0.75; ctx.fillText(ch, x, y); } ctx.globalAlpha = 1; }, destroy: clear }),
+    // ---- quarta leva: 5 efeitos novos ----
+    "spotlight": () => ({ init() {}, frame() { clear(); const R = cfg.ringSize * 4.5; ctx.globalAlpha = 0.86; ctx.fillStyle = cfg.color; ctx.fillRect(0, 0, innerWidth, innerHeight); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "destination-out"; const g = ctx.createRadialGradient(ptr.lx, ptr.ly, R * 0.35, ptr.lx, ptr.ly, R); g.addColorStop(0, "rgba(0,0,0,1)"); g.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ptr.lx, ptr.ly, R, 0, 6.2832); ctx.fill(); ctx.globalCompositeOperation = "source-over"; ctx.strokeStyle = cfg.color2; ctx.globalAlpha = 0.55; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(ptr.lx, ptr.ly, R * 0.36, 0, 6.2832); ctx.stroke(); ctx.globalAlpha = 1; }, destroy: clear }),
+    "comet": () => ({ init() {}, frame() { clear(); if (hist.length < 2) return; ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round"; for (let i = 1; i < hist.length; i++) { const t = i / hist.length, a = hist[i - 1], b = hist[i]; ctx.strokeStyle = col(t); ctx.globalAlpha = t * t * 0.9; ctx.lineWidth = 1 + t * t * cfg.dotSize * 2.2; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); } const R = cfg.dotSize * 3.2, g = ctx.createRadialGradient(ptr.lx, ptr.ly, 0, ptr.lx, ptr.ly, R); g.addColorStop(0, "rgba(255,255,255,0.95)"); g.addColorStop(0.35, col(1)); g.addColorStop(1, "rgba(0,0,0,0)"); ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ptr.lx, ptr.ly, R, 0, 6.2832); ctx.fill(); ctx.globalCompositeOperation = "source-over"; }, destroy: clear }),
+    "sparkle-burst": () => { const ps = []; return { init() {}, frame(dt) { clear(); const sp = Math.hypot(ptr.vx, ptr.vy), n = Math.min(5, (sp / 90) | 0) + (hash(time * 91) < 0.3 ? 1 : 0); for (let i = 0; i < n && ps.length < 400; i++) ps.push({ x: ptr.lx, y: ptr.ly, vx: (hash(time * 1000 + i) - 0.5) * 220, vy: (hash(time * 733 + i * 7) - 0.5) * 220 - 60, life: 1, s: 2 + hash(i * 13 + time) * cfg.dotSize, c: hash(i + time * 3) });
+      for (let i = ps.length - 1; i >= 0; i--) { const p = ps[i]; p.vy += 320 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt * (1 - cfg.trailDecay) * 6; if (p.life <= 0) { ps.splice(i, 1); continue; } const z = p.s * p.life; ctx.fillStyle = col(p.c); ctx.globalAlpha = p.life; ctx.beginPath(); ctx.moveTo(p.x, p.y - z * 2); ctx.lineTo(p.x + z * 0.45, p.y - z * 0.45); ctx.lineTo(p.x + z * 2, p.y); ctx.lineTo(p.x + z * 0.45, p.y + z * 0.45); ctx.lineTo(p.x, p.y + z * 2); ctx.lineTo(p.x - z * 0.45, p.y + z * 0.45); ctx.lineTo(p.x - z * 2, p.y); ctx.lineTo(p.x - z * 0.45, p.y - z * 0.45); ctx.closePath(); ctx.fill(); }
+      ctx.globalAlpha = 1; stats.particles = ps.length; }, destroy: clear }; },
+    "ripple-rings": () => { const rs = []; let acc = 0, lx = ptr.lx, ly = ptr.ly; return { init() {}, frame(dt) { clear(); acc += Math.hypot(ptr.lx - lx, ptr.ly - ly); lx = ptr.lx; ly = ptr.ly; if (acc > cfg.fieldSpacing && rs.length < 60) { acc = 0; rs.push({ x: ptr.lx, y: ptr.ly, r: 2, life: 1 }); }
+      for (let i = rs.length - 1; i >= 0; i--) { const q = rs[i]; q.r += dt * cfg.ringSize * 3; q.life -= dt * (1 - cfg.trailDecay) * 5; if (q.life <= 0) { rs.splice(i, 1); continue; } ctx.strokeStyle = col(1 - q.life); ctx.globalAlpha = q.life * 0.9; ctx.lineWidth = 1 + q.life * 1.5; ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 6.2832); ctx.stroke(); }
+      ctx.globalAlpha = 1; stats.particles = rs.length; }, destroy: clear }; },
+    "radar-sweep": () => ({ init() {}, frame() { clear(); const s = cfg.fieldSpacing, ang = time * 2.2 * Math.max(0.2, cfg.fieldStrength), RM = 420; for (let y = s / 2; y < innerHeight; y += s) for (let x = s / 2; x < innerWidth; x += s) { const dx = x - ptr.lx, dy = y - ptr.ly, d = Math.hypot(dx, dy); if (d > RM) continue; let da = (ang - Math.atan2(dy, dx)) % 6.2832; if (da < 0) da += 6.2832; const lit = Math.max(0, 1 - da / 1.6) * (1 - d / RM); ctx.fillStyle = col(lit); ctx.globalAlpha = 0.12 + lit * 0.88; ctx.beginPath(); ctx.arc(x, y, 1.2 + lit * 2.4, 0, 6.2832); ctx.fill(); }
+      ctx.globalAlpha = 0.3; ctx.strokeStyle = col(1); ctx.lineWidth = 1; for (const r of [RM / 3, RM * 2 / 3, RM]) { ctx.beginPath(); ctx.arc(ptr.lx, ptr.ly, r, 0, 6.2832); ctx.stroke(); } ctx.globalAlpha = 1; stats.particles = 1; }, destroy: clear }),   // particles = 1 mantém o loop vivo: a varredura gira mesmo com o ponteiro parado
     "dot-grid-warp": () => ({ init() {}, frame() { clear(); const s = cfg.fieldSpacing; for (let y = s / 2; y < innerHeight; y += s) for (let x = s / 2; x < innerWidth; x += s) { const dx = x - ptr.lx, dy = y - ptr.ly, d = Math.hypot(dx, dy) || 1, push = Math.max(0, 1 - d / 220); const k = push * push * 48 * cfg.fieldStrength; ctx.fillStyle = col(push); ctx.globalAlpha = 0.3 + push * 0.7; ctx.beginPath(); ctx.arc(x + dx / d * k, y + dy / d * k, 1.5 + push * 2.5, 0, 6.2832); ctx.fill(); } ctx.globalAlpha = 1; }, destroy: clear })
   };
 
   function mount() {
     if (fx) { fx.destroy(); fx = null; } layer.textContent = ""; clear(); hist.length = 0;
     document.body.classList.toggle("lm-hide-native", !!cfg.hideNative && !coarse && cfg.group === "pointer");
-    if (motionOff && cfg.group !== "pointer") { cfg.preset = "dot-ring"; Object.assign(cfg, PRESETS["dot-ring"]); }
-    fx = FX[cfg.preset](); fx.init(); stats.preset = cfg.preset; stats.demo = cfg.demo && !ptr.moved; schedule();
+    if (motionOff && cfg.group !== "pointer") { cfg.preset = "dot-ring"; cfg.fx = null; Object.assign(cfg, PRESETS["dot-ring"]); }
+    stats.particles = 0; fx = (FX[cfg.fx || cfg.preset] || FX["dot-ring"])(); fx.init(); stats.preset = cfg.preset; stats.demo = cfg.demo && !ptr.moved; schedule();
   }
   function frame(now) {
-    raf = 0; const dt = Math.min(0.05, (now - last) / 1000); last = now; time += dt; resize();
+    raf = 0; const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now; time += dt; resize();
     if (cfg.demo && !ptr.moved) { const cx = innerWidth * 0.55, cy = innerHeight * 0.5; ptr.x = cx + Math.sin(time * 0.9) * innerWidth * 0.3; ptr.y = cy + Math.sin(time * 1.3 + 1) * innerHeight * 0.28; ptr.lastMove = now; }
     const k = motionOff ? 1 : 1 - Math.pow(1 - cfg.follow, dt * 60);
     const nx = ptr.lx + (ptr.x - ptr.lx) * k, ny = ptr.ly + (ptr.y - ptr.ly) * k; ptr.vx = (nx - ptr.lx) / Math.max(dt, 1e-3); ptr.vy = (ny - ptr.ly) / Math.max(dt, 1e-3); ptr.lx = nx; ptr.ly = ny;
@@ -181,7 +206,8 @@ const CONFIG = {
   }
   function schedule() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
   if (!coarse) {
-    window.addEventListener("pointermove", (e) => { ptr.x = e.clientX; ptr.y = e.clientY; ptr.moved = true; stats.demo = false; ptr.lastMove = performance.now(); stats.moves++; schedule(); }, { passive: true });
+    window.addEventListener("pointermove", (e) => { if (!ptr.moved && !e.movementX && !e.movementY) return;   // o navegador dispara um pointermove sintético (sem deslocamento) quando o layout muda sob o cursor parado; ele não pode desligar o demo
+      ptr.x = e.clientX; ptr.y = e.clientY; ptr.moved = true; stats.demo = false; ptr.lastMove = performance.now(); stats.moves++; schedule(); }, { passive: true });
     document.addEventListener("mouseover", (e) => { ptr.hover = !!e.target.closest("a, button, [data-cursor]"); });
   }
   window.addEventListener("resize", schedule, { passive: true });

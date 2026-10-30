@@ -2,7 +2,8 @@
 
 | Chave | Tipo | Range / valores | Default | O que faz |
 | --- | --- | --- | --- | --- |
-| preset | enum | 17 nomes em `presets.md` | dot-ring | aplica o grupo e os defaults do preset |
+| preset | enum | 27 nomes em `presets.md` | dot-ring | aplica o grupo e os defaults do preset |
+| fx | string ou null | nome de um efeito | null | implementação usada; null = a do preset (variações reaproveitam um efeito) |
 | group | enum | pointer, trail, field | pointer | derivado do preset |
 | follow | number | 0.05..1 | 0.14 | fator de lerp por frame a 60 Hz (1 = segue direto) |
 | ringSize, dotSize | px | 0..80 | 36, 6 | tamanhos do anel e do ponto |

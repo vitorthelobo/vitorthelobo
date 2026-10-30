@@ -38,7 +38,18 @@ const PRESETS = {
   "fluted":       { mode: "refract", refract: { pattern: "fluted", cellSize: 26, curve: 1.0, depth: 0.9, angle: 0, dispersion: 0.12, sheen: 0.3, parallax: 1 } },
   "cross-reeded": { mode: "refract", refract: { pattern: "crossReeded", cellSize: 26, curve: 1.07, depth: 0.91, angle: 0, dispersion: 0.1, sheen: 0.32, parallax: 1 } },
   "rain":         { mode: "refract", refract: { pattern: "rain", cellSize: 40, curve: 1.4, depth: 0.8, angle: 0, dispersion: 0.15, sheen: 0.4, parallax: 0.6 } },
-  "frosted":      { mode: "refract", refract: { pattern: "frosted", cellSize: 18, curve: 0.8, depth: 0.5, angle: 0, dispersion: 0.05, sheen: 0.2, parallax: 0.4 } }
+  "frosted":      { mode: "refract", refract: { pattern: "frosted", cellSize: 18, curve: 0.8, depth: 0.5, angle: 0, dispersion: 0.05, sheen: 0.2, parallax: 0.4 } },
+  // ---------------- quarta leva (10) ----------------
+  "blocks-cyan":     { mode: "ascii",   ink: "#00E5FF", paper: "#00080C", accent: "#00E5FF", ascii: { charset: "blocks", cellSize: 12, glow: true, bands: 5, gamma: 0.8, invert: false } },
+  "code-ide":        { mode: "ascii",   ink: "#E2B8FF", paper: "#0F0B1A", accent: "#E2B8FF", ascii: { charset: "code", cellSize: 13, glow: true, bands: 12, gamma: 0.55, invert: false } },
+  "big-type":        { mode: "ascii",   ink: "#111111", paper: "#FFE600", accent: "#111111", ascii: { charset: "minimal", cellSize: 26, glow: false, bands: 5, gamma: 0.9, invert: true } },
+  "crt-tube":        { mode: "dither",  ink: "#FFB000", paper: "#140A00", accent: "#FFB000", dither: { pattern: "lines", dotSize: 2, cutoff: 0.5, strength: 0.6, accentAmount: 0 }, post: { scanlines: 0.6, vignette: 0.5, grain: 0.04, crt: 0.8, posterize: 0, chroma: 0.3 } },
+  "dot-pop":         { mode: "dither",  ink: "#FF3B6B", paper: "#FFF4E0", accent: "#2B4BFF", dither: { pattern: "dots", dotSize: 4, cutoff: 0.5, strength: 0.7, accentAmount: 0.4 } },
+  "noise-gold":      { mode: "dither",  ink: "#E8C46A", paper: "#0B0904", accent: "#E8C46A", dither: { pattern: "noise", dotSize: 2, cutoff: 0.5, strength: 0.7, accentAmount: 0 } },
+  "posterized-vhs":  { mode: "dither",  ink: "#FF4FD8", paper: "#120018", accent: "#00F0FF", dither: { pattern: "bayer8", dotSize: 2, cutoff: 0.5, strength: 0.5, accentAmount: 0.3 }, post: { scanlines: 0.4, vignette: 0.25, grain: 0.08, crt: 0, posterize: 0.6, chroma: 0.6 } },
+  "glass-blocks":    { mode: "refract", refract: { pattern: "glassBlock", cellSize: 60, curve: 1.2, depth: 1.2, angle: 0, dispersion: 0.2, sheen: 0.35, parallax: 0.8 } },
+  "pond-ripple":     { mode: "refract", refract: { pattern: "ripple", cellSize: 50, curve: 1.0, depth: 0.8, angle: 0, dispersion: 0.1, sheen: 0.5, parallax: 0.6 } },
+  "diagonal-reeds":  { mode: "refract", refract: { pattern: "fluted", cellSize: 20, curve: 1.0, depth: 1.0, angle: 45, dispersion: 0.18, sheen: 0.3, parallax: 1 } }
 };
 const CONFIG = {
   preset: "terminal", mode: "ascii",          // ascii | dither | refract
@@ -173,7 +184,7 @@ const CHARSETS = { boldLines: "/0#$%&@+=", classic70: " .:-=+*#%@", blocks: " â–
     // passa 1: pro framebuffer (memÃ³ria temporal); passa 2: copia pra tela desenhando de novo (mesmo programa, custo baixo)
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo[ping]); gl.drawArrays(gl.TRIANGLES, 0, 3); gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.drawArrays(gl.TRIANGLES, 0, 3); stats.draws += 2; stats.frames++; ping = 1 - ping;
   }
-  function frame(now) { raf = 0; const dt = Math.min(0.05, (now - last) / 1000); last = now; if (!motionOff) time += dt; const resized = resize(); const live = mediaIsVideo || cfg.post.grain > 0 && !motionOff; if (!live && !dirty && !resized) return; if (gl.isContextLost()) return; draw(); dirty = false; if (visible && inView && live) raf = requestAnimationFrame(frame); }
+  function frame(now) { raf = 0; const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now; if (!motionOff) time += dt; const resized = resize(); const live = mediaIsVideo || cfg.post.grain > 0 && !motionOff; if (!live && !dirty && !resized) return; if (gl.isContextLost()) return; draw(); dirty = false; if (visible && inView && live) raf = requestAnimationFrame(frame); }
   function schedule() { if (!raf && visible && inView && prog) { last = performance.now(); raf = requestAnimationFrame(frame); } }
   new IntersectionObserver((es) => { inView = es[0].isIntersecting; if (inView) schedule(); }, { rootMargin: "100% 0px" }).observe(scene);
   document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) schedule(); });

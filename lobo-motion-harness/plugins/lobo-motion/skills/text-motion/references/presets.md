@@ -1,4 +1,4 @@
-# Presets · text-motion (28)
+# Presets · text-motion (38)
 
 Cada preset é `unit` + `from` + `to` + `stagger` + mola (`tension`, `friction` como multiplicadores de 170 e 26). `%` em `y` é relativo à altura da unidade, em `x` à largura. `clip` corta a unidade na caixa da linha; `perspective` liga `perspective: 700px` no elemento; `origin` muda o `transform-origin`.
 
@@ -32,6 +32,18 @@ Cada preset é `unit` + `from` + `to` + `stagger` + mola (`tension`, `friction` 
 | wipe-down | linha | y −100% → 0 | 100 | 1.1 / 1.0 | clip |
 | slide-from-right | linha | x 60px → 0, opacity | 120 | 1.0 / 1.0 | |
 | unblur-lines | linha | blur 14 → 0, opacity | 110 | 0.9 / 1.1 | |
+| center-burst | letra | scale 0 → 1, opacity | 30 | 1.4 / 0.7 | order center |
+| scatter-in | letra | y 40% → 0, blur 10 → 0 (na linha), opacity | 16 | 1.0 / 1.0 | order random |
+| reverse-rise | letra | y 110% → 0 | 26 | 1.2 / 1.0 | clip, order end |
+| elastic-x | letra | scaleX 2.2 → 1, opacity | 22 | 1.6 / 0.45 | |
+| glitch-skew | letra | skewX 40 → 0, x 30% → 0, opacity | 14 | 2.2 / 0.8 | order random |
+| edges-in | palavra | y 40% → 0, opacity | 70 | 1.1 / 1.0 | order edges |
+| flip-words | palavra | rotateY 90 → 0, opacity | 60 | 1.0 / 0.9 | perspective |
+| spin-words | palavra | rotate −15 → 0, scale 0.8 → 1, opacity | 55 | 1.3 / 0.7 | |
+| lines-reverse | linha | y 100% → 0 | 110 | 1.1 / 1.0 | clip, order end |
+| zoom-lines | linha | scale 0.85 → 1, blur 10 → 0, opacity | 120 | 0.9 / 1.0 | |
+
+`order` (chave de preset, default `start`): ordem da cascata. `end` começa pela última unidade, `center` do meio pra fora, `edges` das pontas pro meio, `random` embaralha com a seed (determinístico). A linha com blur começa quando a primeira unidade dela começa, qualquer que seja a ordem.
 
 ## Traduzindo pra uma biblioteca instalada
 - **react-spring + spring-text-engine:** `unit` vira `letterIn/Out`, `wordIn/Out`, `lineIn/Out`; `stagger` vira `letterStagger` etc.; `tension`/`friction` vão em `letterConfig`; `clip` vira `overflow`; o trigger `progress` vira `mode="progress"` com `start`/`end` na mesma gramática.

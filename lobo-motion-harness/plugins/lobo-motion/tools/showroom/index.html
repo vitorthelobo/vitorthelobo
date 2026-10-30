@@ -117,7 +117,7 @@
     shader: {
       file: "templates/shader-background.html", label: "Shader Background",
       note: "<b>WebGL2 cru.</b> Um quad e um fragment shader que lê o CONFIG por uniforms: até 5 stops em OKLab, 12 campos (inclusive a faixa de aurora que segue o cursor), swirl, movimento por ruído, dither, halftone, vinheta e grão. Sem dependência.",
-      presets: { base: ["graphite", "lagoon", "molten", "neon-dream"], campos: ["aurora-veil", "sun-rays", "pond-ripples", "silk-stripes", "pool-caustics", "lava-blobs"], efeitos: ["glacier", "halftone-noir", "cyber-bloom", "twilight-haze"], faixa: ["aurora-band", "aurora-trio"] },
+      presets: { base: ["graphite", "lagoon", "molten", "neon-dream"], campos: ["aurora-veil", "sun-rays", "pond-ripples", "silk-stripes", "pool-caustics", "lava-blobs"], efeitos: ["glacier", "halftone-noir", "cyber-bloom", "twilight-haze"], faixa: ["aurora-band", "aurora-trio", "northern-band", "ember-band"] , quarta: ["sunset-boulevard", "deep-ocean", "mint-paper", "risograph", "vapor-rays", "liquid-chrome", "ripple-pastel", "conic-candy"] },
       colors: [["colors", "cor 1", { index: 0 }], ["colors", "cor 2", { index: 1 }], ["colors", "cor 3", { index: 2 }], ["colors", "cor 4", { index: 3 }], ["colors", "cor 5", { index: 4 }], ["bg", "fundo (band)"]],
       selects: { shape: { label: "Campo (shape)", options: ["linear", "radial", "conic", "mesh", "warped", "aurora", "rays", "ripples", "stripes", "caustics", "blobs", "band"], knobs: [["angle", 0, 360, 1, "ângulo (band: ≥90 inverte)"], ["centerX", 0, 1, 0.01, "centro x"], ["centerY", 0, 1, 0.01, "centro y"], ["layers", 1, 3, 1, "camadas (band)"], ["height", 0, 1, 0.01, "altura (band)"], ["softness", 0, 1, 0.01, "suavidade (band)"], ["pointer", 0, 1, 0.01, "puxa pro cursor (band)"]] } },
       knobs: [["swirl", 0, 1.5, 0.01], ["movement", 0, 1, 0.01], ["zoom", 0.3, 3, 0.01], ["speed", 0, 2, 0.01], ["detail", 0.25, 3, 0.05], ["contrast", 0.5, 2, 0.01], ["grain", 0, 0.4, 0.005], ["dither", 0, 1, 0.01], ["halftone", 0, 16, 1], ["vignette", 0, 1, 0.01]]
@@ -125,7 +125,7 @@
     particles: {
       file: "templates/particle-forms.html", label: "Particle Forms",
       note: "<b>three.js por import map.</b> Forma gerada por fórmula com seed (nó tórico, Hopf, galáxia, atrator de Lorenz), curl noise no vertex shader, bloom como glow, glow spread e glow cut-off. O tier phone corta a contagem por 3 e o bloom pela metade.",
-      presets: { base: ["nebula-drift", "ember-knot", "frost-galaxy", "abyss-lorenz"], orgânicos: ["silk-membrane", "coral-bloom", "synapse", "ribbon-twist", "cosmic-wave"], dinâmicos: ["dust-tornado", "gyro-core", "wormhole", "vortex-fall", "magnetosphere"], clima: ["snowfall", "rain-streaks", "embers-rise", "bubbles-rise", "smoke-plume", "sand-storm", "starfield"], vida: ["fireflies", "pollen-drift", "jellyfish-glow", "heartbeat", "phyllotaxis", "superformula"], objetos: ["atom-orbits", "saturn", "asteroid-belt", "dna-helix", "mobius-band", "lissajous-string", "fountain-spray", "hologram-scan"], gráficos: ["confetti-burst", "glitter-dust", "pixel-lattice", "digital-matrix", "neon-cross-field", "triangle-mesh", "ink-swirl", "aurora-curtain", "lobo-glyph"] },
+      presets: { base: ["nebula-drift", "ember-knot", "frost-galaxy", "abyss-lorenz"], orgânicos: ["silk-membrane", "coral-bloom", "synapse", "ribbon-twist", "cosmic-wave"], dinâmicos: ["dust-tornado", "gyro-core", "wormhole", "vortex-fall", "magnetosphere"], clima: ["snowfall", "rain-streaks", "embers-rise", "bubbles-rise", "smoke-plume", "sand-storm", "starfield"], vida: ["fireflies", "pollen-drift", "jellyfish-glow", "heartbeat", "phyllotaxis", "superformula"], objetos: ["atom-orbits", "saturn", "asteroid-belt", "dna-helix", "mobius-band", "lissajous-string", "fountain-spray", "hologram-scan"], gráficos: ["confetti-burst", "glitter-dust", "pixel-lattice", "digital-matrix", "neon-cross-field", "triangle-mesh", "ink-swirl", "aurora-curtain", "lobo-glyph", "ink-on-paper", "neon-heart-vortex", "motion-glyph"] , câmera: ["bokeh-city", "macro-pollen", "dna-depth", "galaxy-dolly", "saturn-dof", "snow-depth", "cyber-lattice-orbit"] },
       colors: [["colorA", "cor A"], ["colorB", "cor B"], ["bg", "fundo"]],
       selects: { hover: { label: "Efeito de hover", options: ["push", "pull", "vortex", "scatter", "glow"], knobs: [["pointer", 0, 1, 0.01, "força"], ["pointerRadius", 0.2, 3, 0.05, "raio"], ["hoverGlow", 0, 2, 0.01, "brilho"], ["hoverSoft", 0, 1, 0.01, "suavidade da borda"]], hint: "Passe o mouse no palco (no celular, arraste o dedo). push afasta · pull puxa · vortex gira · scatter turbilhona · glow só acende." }, sprite: { label: "Sprite", options: ["disc", "dot", "ring", "square", "diamond", "star", "cross", "streak", "bokeh", "triangle"] }, motion: { label: "Movimento", options: ["flow", "fall", "rise", "drift", "orbit", "swirl", "pulse", "jitter"] }, colorMode: { label: "Modo de cor", options: ["flow", "depth", "axis", "random", "radial", "index"] }, blend: { label: "Blend", options: ["add", "normal"] }, parallax: { label: "Câmera", options: [false, true], labels: ["parallax off", "parallax on"], knobs: [["parallaxAmount", 0, 1, 0.01, "intensidade do parallax"], ["zoom", 0.4, 2.5, 0.01, "zoom"], ["dof", 0, 1, 0.01, "profundidade de campo"], ["focus", -1.5, 1.5, 0.01, "plano de foco"]], hint: "Parallax: a câmera inclina com o mouse (giroscópio no celular). DOF: partículas longe do plano de foco desfocam." } },
       knobs: [["flow", 0, 1.5, 0.01], ["size", 0.5, 30, 0.1], ["sizeVar", 0, 1, 0.01], ["motionSpeed", 0, 3, 0.05], ["twinkle", 0, 1, 0.01], ["spin", 0, 2, 0.05], ["glow", 0, 2, 0.01], ["speed", 0, 2, 0.01]]
@@ -133,7 +133,7 @@
     orb: {
       file: "templates/orb-reactive.html", label: "Orb Reactive",
       note: "<b>Seis estados com transição de 450 ms.</b> Speaking e listening reagem ao nível de áudio (o slider simula; na vida real vem do microfone ou do app). Hero preenche a caixa; widget é 264 px.",
-      presets: ["core-teal", "ember-core", "cyan-spiral", "violet-nebula", "aurora-field"],
+      presets: { base: ["core-teal", "ember-core", "cyan-spiral", "violet-nebula", "aurora-field"], novos: ["solar-flare", "glacier-mind", "toxic-lime", "rose-quartz", "deep-sea", "gold-oracle", "mono-pearl", "cyber-magenta", "forest-spirit", "blood-moon"] },
       states: ["idle", "listening", "thinking", "speaking", "success", "error"],
       colors: [["colorBase", "base"], ["colorInterior", "interior"], ["accentDust", "poeira"], ["accentStars", "estrelas"], ["accentAurora", "aurora"]],
       selects: { quality: { label: "Qualidade", options: ["low", "balanced", "high"] } },
@@ -142,14 +142,14 @@
     text: {
       file: "templates/text-motion.html", label: "Text Motion",
       note: "<b>Vanilla JS, mola própria.</b> Split em linha, palavra e letra pelo layout real; 14 presets por letra, 9 por palavra, 5 por linha. O texto inteiro fica no DOM antes de qualquer frame.",
-      presets: { letra: ["rise-settle", "blur-in", "pop-scale", "flip-in", "typewriter", "drop-in", "bounce-up", "skew-in", "tilt-3d", "fade-scale", "squeeze-in", "swing-in", "scale-y", "fade-letters"], palavra: ["fade-cascade", "curtain-up", "word-rise", "zoom-blur", "rotate-in", "rise-wide", "pop-words", "soft-focus", "cascade-down"], linha: ["slide-from-left", "stagger-reveal-lines", "wipe-down", "slide-from-right", "unblur-lines"] },
+      presets: { letra: ["rise-settle", "blur-in", "pop-scale", "flip-in", "typewriter", "drop-in", "bounce-up", "skew-in", "tilt-3d", "fade-scale", "squeeze-in", "swing-in", "scale-y", "fade-letters", "center-burst", "scatter-in", "reverse-rise", "elastic-x", "glitch-skew"], palavra: ["fade-cascade", "curtain-up", "word-rise", "zoom-blur", "rotate-in", "rise-wide", "pop-words", "soft-focus", "cascade-down", "edges-in", "flip-words", "spin-words"], linha: ["slide-from-left", "stagger-reveal-lines", "wipe-down", "slide-from-right", "unblur-lines", "lines-reverse", "zoom-lines"] },
       selects: { trigger: { label: "Gatilho", options: ["mount", "inview-once", "inview-always", "progress"], hint: "progress segue o scroll; os outros tocam uma vez ou a cada entrada na viewport." } },
       knobs: [["tension", 0.5, 2, 0.05], ["friction", 0.5, 2, 0.05], ["speed", 0.25, 3, 0.05], ["delay", 0, 2, 0.05]]
     },
     cursor: {
       file: "templates/cursor-fx.html", label: "Cursor FX",
       note: "<b>Vanilla JS + CSS.</b> Mova o mouse dentro do palco. Até o primeiro movimento um ponteiro fantasma anda sozinho (modo demo). Em telas de toque o cursor custom fica desligado.",
-      presets: { pointer: ["dot-ring", "velocity-squish", "crosshair-hud", "custom-pointer", "figma-cursor", "eyes", "butterfly"], trail: ["trail", "cascading-dots", "swirl", "silky-ribbon", "pixel-trail", "fluid-smoke", "cursor-ghost"], field: ["magnet-lines", "ascii-field", "dot-grid-warp"] },
+      presets: { pointer: ["dot-ring", "velocity-squish", "crosshair-hud", "custom-pointer", "figma-cursor", "eyes", "butterfly", "invert-ring"], trail: ["trail", "cascading-dots", "swirl", "silky-ribbon", "pixel-trail", "fluid-smoke", "cursor-ghost", "comet", "sparkle-burst", "ripple-rings", "rainbow-trail", "bubble-chain"], field: ["magnet-lines", "ascii-field", "dot-grid-warp", "spotlight", "radar-sweep", "matrix-field", "magnet-dense"] },
       colors: [["color", "cor"], ["color2", "cor 2"]],
       selects: { colorMode: { label: "Modo de cor", options: ["solid", "gradient", "difference"] } },
       knobs: [["follow", 0.05, 1, 0.01], ["ringSize", 8, 80, 1], ["dotSize", 2, 20, 1], ["hoverScale", 1, 3, 0.05], ["trailLength", 4, 60, 1], ["trailDecay", 0.5, 0.98, 0.01], ["fieldSpacing", 12, 60, 1], ["fieldStrength", 0, 1.5, 0.05]]
@@ -157,7 +157,7 @@
     holo: {
       file: "templates/holo-material.html", label: "Holographic Cloth",
       note: "<b>three.js, iridescência física.</b> Arraste sobre o tecido pra agarrar, clique fora pra cutucar. O arco-íris mora na reflexão e muda com o ângulo; as bandas vêm de um mapa de espessura procedural.",
-      presets: ["holo", "black-gloss", "chrome", "oil-slick", "pearl-silk", "aurora-foil"],
+      presets: { base: ["holo", "black-gloss", "chrome", "oil-slick", "pearl-silk", "aurora-foil"], novos: ["rose-gold", "midnight-velvet", "disco-glitter", "matte-sand", "emerald-foil", "sapphire-silk", "candy-iridescent", "gunmetal", "gold-leaf", "soap-bubble"] },
       colors: [["baseColor", "base"], ["background", "fundo"]],
       selects: { finish: { label: "Acabamento", options: ["glossy", "satin", "matte"] }, toneMapping: { label: "Tone mapping", options: ["ACES", "AgX", "Neutral"] } },
       knobs: [["rainbowStrength", 0, 1, 0.01], ["patternSize", 2, 40, 1], ["colorShift", 0, 1, 0.01], ["metallic", 0, 1, 0.01], ["pearl", 0, 1, 0.01], ["glitter", 0, 1, 0.01], ["scratches", 0, 1, 0.01], ["reflections", 0, 2, 0.05], ["brightness", 0, 1.5, 0.01], ["cloth.wind", 0, 2, 0.05, "vento"]]
@@ -165,7 +165,7 @@
     post: {
       file: "templates/post-image-fx.html", label: "Post Image FX",
       note: "<b>WebGL2, três modos num shader.</b> ASCII por atlas de glifos, dither ordenado e refração por vidro procedural. Solte uma imagem ou vídeo no palco (ou clique nele) pra trocar a amostra.",
-      presets: { ascii: ["terminal", "amber-binary", "newsprint"], dither: ["film-noir", "toxic-grid", "cyber-rain"], refract: ["fluted", "cross-reeded", "rain", "frosted"] },
+      presets: { ascii: ["terminal", "amber-binary", "newsprint", "blocks-cyan", "code-ide", "big-type"], dither: ["film-noir", "toxic-grid", "cyber-rain", "crt-tube", "dot-pop", "noise-gold", "posterized-vhs"], refract: ["fluted", "cross-reeded", "rain", "frosted", "glass-blocks", "pond-ripple", "diagonal-reeds"] },
       colors: [["ink", "tinta"], ["paper", "papel"], ["accent", "acento"]],
       selects: { mode: { label: "Modo", options: ["ascii", "dither", "refract"], knobs: [["ascii.cellSize", 6, 30, 1, "célula ascii"], ["dither.strength", 0, 1, 0.01, "força do dither"], ["dither.dotSize", 1, 6, 1, "ponto do dither"], ["refract.depth", 0, 2, 0.05, "profundidade do vidro"], ["refract.cellSize", 8, 80, 1, "célula do vidro"]] } },
       knobs: [["exposure", 0, 3, 0.05], ["contrast", 0.5, 2, 0.05], ["gamma", 0.5, 2, 0.05], ["temporal", 0, 1, 0.01], ["post.vignette", 0, 1, 0.01, "vinheta"], ["post.scanlines", 0, 1, 0.01, "scanlines"], ["post.grain", 0, 0.2, 0.005, "grão"], ["post.chroma", 0, 1, 0.01, "chroma"]]
@@ -173,7 +173,7 @@
     grid: {
       file: "templates/grid-dots-field.html", label: "Grid Dots Field",
       note: "<b>Canvas 2D.</b> Uma grade de células deslocada por ruído, onda radial e o cursor; dez glifos (dots, ring, square, diamond, triangle, star, plus, cross, lines, ascii), cinco efeitos de hover, 32 baldes de estilo e sprites pra os pontos. Fundo técnico sem dependência.",
-      presets: ["dot-matrix", "blueprint", "plus-grid", "sonar", "star-dust", "diamond-net", "ascii-rain", "topo"],
+      presets: { base: ["dot-matrix", "blueprint", "plus-grid", "sonar", "star-dust", "diamond-net", "ascii-rain", "topo"], novos: ["paper-dots", "neon-squares", "ring-pond", "triangle-storm", "cross-blueprint", "star-field-dense", "diamond-gold", "ascii-blue", "lines-flow", "plus-minimal"] },
       colors: [["color", "cor"], ["color2", "cor acesa"], ["bg", "fundo"]],
       selects: { mode: { label: "Partícula (glifo)", options: ["dots", "ring", "square", "diamond", "triangle", "star", "plus", "cross", "lines", "ascii"] }, hover: { label: "Efeito de hover", options: ["push", "pull", "vortex", "scatter", "glow"], knobs: [["pointer", 0, 1, 0.01, "força"], ["pointerRadius", 60, 400, 5, "raio (px)"], ["hoverGlow", 0, 2, 0.01, "brilho"], ["hoverSoft", 0, 1, 0.01, "suavidade da borda"]], hint: "Passe o mouse (ou arraste o dedo) no palco." } },
       knobs: [["spacing", 12, 64, 1], ["size", 0.5, 14, 0.1], ["warp", 0, 1, 0.01], ["warpScale", 0.3, 3, 0.05], ["wave", 0, 1, 0.01], ["fade", 0, 1, 0.01], ["speed", 0, 2, 0.01]]
@@ -181,7 +181,7 @@
     image: {
       file: "templates/image-reveal.html", label: "Image Reveal",
       note: "<b>WebGL2, uma textura e um shader.</b> Reveal líquido, pixel que resolve, tiles, wipe deformado, ripple e líquido no hover. Clique no palco pra reanimar o reveal; arraste o cursor nos modos de hover.",
-      presets: { entrada: ["liquid-reveal", "pixel-resolve", "tiles-flip", "wipe-warp"], hover: ["hover-ripple", "hover-liquid"] },
+      presets: { entrada: ["liquid-reveal", "pixel-resolve", "tiles-flip", "wipe-warp", "slow-dissolve", "big-pixels", "micro-tiles", "soft-curtain", "diagonal-tiles", "ink-bleed", "sharp-wipe", "glitch-wipe"], hover: ["hover-ripple", "hover-liquid", "sepia-ripple", "cool-liquid"] },
       colors: [["tint", "tint"]],
       selects: { mode: { label: "Modo", options: ["liquid", "pixel", "tiles", "wipe", "ripple", "displace"], knobs: [["pixelSize", 0, 160, 1, "mosaico (pixel)"], ["tiles", 0, 40, 1, "colunas (tiles)"], ["direction", 0, 360, 1, "direção (wipe, tiles)"]], hint: "Clique no palco pra reanimar o reveal; ripple e displace reagem ao cursor." } },
       knobs: [["reveal", 0, 1, 0.01], ["hover", 0, 1, 0.01], ["hoverRadius", 0.05, 0.6, 0.01], ["noiseScale", 0.5, 6, 0.1], ["edge", 0.005, 0.4, 0.005], ["duration", 0.3, 4, 0.1], ["speed", 0, 2, 0.05]]
@@ -189,7 +189,7 @@
     object3d: {
       file: "templates/3d-object-scene.html", label: "3D Object Scene",
       note: "<b>three.js, material físico.</b> Objeto procedural (ou GLB por <code>?src=</code>) com MeshPhysicalMaterial, ambiente PMREM, key + rim, órbita limitada por arrasto com inércia. Sem sombras, sem OrbitControls.",
-      presets: ["chrome-knot", "frosted-glass", "clay-sphere", "oil-capsule", "wire-gem", "gold-logo"],
+      presets: { base: ["chrome-knot", "frosted-glass", "clay-sphere", "oil-capsule", "wire-gem", "gold-logo"], novos: ["glass-torus", "black-chrome", "candy-capsule", "copper-knot", "opal-icosa", "wire-torus", "jade-dodeca", "matte-cube", "neon-wire-sphere", "brushed-steel"] },
       colors: [["color", "objeto"], ["bg", "fundo"], ["keyColor", "luz"], ["rimColor", "contraluz"]],
       selects: { object: { label: "Objeto", options: ["torusKnot", "icosahedron", "sphere", "capsule", "box", "dodecahedron", "torus"] }, wire: { label: "Wireframe", options: [0, 1], labels: ["sólido", "wire"] }, parallax: { label: "Câmera", options: [false, true], labels: ["parallax off", "parallax on"], knobs: [["parallaxAmount", 0, 1, 0.01, "intensidade do parallax"]], hint: "Zoom é o cameraZ nos knobs." } },
       knobs: [["roughness", 0, 1, 0.01], ["metalness", 0, 1, 0.01], ["transmission", 0, 1, 0.01], ["iridescence", 0, 1, 0.01], ["clearcoat", 0, 1, 0.01], ["envIntensity", 0, 3, 0.05], ["exposure", 0.3, 2, 0.05], ["rotateSpeed", 0, 2, 0.01], ["tiltX", -1.2, 1.2, 0.01], ["cameraZ", 2, 10, 0.1], ["scale", 0.2, 3, 0.05]]
@@ -197,7 +197,7 @@
     morph: {
       file: "templates/morph-transition.html", label: "Morph Transition",
       note: "<b>three.js, dois buffers e um progresso.</b> Partículas interpolam de uma forma pra outra com stagger por partícula e espalhamento no meio do caminho; ciclo automático ou <code>t</code> manual (scroll). Clique no palco pra avançar.",
-      presets: ["sphere-to-knot", "bloom-cycle", "tech-rings", "storm", "scroll-driven"],
+      presets: { base: ["sphere-to-knot", "bloom-cycle", "tech-rings", "storm", "scroll-driven"], novos: ["cosmos-cycle", "life-cycle", "geometry", "lobo-heart", "helix-mobius", "storm-calm", "fountain-bloom", "orbit-system", "slow-dream", "glitch-swap"] },
       colors: [["colorA", "cor A"], ["colorB", "cor B"]],
       selects: { to: { label: "Ir para a forma", options: ["sphere", "torusKnot", "hopf", "lotus", "galaxy", "lorenz", "membrane", "coral", "neuron", "tornado", "gyroscope", "wormhole", "ribbon", "vortex", "magnetosphere", "phyllotaxis", "helixDna", "atom", "saturn", "heart", "jellyfish", "glyph"], call: "morphTo", hint: "Clicar numa forma inicia o morph a partir da posição atual." }, easing: { label: "Easing", options: ["smooth", "elastic", "linear"] }, parallax: { label: "Câmera", options: [false, true], labels: ["parallax off", "parallax on"], knobs: [["parallaxAmount", 0, 1, 0.01, "intensidade do parallax"], ["zoom", 0.4, 2.5, 0.01, "zoom"], ["dof", 0, 1, 0.01, "profundidade de campo"], ["focus", -1.5, 1.5, 0.01, "plano de foco"]] } },
       knobs: [["t", 0, 1, 0.01], ["scatter", 0, 1, 0.01], ["stagger", 0, 1, 0.01], ["duration", 0.3, 6, 0.1], ["hold", 0, 10, 0.1], ["flow", 0, 1, 0.01], ["glow", 0, 2, 0.01], ["size", 0.5, 4, 0.05], ["rotateSpeed", 0, 1, 0.01]]

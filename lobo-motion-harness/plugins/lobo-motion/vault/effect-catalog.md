@@ -219,3 +219,74 @@ Renderer: `skills/post-image-fx/templates/standalone.html`. `?preset=terminal|am
 - Irmãos: amber-binary, newsprint (ascii); film-noir, toxic-grid, cyber-rain (dither); fluted, cross-reeded, rain, frosted (refract).
 
 Todas as onze famílias têm template testado. Novos presets entram aqui com screenshot e prompt. Cada uma tem SKILL.md com o procedimento; o primeiro preset de cada entra aqui quando passar pelo `visual-judge` e pelo `qa-motion`.
+
+## Quarta leva (110 presets: 10 por família)
+
+Todos abrem com `?preset=<nome>` no template da família. Lidos em folha de contato (10 por imagem) no SwiftShader.
+
+### shader-background
+| preset | campo | diferencial |
+| --- | --- | --- |
+| sunset-boulevard | warped | roxo→coral→pêssego, vinheta |
+| deep-ocean | caustics | azul profundo, veios claros |
+| mint-paper | mesh | **claro**: verde-menta sobre papel |
+| risograph | blobs | halftone 6 px, tinta azul sobre creme |
+| vapor-rays | rays | sol vaporwave no topo com dither |
+| liquid-chrome | warped | cinzas em contraste 1.4, swirl alto (metal líquido) |
+| northern-band | band | aurora 2 camadas verde→ciano→violeta |
+| ember-band | band | faixa invertida (base), 3 camadas de brasa |
+| ripple-pastel | ripples | **claro**: anéis pastel |
+| conic-candy | conic | rosa, amarelo, menta, azul girando |
+
+### particle-forms
+| preset | forma · sprite · movimento | diferencial |
+| --- | --- | --- |
+| bokeh-city | volume · bokeh · drift | luzes de cidade desfocadas (dof 1), parallax |
+| macro-pollen | scatter · bokeh · drift | macro com foco à frente (focus 0.8, zoom 1.4) |
+| dna-depth | helixDna · ring · flow | hélice com DOF e zoom |
+| galaxy-dolly | galaxy · dot · orbit | galáxia inclinada, zoom 1.6, DOF, hover vortex |
+| ink-on-paper | scatter · dot · swirl | **claro**: tinta opaca sobre papel, hover pull |
+| neon-heart-vortex | heart · star · pulse | coração de estrelas, hover vortex |
+| saturn-dof | saturn · dot · orbit | Saturno com DOF no anel |
+| snow-depth | scatter · disc · fall | neve com profundidade e parallax |
+| cyber-lattice-orbit | lattice · cross · orbit | grade de cruzes orbitando, DOF |
+| motion-glyph | glyph "MOTION" · square · jitter | palavra em quadrados, gradiente de 4 cores, hover scatter |
+
+### orb-reactive
+solar-flare (laranja/magenta, intenso) · glacier-mind (gelo, vidro 0.6, lento) · toxic-lime (verde ácido, detalhe 1.1) · rose-quartz (rosa/lilás) · deep-sea (azul profundo, deriva alta) · gold-oracle (ouro, glow 1.1) · mono-pearl (monocromático, vidro 0.7) · cyber-magenta (magenta/ciano, rápido) · forest-spirit (verde/âmbar) · blood-moon (vermelho/creme).
+
+### text-motion (chave nova `order`)
+| preset | unidade | entrada | ordem |
+| --- | --- | --- | --- |
+| center-burst | letra | escala 0→1 | center |
+| scatter-in | letra | sobe com blur | random |
+| reverse-rise | letra | sobe do clip | end |
+| elastic-x | letra | scaleX 2.2→1 com mola solta | start |
+| glitch-skew | letra | skew 40° + x, mola dura | random |
+| edges-in | palavra | sobe | edges |
+| flip-words | palavra | rotateY 90→0 | start |
+| spin-words | palavra | gira −15° e cresce | start |
+| lines-reverse | linha | sobe do clip | end |
+| zoom-lines | linha | cresce com blur | start |
+
+### cursor-fx (chave nova `fx`)
+5 efeitos novos: spotlight (field), comet (trail), sparkle-burst (trail), ripple-rings (trail), radar-sweep (field). 5 variações com `fx`: rainbow-trail (trail), bubble-chain (cascading-dots), invert-ring (dot-ring em difference), matrix-field (ascii-field), magnet-dense (magnet-lines).
+
+### holo-material
+rose-gold · midnight-velvet (satin) · disco-glitter (glitter 1) · matte-sand (matte) · emerald-foil · sapphire-silk (satin, pearl 0.5) · candy-iridescent · gunmetal (riscos 1.4) · gold-leaf · soap-bubble (thin-film puro).
+
+### post-image-fx
+ascii: blocks-cyan (blocos ░▒▓█), code-ide (charset code, roxo IDE), big-type (charset minimal 26 px, preto no amarelo). dither: crt-tube (linhas + CRT, scanlines, chroma), dot-pop (pontos de quadrinho com acento), noise-gold (ruído dourado), posterized-vhs (bayer + posterize + chroma). refract: glass-blocks (glassBlock 60 px), pond-ripple (ripple), diagonal-reeds (fluted a 45°).
+
+### grid-dots-field
+paper-dots (**claro**, pull) · neon-squares (vortex) · ring-pond (onda) · triangle-storm (warp 0.9, scatter) · cross-blueprint · star-field-dense (glow) · diamond-gold (glow) · ascii-blue · lines-flow (warp 1, vortex) · plus-minimal (**claro**, pull).
+
+### image-reveal
+entrada: slow-dissolve (3.2 s, ruído fino), big-pixels (mosaico 140 px), micro-tiles (28 colunas), soft-curtain (wipe vertical de borda larga), diagonal-tiles (135°), ink-bleed (manchas grandes, tint quente), sharp-wipe (borda dura, 0.9 s), glitch-wipe (ruído 8, da direita). hover: sepia-ripple, cool-liquid.
+
+### 3d-object-scene
+glass-torus · black-chrome (esfera) · candy-capsule (clay) · copper-knot · opal-icosa (iridescente) · wire-torus · jade-dodeca (vidro verde) · matte-cube (**claro**, cena cinza) · neon-wire-sphere · brushed-steel (cápsula).
+
+### morph-transition
+cosmos-cycle (galaxy→saturn→atom→phyllotaxis) · life-cycle (coral→jellyfish→neuron→lotus) · geometry (sphere→cylinder→lattice→torusKnot, elastic) · lobo-heart (heart→glyph→atom) · helix-mobius (helixDna→mobius→ribbon→lissajous) · storm-calm (tornado→membrane→vortex→cosmicWave) · fountain-bloom (fountain→superformula→lotus→coral) · orbit-system (atom→magnetosphere→gyroscope→saturn) · slow-dream (4 s, DOF e parallax) · glitch-swap (0.9 s, linear, sem stagger).
+

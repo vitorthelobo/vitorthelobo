@@ -6,6 +6,7 @@
 | tension | number | 0.5..2 | 1 | multiplicador da rigidez do preset (k = 170 × tension do preset × este) |
 | friction | number | 0.5..2 | 1 | multiplicador do amortecimento (c = 26 × friction do preset × este); menor = mais bounce |
 | stagger | number ou null | 0..200 ms | null | intervalo entre unidades; null usa o do preset |
+| (preset) order | enum | start, end, center, edges, random | start | ordem da cascata, definida no preset (ver presets.md) |
 | delay | number | 0..3000 ms | 0 | atraso somado ao `data-delay` do elemento |
 | speed | number | 0.25..3 | 1 | divide o stagger (não muda a física da mola) |
 | trigger | enum | mount, inview-once, inview-always, progress | inview-once | quando tocar; `data-trigger` no elemento sobrescreve |

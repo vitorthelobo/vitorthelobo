@@ -32,7 +32,18 @@ const PRESETS = {
   "chrome":       { baseColor: "#e8e8ec", rainbowStrength: 0.25, patternSize: 4, colorShift: 0.1, glitter: 0.0, finish: "glossy", metallic: 1.0, pearl: 0.0, scratches: 0.8, reflections: 1.3, background: "#06070a" },
   "oil-slick":    { baseColor: "#0a0a0d", rainbowStrength: 1.0, patternSize: 22, colorShift: 0.7, glitter: 0.0, finish: "glossy", metallic: 0.2, pearl: 0.0, scratches: 0.0, reflections: 1.0, background: "#050507" },
   "pearl-silk":   { baseColor: "#f1e9e4", rainbowStrength: 0.55, patternSize: 6, colorShift: 0.3, glitter: 0.2, finish: "satin", metallic: 0.1, pearl: 0.9, scratches: 0.0, reflections: 0.8, background: "#14101a" },
-  "aurora-foil":  { baseColor: "#0e1a1c", rainbowStrength: 1.0, patternSize: 18, colorShift: 0.85, glitter: 0.35, finish: "glossy", metallic: 0.8, pearl: 0.2, scratches: 1.0, reflections: 1.2, background: "#061010" }
+  "aurora-foil":  { baseColor: "#0e1a1c", rainbowStrength: 1.0, patternSize: 18, colorShift: 0.85, glitter: 0.35, finish: "glossy", metallic: 0.8, pearl: 0.2, scratches: 1.0, reflections: 1.2, background: "#061010" },
+  // ---------------- quarta leva (10) ----------------
+  "rose-gold":        { baseColor: "#e8b4a0", rainbowStrength: 0.35, patternSize: 6,  colorShift: 0.15, glitter: 0.3, finish: "glossy", metallic: 1.0, pearl: 0.1, scratches: 0.6, reflections: 1.2, background: "#1a0f0c" },
+  "midnight-velvet":  { baseColor: "#1b1033", rainbowStrength: 0.4, patternSize: 10, colorShift: 0.6, glitter: 0.1, finish: "satin", metallic: 0.2, pearl: 0.3, scratches: 0.0, reflections: 0.7, background: "#07040f" },
+  "disco-glitter":    { baseColor: "#c9c9d6", rainbowStrength: 0.8, patternSize: 30, colorShift: 0.5, glitter: 1.0, finish: "glossy", metallic: 1.0, pearl: 0.0, scratches: 0.2, reflections: 1.4, background: "#0a0a10" },
+  "matte-sand":       { baseColor: "#b8966a", rainbowStrength: 0.2, patternSize: 4,  colorShift: 0.08, glitter: 0.15, finish: "matte", metallic: 0.0, pearl: 0.45, scratches: 0.0, reflections: 0.4, background: "#1e1810" },
+  "emerald-foil":     { baseColor: "#1f7a5c", rainbowStrength: 0.6, patternSize: 16, colorShift: 0.35, glitter: 0.4, finish: "glossy", metallic: 0.9, pearl: 0.1, scratches: 0.8, reflections: 1.45, background: "#031410" },
+  "sapphire-silk":    { baseColor: "#1f3a8a", rainbowStrength: 0.45, patternSize: 8, colorShift: 0.25, glitter: 0.1, finish: "satin", metallic: 0.4, pearl: 0.5, scratches: 0.0, reflections: 0.9, background: "#050a1e" },
+  "candy-iridescent": { baseColor: "#ffd1f0", rainbowStrength: 1.0, patternSize: 20, colorShift: 0.9, glitter: 0.3, finish: "glossy", metallic: 0.5, pearl: 0.6, scratches: 0.0, reflections: 1.0, background: "#1a0f1a" },
+  "gunmetal":         { baseColor: "#757b86", rainbowStrength: 0.15, patternSize: 5, colorShift: 0.1, glitter: 0.0, finish: "glossy", metallic: 1.0, pearl: 0.0, scratches: 1.4, reflections: 1.1, background: "#08090b" },
+  "gold-leaf":        { baseColor: "#d4a63a", rainbowStrength: 0.3, patternSize: 12, colorShift: 0.12, glitter: 0.5, finish: "glossy", metallic: 1.0, pearl: 0.05, scratches: 0.9, reflections: 1.3, background: "#120d04" },
+  "soap-bubble":      { baseColor: "#a3acc2", rainbowStrength: 1.0, patternSize: 30, colorShift: 1.0, glitter: 0.0, finish: "glossy", metallic: 0.75, pearl: 0.3, scratches: 0.0, reflections: 1.25, background: "#0a0d14" }
 };
 const CONFIG = {
   preset: "holo",
@@ -134,7 +145,7 @@ function simulate(dt) {
   geo.attributes.position.needsUpdate = true; geo.computeVertexNormals();
 }
 function frame(now) {
-  raf = 0; const dt = Math.min(0.033, (now - last) / 1000); last = now; if (!motionOff) time += dt;
+  raf = 0; const dt = Math.max(0, Math.min(0.033, (now - last) / 1000)); last = now; if (!motionOff) time += dt;
   const resized = resize();
   const active = !motionOff || grab || pokeQ.length > 0;
   if (!active && !dirty && !resized) return;

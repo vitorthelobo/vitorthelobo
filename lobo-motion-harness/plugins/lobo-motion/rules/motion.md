@@ -19,3 +19,5 @@ description: Motion de interface. Uma biblioteca por projeto, um ticker, reduced
 6. **Hover só onde há mouse.** Desligado em `(hover: none) and (pointer: coarse)`.
 7. **Custo por frame.** Blur uma vez por linha, nunca por letra; `will-change` só durante o reveal; estilo por frame escrito só quando muda, no menor elemento, nunca em `<html>`.
 8. **Texto anima por split.** Letra, palavra e linha em slots com stagger, clip wrapper quando desliza, cópia em texto puro no DOM pra SEO.
+
+**dt tem piso em zero.** `const dt = Math.max(0, Math.min(0.05, (now - last) / 1000))`. O timestamp que o rAF entrega é o início do frame e pode ser anterior ao `performance.now()` gravado no `schedule()`; depois de um carregamento pesado a diferença passa de segundos. Sem o piso, `pow(damp, dt * 60)` vira amplificação e qualquer simulação (tecido, molas, lerp) explode no primeiro frame.
