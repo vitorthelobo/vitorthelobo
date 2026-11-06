@@ -1,0 +1,798 @@
+<title>Plano Comercial Lobo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: coluna editorial de seções, cada uma aberta por rótulo mono; vidro só nos blocos que se operam ou comparam.
+   Mesmo sistema visual do Mapa Estratégico. Três canais têm cor própria: estúdio (warm), kit (accent), nuvo (loop). */
+:root{
+  --bg:#edf1f5; --fg:#101826; --muted:#5d6878; --surface:#ffffff; --line:#101826;
+  --accent:#0e9fb0; --wire:#e2489e; --loop:#2a9f5c; --warm:#e0582c; --gold:#b07a0c;
+  --shadow-base:.11; --bg-dim:1; --hl:.55;
+  --display:'Outfit',ui-sans-serif,system-ui,sans-serif;
+  --body:'DM Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:22px; --gap:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#0b1016; --fg:#edf1f5; --muted:#97a2b2; --surface:#141c27; --line:#ffffff; --loop:#3fc77a; --warm:#ff7a4d; --gold:#f0b545; --shadow-base:.42; --bg-dim:.6; --hl:.12; color-scheme:dark }
+}
+:root[data-theme="dark"]{ --bg:#0b1016; --fg:#edf1f5; --muted:#97a2b2; --surface:#141c27; --line:#ffffff; --loop:#3fc77a; --warm:#ff7a4d; --gold:#f0b545; --shadow-base:.42; --bg-dim:.6; --hl:.12; color-scheme:dark }
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--body); font-size:16px; line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:0;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:30; background:var(--bg)}
+.bg{position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(55% 45% at 10% 4%, hsl(205 90% 70% / calc(.5 * var(--bg-dim))), transparent 70%),
+    radial-gradient(40% 40% at 92% 22%, color-mix(in srgb, var(--accent) calc(45% * var(--bg-dim)), transparent), transparent 70%),
+    radial-gradient(45% 45% at 80% 92%, color-mix(in srgb, var(--wire) calc(26% * var(--bg-dim)), transparent), transparent 70%),
+    radial-gradient(40% 40% at 8% 88%, hsl(275 80% 65% / calc(.33 * var(--bg-dim))), transparent 70%)}
+.page{max-width:1180px; margin:0 auto; padding-block:36px 64px; display:grid; gap:56px}
+.glass{background:color-mix(in srgb, var(--surface) 60%, transparent);
+  -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
+  border:1px solid color-mix(in srgb, var(--line) 14%, transparent); border-radius:var(--radius);
+  box-shadow:0 14px 32px rgba(2,8,20,var(--shadow-base)), inset 0 1px 0 rgba(255,255,255,var(--hl))}
+.eyebrow{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); margin:0}
+h1,h2,h3,h4{font-family:var(--display); margin:0; text-wrap:balance; line-height:1.1}
+h1{font-size:clamp(2.2rem,5vw,3.6rem); font-weight:800; letter-spacing:-.01em}
+h2{font-size:clamp(1.6rem,3vw,2.2rem); font-weight:700}
+h3{font-size:1.25rem; font-weight:700}
+h4{font-size:1rem; font-weight:700}
+p{margin:0}
+.lead{font-size:1.15rem; color:var(--muted); max-width:64ch}
+.sec-head{display:grid; gap:10px; max-width:72ch}
+.sec-head p:not(.eyebrow){color:var(--muted)}
+section{display:grid; gap:24px; scroll-margin-top:84px}
+.num{font-variant-numeric:tabular-nums}
+.c-studio{--tone:var(--warm)} .c-kit{--tone:var(--accent)} .c-nuvo{--tone:var(--loop)} .c-b{--tone:var(--gold)}
+
+.nav{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; display:flex; gap:6px; overflow-x:auto; padding:8px; border-radius:999px; scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none; text-decoration:none; color:var(--fg); font:600 .85rem var(--display); padding:.45em .9em; border-radius:999px}
+.nav a:hover,.nav a:focus-visible{background:color-mix(in srgb,var(--accent) 16%,transparent); outline:none}
+
+.hero{display:grid; gap:20px}
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr)); gap:14px}
+.kpi{padding:18px 20px; display:grid; gap:4px; align-content:start}
+.kpi b{font:700 1.7rem var(--display); font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted); font-size:.92rem}
+
+.tag{display:inline-flex; align-items:center; gap:.4em; font:500 11px var(--mono); letter-spacing:.08em; text-transform:uppercase; padding:.35em .7em; border-radius:999px; border:1px solid color-mix(in srgb,var(--tone,var(--accent)) 45%,transparent); color:var(--tone,var(--accent)); background:color-mix(in srgb,var(--tone,var(--accent)) 10%,transparent); white-space:nowrap}
+.tag::before{content:""; width:.55em; height:.55em; border-radius:50%; background:currentColor}
+.t-solo{--tone:var(--loop)} .t-conj{--tone:var(--accent)} .t-valida{--tone:var(--gold)} .t-fora{--tone:var(--warm)} .t-isca{--tone:var(--wire)} .t-src{--tone:var(--muted)}
+
+/* canais */
+.arch{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:var(--gap)}
+.arch .col{padding:22px; display:grid; gap:12px; align-content:start; border-top:4px solid var(--tone)}
+.arch ul{margin:0; padding:0; list-style:none; display:grid; gap:8px}
+.arch li{display:grid; gap:2px; font-family:var(--display); font-weight:600; font-size:1.02rem; padding-bottom:8px; border-bottom:1px solid color-mix(in srgb,var(--line) 9%,transparent)}
+.arch li:last-child{border-bottom:0; padding-bottom:0}
+.arch li small{font:500 .8rem var(--body); color:var(--muted)}
+.arch .col p{color:var(--muted); font-size:.94rem}
+.rule{padding:16px 20px; border-radius:16px; font-size:.97rem; background:color-mix(in srgb,var(--warm) 9%,transparent); border:1px solid color-mix(in srgb,var(--warm) 30%,transparent)}
+.rule b{font-family:var(--display)}
+
+/* tabelas */
+.tbl-wrap{overflow-x:auto; border-radius:var(--radius)}
+table{width:100%; border-collapse:collapse; font-size:.93rem}
+th,td{text-align:left; padding:12px 14px; vertical-align:top; border-bottom:1px solid color-mix(in srgb,var(--line) 9%,transparent)}
+th{font:500 11px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); white-space:nowrap}
+th.ch{color:var(--tone)}
+tbody tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+td b{font-family:var(--display)}
+.sticky1 th:first-child,.sticky1 td:first-child{position:sticky; left:0; background:color-mix(in srgb,var(--surface) 92%,var(--bg)); z-index:1}
+.sticky1 td:first-child{font:700 1rem var(--display); white-space:nowrap}
+.sticky1 td:first-child span{display:block; font:500 .72rem var(--mono); color:var(--accent); letter-spacing:.06em}
+.wide{min-width:900px}
+.wide td{min-width:230px}
+
+/* catálogo */
+.catalog{display:grid; gap:var(--gap)}
+.prod{padding:26px; display:grid; gap:18px; border-left:4px solid var(--tone)}
+.prod-head{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:flex-start}
+.prod-head .who{display:grid; gap:6px; max-width:64ch}
+.prod-head .who p:not(.eyebrow){color:var(--muted)}
+.prod-head .eyebrow{color:var(--tone)}
+.prod-tags{display:flex; gap:8px; flex-wrap:wrap}
+.tiers{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr)); gap:12px}
+.tier{padding:16px 18px; border-radius:16px; border:1px solid color-mix(in srgb,var(--line) 11%,transparent); background:color-mix(in srgb,var(--surface) 50%,transparent); display:grid; gap:8px; align-content:start}
+.tier.star{border-color:color-mix(in srgb,var(--tone,var(--accent)) 60%,transparent); box-shadow:0 0 0 3px color-mix(in srgb,var(--tone,var(--accent)) 12%,transparent)}
+.tier.off{opacity:.78; border-style:dashed}
+.tier .price{font:700 1.45rem var(--display); font-variant-numeric:tabular-nums}
+.tier .price small{font:500 .8rem var(--body); color:var(--muted)}
+.tier ul{margin:0; padding-left:1.1em; display:grid; gap:4px; font-size:.91rem}
+.tier .meta{font:500 .78rem var(--mono); color:var(--muted)}
+.why{font-size:.95rem; padding:14px 16px; border-radius:14px; background:color-mix(in srgb,var(--tone,var(--accent)) 8%,transparent); border:1px solid color-mix(in srgb,var(--tone,var(--accent)) 24%,transparent)}
+.why b{font-family:var(--display)}
+.src{font:500 .75rem var(--mono); color:var(--muted)}
+
+/* margem do parceiro */
+.margin{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; padding:16px 18px; border-radius:16px; border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+@media (max-width:700px){ .margin{grid-template-columns:1fr} }
+.margin .out{display:grid; gap:6px; align-content:center}
+.margin .out b{font:700 1.6rem var(--display); font-variant-numeric:tabular-nums; color:var(--accent)}
+.seg{display:flex; gap:6px; flex-wrap:wrap}
+.seg button{font:600 .85rem var(--display); padding:.4em .85em; border-radius:999px; cursor:pointer; color:var(--fg); border:1px solid color-mix(in srgb,var(--line) 18%,transparent); background:transparent}
+.seg button[aria-pressed="true"]{background:var(--accent); color:#fff; border-color:transparent}
+
+/* pacotes */
+.bundles{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:var(--gap)}
+.bundle{padding:22px; display:grid; gap:12px; align-content:start; border-top:4px solid var(--tone)}
+.bundle ul{margin:0; padding-left:1.1em; font-size:.92rem; display:grid; gap:4px}
+.bundle .price{font:700 1.5rem var(--display); font-variant-numeric:tabular-nums}
+.bundle .old{color:var(--muted); text-decoration:line-through; font-size:.95rem}
+.bundle .for{color:var(--muted); font-size:.92rem}
+.perk{font-size:.9rem; padding:10px 12px; border-radius:12px; background:color-mix(in srgb,var(--loop) 10%,transparent)}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:.5em; padding:.6em 1.05em; border-radius:999px; cursor:pointer; font:600 .9rem var(--display); color:var(--fg); border:1px solid color-mix(in srgb,var(--line) 18%,transparent); background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.btn:hover{filter:brightness(.95)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+.builder{padding:24px; display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:24px}
+@media (max-width:860px){ .builder{grid-template-columns:1fr} }
+.blist{display:grid; gap:2px; max-height:600px; overflow:auto; padding-right:4px}
+.bgroup{font:500 11px var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--tone); padding:12px 0 4px}
+.brow{display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:10px; align-items:center; padding:7px 10px; border-radius:12px}
+.brow:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.brow label{cursor:pointer; min-width:0}
+.brow label small{display:block; color:var(--muted); font-size:.8rem}
+.brow input[type=checkbox]{width:1.1em; height:1.1em; accent-color:var(--accent)}
+.pin{display:flex; align-items:center; gap:4px; font:500 .8rem var(--mono); color:var(--muted)}
+.pin input{width:92px; font:600 .9rem var(--mono); text-align:right; padding:.3em .5em; border-radius:8px; color:var(--fg); border:1px solid color-mix(in srgb,var(--line) 18%,transparent); background:color-mix(in srgb,var(--surface) 80%,transparent)}
+.summary{display:grid; gap:14px; align-content:start; position:sticky; top:84px}
+.sumbox{padding:18px; border-radius:16px; background:color-mix(in srgb,var(--surface) 55%,transparent); border:1px solid color-mix(in srgb,var(--line) 12%,transparent); display:grid; gap:8px}
+.sumrow{display:flex; justify-content:space-between; gap:12px; font-size:.95rem}
+.sumrow b{font-variant-numeric:tabular-nums}
+.sumrow.total{font:700 1.3rem var(--display); padding-top:8px; border-top:1px solid color-mix(in srgb,var(--line) 12%,transparent)}
+.sumrow.disc{color:var(--loop)}
+.warn{font-size:.9rem; padding:12px 14px; border-radius:12px; background:color-mix(in srgb,var(--warm) 12%,transparent); border:1px solid color-mix(in srgb,var(--warm) 35%,transparent)}
+.presets{display:flex; gap:8px; flex-wrap:wrap}
+.hint{color:var(--muted); font-size:.85rem}
+.simtitle{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:baseline}
+
+/* mensagem */
+.msg{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:var(--gap)}
+.msgcard{padding:22px; display:grid; gap:12px; align-content:start; border-top:4px solid var(--tone)}
+.msgcard dl{margin:0; display:grid; gap:10px}
+.msgcard dt{font:500 11px var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--tone)}
+.msgcard dd{margin:0; font-size:.95rem}
+.msgcard .hook{font:700 1.12rem/1.3 var(--display)}
+.vsl{padding:24px; display:grid; gap:10px}
+.vsl ol{list-style:none; margin:0; padding:0; display:grid; gap:2px}
+.vsl li{display:grid; grid-template-columns:5.5em 7em minmax(0,1fr); gap:12px; padding:10px 0; border-bottom:1px solid color-mix(in srgb,var(--line) 9%,transparent); align-items:baseline}
+.vsl li:last-child{border-bottom:0}
+.vsl .ts{font:500 .85rem var(--mono); color:var(--accent); font-variant-numeric:tabular-nums}
+.vsl .part{font:700 .95rem var(--display)}
+@media (max-width:560px){ .vsl li{grid-template-columns:1fr; gap:2px} }
+
+/* simulador */
+.sim{padding:24px; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:28px}
+@media (max-width:860px){ .sim{grid-template-columns:1fr} }
+.ctrl{display:grid; gap:14px; align-content:start}
+.ctrl .row{display:grid; gap:4px}
+.ctrl label{display:flex; justify-content:space-between; gap:10px; font-size:.92rem; font-weight:500}
+.ctrl output{font:500 .85rem var(--mono); color:var(--muted); font-variant-numeric:tabular-nums}
+.ctrl input[type=range]{width:100%; accent-color:var(--accent)}
+.flow{display:grid; gap:8px; align-content:start}
+.fstep{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 12px; align-items:center; padding:12px 14px; border-radius:14px; background:color-mix(in srgb,var(--surface) 50%,transparent); border:1px solid color-mix(in srgb,var(--line) 10%,transparent)}
+.fstep b{font:700 1.35rem var(--display); font-variant-numeric:tabular-nums; text-align:right}
+.fstep span{font-size:.9rem}
+.fstep span em{font-style:normal; font:500 .72rem var(--mono); color:var(--accent); display:block; letter-spacing:.06em}
+.fstep small{grid-column:1/-1; color:var(--muted); font-size:.8rem}
+.fstep.alert{border-color:color-mix(in srgb,var(--warm) 55%,transparent); background:color-mix(in srgb,var(--warm) 10%,transparent)}
+.fstep.ok{border-color:color-mix(in srgb,var(--loop) 45%,transparent)}
+.fbar{grid-column:1/-1; height:6px; border-radius:6px; background:color-mix(in srgb,var(--line) 8%,transparent); overflow:hidden}
+.fbar i{display:block; height:100%; background:var(--accent); border-radius:6px}
+
+.road{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:var(--gap)}
+.month{padding:22px; display:grid; gap:12px; align-content:start}
+.month h4{font:500 11px var(--mono); letter-spacing:.12em; text-transform:uppercase; color:var(--tone); padding-top:4px}
+.month ul{margin:0; padding-left:1.1em; display:grid; gap:6px; font-size:.93rem}
+.month .goal{font:600 .88rem var(--mono); color:var(--loop); padding-top:10px; border-top:1px solid color-mix(in srgb,var(--line) 10%,transparent)}
+.open{padding:24px}
+.open ul{margin:0; padding-left:1.1em; display:grid; gap:8px; font-size:.95rem}
+footer{color:var(--muted); font-size:.88rem}
+</style>
+
+<div class="bg" aria-hidden="true"></div>
+
+<main class="page">
+  <header class="hero">
+    <p class="eyebrow">The Lobo Design · Plano comercial · Novembro 2026</p>
+    <h1>Plano Comercial Lobo</h1>
+    <p class="lead">Tudo o que está no quadro, organizado para vender. Cada produto tem preço, público, papel na escada e um funil com as suas 8 etapas. Onde você já tinha decidido preço e regra, no guia comercial do Brandforge, na oferta do Kit Agência e na M17, o plano segue o que está lá.</p>
+    <div class="kpis">
+      <div class="kpi glass c-kit"><b class="num" data-kpi="kit"></b><span>Kit Studio para agências, o carro-chefe de hoje</span></div>
+      <div class="kpi glass c-studio"><b class="num" data-kpi="sprint"></b><span>Sprint de Branding Completo para empresa final</span></div>
+      <div class="kpi glass"><b>3 kits</b><span>por mês é o teto honesto da sua capacidade agora</span></div>
+      <div class="kpi glass"><b>3 canais</b><span>que não podem se cruzar no preço</span></div>
+    </div>
+  </header>
+
+  <nav class="nav glass" aria-label="Seções do plano">
+    <a href="#canais">Canais</a><a href="#escada">Escada de valor</a><a href="#catalogo">Preços</a><a href="#avulsos">Entregáveis</a><a href="#pacotes">Pacotes</a><a href="#funis">Funis</a><a href="#mensagem">Mensagem e VSL</a><a href="#simulador">Simulador</a><a href="#90dias">90 dias</a><a href="#premissas">Premissas</a>
+  </nav>
+
+  <!-- CANAIS -->
+  <section id="canais">
+    <div class="sec-head">
+      <p class="eyebrow">01 · Arquitetura comercial</p>
+      <h2>Três canais, três preços, nenhum cruzamento</h2>
+      <p>O mesmo sistema de produção atende três públicos com bolsos muito diferentes. O que protege o preço de cada um é nunca oferecer o produto de um canal para o público do outro.</p>
+    </div>
+    <div class="arch">
+      <div class="col glass c-studio">
+        <span class="tag" style="--tone:var(--warm)">Varejo premium</span>
+        <h3>The Lobo Studio</h3>
+        <p>Empresa final, fundador decide. PME B2B de R$ 5 a 50 milhões por ano.</p>
+        <ul>
+          <li>Sprint Lobo de Branding Completo<small>10 semanas, o conjunto inteiro</small></li>
+          <li>Entregáveis avulsos<small>upsell e primeiro projeto</small></li>
+          <li>Guardião de marca<small>retainer mensal depois do sprint</small></li>
+        </ul>
+      </div>
+      <div class="col glass c-kit">
+        <span class="tag">Atacado white-label</span>
+        <h3>Brandforge · Kit Agência</h3>
+        <p>Agência de 5 a 30 pessoas que revende como dela. Você nunca aparece para o cliente final.</p>
+        <ul>
+          <li>Express, Studio e Signature<small>preço fixo, prazo fixo, escopo fechado</small></li>
+          <li>Add-on de logo do zero<small>preço a derivar da telemetria</small></li>
+        </ul>
+      </div>
+      <div class="col glass c-nuvo">
+        <span class="tag" style="--tone:var(--loop)">Self-serve e assinatura</span>
+        <h3>Nuvo</h3>
+        <p>Software para quem faz sozinho: empreendedor iniciante, designer solo, estúdio pequeno.</p>
+        <ul>
+          <li>Logoforge / Infinibrand<small>isca de volume</small></li>
+          <li>Brandforge SaaS em 5 módulos<small>beta fechado primeiro</small></li>
+          <li>Dashboard<small>portal do cliente para estúdios</small></li>
+        </ul>
+      </div>
+      <div class="col glass c-b">
+        <span class="tag t-valida">Plano B</span>
+        <h3>Fora da vitrine principal</h3>
+        <p>Públicos sem relação com marca. Andam em paralelo, com meta própria.</p>
+        <ul>
+          <li>StuddyBuddy<small>TCC universitário, R$ 149 por 9 meses</small></li>
+          <li>MotionForge<small>componentes animados para designers e devs</small></li>
+        </ul>
+      </div>
+    </div>
+    <p class="rule"><b>Regra que não quebra.</b> Empresa que pede branding direto vai para o Studio, nunca para o Kit. Se ela compra de você a R$ 7.500, a agência que revenderia por R$ 20 mil vira sua concorrente no dia seguinte. E fora de casa o Brandforge é o sistema de produção do estúdio: critério, processo e curadoria. Nenhuma peça de venda fala em IA, motor ou agentes.</p>
+  </section>
+
+  <!-- ESCADA -->
+  <section id="escada">
+    <div class="sec-head">
+      <p class="eyebrow">02 · Escada de valor</p>
+      <h2>Cada degrau vende o próximo, dentro do mesmo canal</h2>
+      <p>A pessoa entra pelo degrau mais barato que resolve uma dor real e sobe quando confia. A escada corre na vertical de cada coluna. Ninguém pula de uma coluna para outra.</p>
+    </div>
+    <div class="tbl-wrap glass">
+      <table class="sticky1 wide">
+        <thead><tr><th>Degrau</th><th class="ch c-studio">Studio · empresa</th><th class="ch c-kit">Kit · agência</th><th class="ch c-nuvo">Nuvo · self-serve</th></tr></thead>
+        <tbody>
+          <tr><td>Isca<span>grátis</span></td><td>Diagnóstico de marca de 45 minutos com o custo da inação calculado.</td><td>Post de LinkedIn "comenta KIT", vitrine limpa com marcas de laboratório.</td><td>Logoforge grátis com marca d'água, MotionForge Free.</td></tr>
+          <tr><td>Entrada<span>primeira compra</span></td><td>Um entregável avulso, como mockups ou deck, para quem ainda não está pronto para o sprint.</td><td>Kit Express <span data-price="kit-exp"></span>. A primeira venda de Express também é o teste do formato.</td><td>Kit Logoforge <span data-price="lf-kit"></span>, Dashboard Starter.</td></tr>
+          <tr><td>Núcleo<span>o caixa</span></td><td>Sprint de Branding Completo <span data-price="sprint"></span>.</td><td>Kit Studio <span data-price="kit-studio"></span>.</td><td>Brandforge SaaS Pro.</td></tr>
+          <tr><td>Recorrência<span>mensal</span></td><td>Guardião de marca <span data-price="guardiao"></span>/mês.</td><td>Recompra de kits. Assinatura de agência só depois de medir seu tempo por kit.</td><td>Dashboard, Brandforge SaaS, Logoforge Pro.</td></tr>
+          <tr><td>Topo<span>premium</span></td><td>Sprint com Guardião por 12 meses.</td><td>Kit Signature sob consulta. Parceria com rede de franquias depois de 2 ou 3 casos.</td><td>Nuvo Studio Stack, plano Studio do SaaS com white-label.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CATÁLOGO -->
+  <section id="catalogo">
+    <div class="sec-head">
+      <p class="eyebrow">03 · Catálogo e preços</p>
+      <h2>Preço de cada produto e quando vender sozinho</h2>
+      <p>A etiqueta cinza em cada produto diz de onde veio o preço: dos seus documentos ou de proposta minha para testar.</p>
+    </div>
+    <div class="catalog">
+
+      <article class="prod glass c-studio">
+        <div class="prod-head">
+          <div class="who"><p class="eyebrow">Studio · varejo premium</p><h3>Sprint Lobo de Branding Completo</h3><p>O conjunto inteiro para empresa final: estratégia, identidade, sistema gráfico, manual, deck, mockups e landing, em 10 semanas e 5 fases com marcos visíveis.</p></div>
+          <div class="prod-tags"><span class="tag t-solo">Vende sozinho</span><span class="tag t-src">Preço da M17</span></div>
+        </div>
+        <div class="tiers">
+          <div class="tier star" style="--tone:var(--warm)"><h4>Sprint</h4><div class="price"><span data-price="sprint"></span> <small>à vista</small></div><p class="meta">10 semanas · âncora de R$ 95.000</p><ul><li>Atendimento direto com você</li><li>Governança documentada por fase</li><li>Portal Dashboard durante o projeto</li></ul></div>
+          <div class="tier" style="--tone:var(--warm)"><h4>Guardião de marca</h4><div class="price"><span data-price="guardiao"></span> <small>/mês</small></div><p class="meta">mínimo de 6 meses · proposta</p><ul><li>Novas peças e extensions do sistema</li><li>Revisão de tudo que sai com a marca</li><li>Uma reunião mensal com o fundador</li></ul></div>
+        </div>
+        <p class="why"><b>Como vender.</b> Diagnóstico primeiro, com o custo da inação na mesa: a M17 estima R$ 540 mil por ano para o perfil, e o sprint custa cerca de 11% disso. Comparado a agência média, de R$ 150 a 400 mil, o preço fica no piso da faixa sênior autoral.</p>
+      </article>
+
+      <article class="prod glass c-kit">
+        <div class="prod-head">
+          <div class="who"><p class="eyebrow">Kit · atacado white-label</p><h3>Brandforge · Kit Agência</h3><p>Sistema de marca completo entregue com a assinatura da agência. Parte de uma logo existente. Preço fixo, prazo fixo, escopo fechado e 15% de desconto na próxima entrega se você atrasar.</p></div>
+          <div class="prod-tags"><span class="tag t-solo">Vende sozinho</span><span class="tag t-src">Preço do Kit e do guia</span></div>
+        </div>
+        <div class="tiers">
+          <div class="tier" style="--tone:var(--accent)"><h4>Express</h4><div class="price"><span data-price="kit-exp"></span></div><p class="meta">prometer 7 dias úteis</p><ul><li>Identidade completa</li><li>Sistema gráfico de 15 assets</li><li>Revenda sugerida de R$ 12 a 18 mil</li></ul></div>
+          <div class="tier star" style="--tone:var(--accent)"><h4>Studio</h4><div class="price"><span data-price="kit-studio"></span></div><p class="meta">7 a 10 dias úteis · carro-chefe</p><ul><li>Branding completo, 30+ assets</li><li>Mockups, deck e manual</li><li>Revenda sugerida de R$ 25 a 35 mil</li></ul></div>
+          <div class="tier off" style="--tone:var(--accent)"><h4>Signature</h4><div class="price"><span data-price="kit-sig"></span></div><p class="meta">só sob consulta</p><ul><li>Tudo do Studio com motion da logo</li><li>Abrir depois de rodar um ciclo de motion completo</li></ul></div>
+          <div class="tier off" style="--tone:var(--accent)"><h4>Logo do zero</h4><div class="price">a definir</div><p class="meta">decisão D2 do guia</p><ul><li>Metade das agências vai perguntar na primeira call</li><li>Derivar do tempo real dos runs sem logo, nunca de chute</li></ul></div>
+        </div>
+        <div class="margin">
+          <div class="ctrl">
+            <p class="eyebrow">Conta de margem para mostrar na call</p>
+            <div class="seg" role="group" aria-label="Tier do kit"><button type="button" data-tier="kit-exp" aria-pressed="false">Express</button><button type="button" data-tier="kit-studio" aria-pressed="true">Studio</button><button type="button" data-tier="kit-sig" aria-pressed="false">Signature</button></div>
+            <div class="row"><label for="mg-resale">Quanto a agência cobra do cliente <output id="o-resale"></output></label><input type="range" id="mg-resale" min="5000" max="80000" step="500"></div>
+          </div>
+          <div class="out"><span>Margem da agência por projeto</span><b id="mg-out"></b><span class="hint" id="mg-x"></span></div>
+        </div>
+        <p class="why"><b>Teto de capacidade.</b> Um Studio leva cerca de 9 horas de produção mais 3 a 6 rodadas da sua curadoria. Venda no máximo 3 kits no mês e 2 em paralelo. Atrasar o primeiro cliente queima o boca a boca de que o canal inteiro depende.</p>
+      </article>
+
+      <article class="prod glass c-nuvo">
+        <div class="prod-head">
+          <div class="who"><p class="eyebrow">Nuvo · isca self-serve</p><h3>Logoforge / Infinibrand</h3><p>Gerador de logo e identidade básica. Traz volume barato para dentro do Nuvo. Não é porta de entrada para o Studio nem para o Kit, porque esse público é a persona que os dois recusam.</p></div>
+          <div class="prod-tags"><span class="tag t-isca">Isca</span><span class="tag t-solo">Vende sozinho</span><span class="tag t-src">Proposta</span></div>
+        </div>
+        <div class="tiers">
+          <div class="tier"><h4>Grátis</h4><div class="price">R$ 0</div><ul><li>3 gerações</li><li>Download com marca d'água</li></ul></div>
+          <div class="tier star" style="--tone:var(--loop)"><h4>Kit</h4><div class="price"><span data-price="lf-kit"></span> <small>uma vez</small></div><ul><li>Logo em todos os formatos</li><li>Paleta, fontes e 5 mockups</li><li>Order bump de 30 mockups por R$ 27</li></ul></div>
+          <div class="tier"><h4>Pro</h4><div class="price"><span data-price="lf-pro"></span> <small>/mês</small></div><ul><li>Gerações ilimitadas</li><li>Até 3 marcas</li></ul></div>
+        </div>
+        <p class="why" style="--tone:var(--loop)"><b>Ponte certa.</b> Quem comprou o Kit recebe em 7 dias a oferta do Brandforge SaaS Starter com o primeiro mês pela metade.</p>
+      </article>
+
+      <article class="prod glass c-nuvo">
+        <div class="prod-head">
+          <div class="who"><p class="eyebrow">Nuvo · validação por módulo</p><h3>Brandforge SaaS em 5 módulos</h3><p>Os 5 módulos são os 5 agentes da arquitetura v2: Brief, Mockups com logo canônica e extensions, Deck e Manual, Landing, e Guardião de marca. Cada um passa pelo ciclo do quadro, validar, coletar feedback e melhorar, antes de ser cobrado em crédito real.</p></div>
+          <div class="prod-tags"><span class="tag t-valida">Beta antes de cobrar</span><span class="tag t-conj">Melhor no conjunto depois</span><span class="tag t-src">Proposta sobre a arquitetura v2</span></div>
+        </div>
+        <div class="tiers">
+          <div class="tier star" style="--tone:var(--gold)"><h4>Beta fechado</h4><div class="price"><span data-price="saas-beta"></span> <small>/mês</small></div><p class="meta">15 vagas · cobrança manual</p><ul><li>Sai do beta com concordância de 90% entre o fiscal e você</li></ul></div>
+          <div class="tier"><h4>Starter</h4><div class="price"><span data-price="saas-starter"></span> <small>/mês</small></div><ul><li>1 kit por mês</li><li>10 mockups, deck de 30 páginas</li></ul></div>
+          <div class="tier"><h4>Pro</h4><div class="price"><span data-price="saas-pro"></span> <small>/mês</small></div><ul><li>3 kits por mês</li><li>20 mockups, deck de 50 páginas, manual</li></ul></div>
+          <div class="tier"><h4>Studio</h4><div class="price"><span data-price="saas-studio"></span> <small>/mês</small></div><ul><li>5 kits por mês, tudo em 4K</li><li>Landing e exportação white-label</li></ul></div>
+        </div>
+        <p class="why" style="--tone:var(--loop)"><b>Preço pela regra da arquitetura.</b> Custo do pior caso vezes 5 a 10: um kit custa cerca de US$ 5, então o crédito avulso de um kit fica em <span data-price="saas-credit"></span>. Regenerar um mockup custa 1 crédito. Sem plano vitalício, porque cada geração tem custo.</p>
+      </article>
+
+      <article class="prod glass c-nuvo">
+        <div class="prod-head">
+          <div class="who"><p class="eyebrow">Nuvo · SaaS</p><h3>Dashboard · portal do cliente</h3><p>Projetos, arquivos, aprovações, formulários e faturas em um portal com a marca do estúdio. Você entrega o Sprint por ele, e a agência do Kit pode usar para apresentar o trabalho ao cliente dela.</p></div>
+          <div class="prod-tags"><span class="tag t-solo">Vende sozinho</span><span class="tag t-conj">Acompanha Kit e Sprint</span><span class="tag t-src">Planos do código, reais em proposta</span></div>
+        </div>
+        <div class="tiers">
+          <div class="tier"><h4>Starter</h4><div class="price"><span data-price="db-st"></span> <small>/mês</small></div><p class="meta">US$ 19 fora do Brasil</p><ul><li>5 clientes ativos</li><li>Arquivos e aprovações</li></ul></div>
+          <div class="tier star" style="--tone:var(--loop)"><h4>Pro</h4><div class="price"><span data-price="db-pro"></span> <small>/mês</small></div><p class="meta">US$ 49 fora do Brasil</p><ul><li>25 clientes, domínio próprio</li><li>Faturas e pagamentos, 5 pessoas</li></ul></div>
+          <div class="tier"><h4>Studio</h4><div class="price"><span data-price="db-studio"></span> <small>/mês</small></div><p class="meta">US$ 119 fora do Brasil</p><ul><li>100 clientes, white-label completo</li><li>Time ilimitado</li></ul></div>
+        </div>
+        <p class="why" style="--tone:var(--loop)"><b>14 dias grátis e anual com 20% off</b>, como já está desenhado no portal. Os valores em reais seguem poder de compra local e ficam abaixo da conversão direta do dólar.</p>
+      </article>
+
+      <article class="prod glass c-nuvo">
+        <div class="prod-head">
+          <div class="who"><p class="eyebrow">Nuvo · marca-mãe</p><h3>Nuvo</h3><p>Tratei o Nuvo como a marca que agrupa os produtos de software e dá nome aos pacotes self-serve. Ele não tem preço próprio: o preço dele é o do conjunto.</p></div>
+          <div class="prod-tags"><span class="tag t-conj">É o conjunto</span><span class="tag t-src">Hipótese</span></div>
+        </div>
+        <p class="why" style="--tone:var(--loop)"><b>Por que no topo do Plano A.</b> O ciclo verde do quadro liga o Nuvo ao SaaS dividido em 5. Cada módulo validado entra no Nuvo e engorda o pacote. Se o Nuvo for outro produto, troque o texto e mantenha a lógica.</p>
+      </article>
+
+      <article class="prod glass c-b">
+        <div class="prod-head">
+          <div class="who"><p class="eyebrow">Plano B · B2C</p><h3>StuddyBuddy</h3><p>Editor de TCC que ajuda o universitário a escrever e entregar sem perder a própria voz. Público e funil sem relação com marca, então fica fora dos pacotes.</p></div>
+          <div class="prod-tags"><span class="tag t-fora">Fora do conjunto</span><span class="tag t-src">Preço do PRD</span></div>
+        </div>
+        <div class="tiers">
+          <div class="tier star" style="--tone:var(--gold)"><h4>Pacote TCC</h4><div class="price"><span data-price="sb"></span> <small>uma vez</small></div><p class="meta">9 meses de acesso</p><ul><li>Cobre um ciclo inteiro de TCC</li></ul></div>
+        </div>
+        <p class="why" style="--tone:var(--gold)"><b>Calendário manda.</b> A janela de setembro e outubro passou. Use novembro e dezembro, a reta final de entrega, para um beta fechado com 30 alunos. O lançamento aberto vai para fevereiro e março de 2027, no começo do semestre.</p>
+      </article>
+
+      <article class="prod glass c-b">
+        <div class="prod-head">
+          <div class="who"><p class="eyebrow">Plano B · designers e devs</p><h3>MotionForge</h3><p>Biblioteca de componentes animados com controles editáveis ao vivo. Conversa com o mesmo público do Dashboard e do SaaS, então pode entrar no Nuvo Studio Stack se validar.</p></div>
+          <div class="prod-tags"><span class="tag t-valida">Lista de espera primeiro</span><span class="tag t-src">Proposta</span></div>
+        </div>
+        <div class="tiers">
+          <div class="tier"><h4>Free</h4><div class="price">R$ 0</div><ul><li>Componentes básicos</li></ul></div>
+          <div class="tier star" style="--tone:var(--gold)"><h4>Pro</h4><div class="price"><span data-price="mf-pro"></span> <small>/mês</small></div><ul><li>Catálogo completo e exportação de código</li></ul></div>
+          <div class="tier"><h4>Studio</h4><div class="price"><span data-price="mf-studio"></span> <small>/mês</small></div><ul><li>Uso comercial em projetos de cliente</li></ul></div>
+          <div class="tier"><h4>Founder vitalício</h4><div class="price"><span data-price="mf-founder"></span> <small>uma vez</small></div><ul><li>100 vagas</li><li>Vitalício funciona aqui porque não há custo por uso</li></ul></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- AVULSOS -->
+  <section id="avulsos">
+    <div class="sec-head">
+      <p class="eyebrow">04 · Entregáveis avulsos</p>
+      <h2>Os sete entregáveis do quadro, peça a peça</h2>
+      <p>Avulso existe só no Studio, a preço de varejo, para upsell de cliente do sprint ou primeiro projeto de quem ainda não está pronto para ele. No Kit os entregáveis só saem dentro de um tier, e a coluna da direita mostra qual.</p>
+    </div>
+    <div class="tbl-wrap glass">
+      <table>
+        <thead><tr><th>Entregável</th><th>O que inclui</th><th class="r">Studio avulso</th><th>Prazo</th><th>No Kit, vem em</th></tr></thead>
+        <tbody>
+          <tr><td><b>Manual</b></td><td>Construção, proteção, cores, tipografia e aplicações.</td><td class="r num" data-price="av-manual"></td><td>2 semanas</td><td>Studio, Signature</td></tr>
+          <tr><td><b>Deck</b></td><td>Apresentação da marca para sócios, investidores e time.</td><td class="r num" data-price="av-deck"></td><td>1 semana</td><td>Express, Studio, Signature</td></tr>
+          <tr><td><b>Mockups</b></td><td>30 mockups em 4K da marca aplicada.</td><td class="r num" data-price="av-mock"></td><td>1 semana</td><td>Express, Studio, Signature</td></tr>
+          <tr><td><b>LP</b></td><td>Landing page publicada, com copy.</td><td class="r num" data-price="av-lp"></td><td>2 semanas</td><td>Studio, Signature</td></tr>
+          <tr><td><b>Grafismos</b></td><td>Padrões, texturas e fundos do sistema.</td><td class="r num" data-price="av-graf"></td><td>1 semana</td><td>Express, Studio, Signature</td></tr>
+          <tr><td><b>Ilustrações</b></td><td>Pack de 6 ilustrações no estilo da marca.</td><td class="r num" data-price="av-ilus"></td><td>2 semanas</td><td>Studio, Signature</td></tr>
+          <tr><td><b>Extensions</b></td><td>Sistema gráfico além da logo: ícones, patterns, texturas e assets derivados da geometria da logo.</td><td class="r num" data-price="av-ext"></td><td>1 semana</td><td>Express (15), Studio (30+)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">Os sete somados ficam abaixo do Sprint de propósito: o sprint acrescenta estratégia, naming, governança e você na sala.</p>
+  </section>
+
+  <!-- PACOTES -->
+  <section id="pacotes">
+    <div class="sec-head">
+      <p class="eyebrow">05 · Pacotes</p>
+      <h2>Como vender o conjunto em cada canal</h2>
+      <p>No Kit e no Sprint o preço é fixo, então o pacote soma valor e não dá desconto. No Nuvo e nos avulsos do Studio vale uma regra única: 2 itens dão 10% de desconto, 3 itens dão 15% e 4 ou mais dão 20%.</p>
+    </div>
+    <div class="bundles" id="bundles"></div>
+    <div class="builder glass">
+      <div>
+        <div class="simtitle"><h3>Montador de pacote</h3><span class="hint">Marque itens e ajuste preços. Fica salvo neste navegador.</span></div>
+        <div class="blist" id="blist"></div>
+      </div>
+      <div class="summary">
+        <p class="warn" id="mixwarn" hidden>Kit e Studio no mesmo pacote quebram a regra de canal. Separe em duas propostas.</p>
+        <div class="sumbox">
+          <p class="eyebrow">Pagamento único</p>
+          <div class="sumrow"><span>Preço cheio</span><b id="s-u-full"></b></div>
+          <div class="sumrow disc"><span id="s-disc-lbl">Desconto</span><b id="s-u-disc"></b></div>
+          <div class="sumrow total"><span>Pacote</span><b id="s-u-tot"></b></div>
+        </div>
+        <div class="sumbox">
+          <p class="eyebrow">Recorrente</p>
+          <div class="sumrow"><span>Preço cheio</span><b id="s-m-full"></b></div>
+          <div class="sumrow disc"><span>Desconto</span><b id="s-m-disc"></b></div>
+          <div class="sumrow total"><span>Por mês</span><b id="s-m-tot"></b></div>
+        </div>
+        <div class="presets">
+          <button class="btn" type="button" id="b-clear">Limpar seleção</button>
+          <button class="btn" type="button" id="b-reset">Restaurar preços</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNIS -->
+  <section id="funis">
+    <div class="sec-head">
+      <p class="eyebrow">06 · Funis</p>
+      <h2>As 8 etapas de aquisição em cada canal</h2>
+      <p>As linhas são a sua lista do quadro, na ordem: Lead, Prospects, Roteiro, Funil, Canais, Abordagem, Captação e Hook. No celular, role a tabela para o lado.</p>
+    </div>
+    <div class="tbl-wrap glass">
+      <table class="sticky1 wide">
+        <thead><tr><th>Etapa</th><th class="ch c-kit">Kit · agências</th><th class="ch c-studio">Studio · empresas</th><th class="ch c-nuvo">Nuvo · self-serve</th></tr></thead>
+        <tbody>
+          <tr><td>Lead<span>quem entra</span></td>
+            <td>Dono ou sócio de agência de 5 a 30 pessoas, faturando de R$ 20 mil a R$ 300 mil por mês, que recebe pedido de marca pelo menos uma vez por mês e não tem diretor de arte sênior de branding.</td>
+            <td>Fundador de PME B2B de R$ 5 a 50 milhões por ano em SP, RJ ou MG, num momento de virada: captação, expansão, nova vertical, sucessão.</td>
+            <td>Empreendedor iniciante que quer logo hoje, e designer solo ou estúdio pequeno que quer produzir mais.</td></tr>
+          <tr><td>Prospects<span>lista ativa</span></td>
+            <td>LinkedIn, busca no Google por agências com o sinal certo, diretório da ABRADi com cerca de 600 agências e quem já te conhece. Se você foi ao Agency Day ontem, esses contatos são a lista mais quente da semana.</td>
+            <td>Tech B2B e SaaS primeiro, o setor com dor mais alta no seu ICP. Fundadores no LinkedIn, comunidades de fundadores e indicação dos clientes atuais.</td>
+            <td>Não há lista. O tráfego vem de busca, vídeo curto e comunidades de designers.</td></tr>
+          <tr><td>Roteiro<span>o que dizer</span></td>
+            <td>Entrevista com caso real ("quanto vocês cobraram no último projeto de marca?"), depois call de 20 minutos e proposta em até 24 horas.</td>
+            <td>Diagnóstico de 45 minutos com o custo da inação calculado na frente do fundador, depois proposta do sprint com âncora de R$ 95 mil.</td>
+            <td>Página com demo interativa e sequência de 5 e-mails em 7 dias.</td></tr>
+          <tr><td>Funil<span>o caminho</span></td>
+            <td>Escada de evidência do guia: conversa, briefing ou call, pagamento, recompra. Quinze conversas devem gerar cinco briefings e um ou dois pagamentos.</td>
+            <td>Conteúdo do fundador, diagnóstico, proposta, sprint de 10 semanas entregue no Dashboard, Guardião de marca.</td>
+            <td>Logoforge grátis, Kit de R$ 67, SaaS Starter, SaaS Pro, Nuvo Studio Stack.</td></tr>
+          <tr><td>Canais<span>onde</span></td>
+            <td>Posts de LinkedIn sem link no corpo, DM para quem comentar, WhatsApp, ABRADi e eventos de agência.</td>
+            <td>LinkedIn pessoal, indicação, eventos de fundadores e conselhos de associações setoriais.</td>
+            <td>SEO para "criar logo grátis", TikTok e Reels, Product Hunt. Anúncio só depois de 100 vendas do Kit Logoforge.</td></tr>
+          <tr><td>Abordagem<span>como chegar</span></td>
+            <td>Um detalhe específico da agência na primeira frase. Fale de sistema, critério e curadoria. Se perguntarem na lata como você produz tão rápido, não negue e não abra o motor.</td>
+            <td>Mensagem pessoal ao fundador citando o sinal de virada, com uma comparação curta da marca dele contra o concorrente maior que está chegando.</td>
+            <td>Produto vende sozinho, sem call. Para designers, uma demo mensal ao vivo.</td></tr>
+          <tr><td>Captação<span>como fecha</span></td>
+            <td>Contrato white-label antes do Pix. Parceiro fundador: 5 vagas, preço cheio, primeira parcela só depois do norte aprovado.</td>
+            <td>R$ 58.400 à vista contra a âncora de R$ 95 mil. Condição parcelada por marcos a definir.</td>
+            <td>Checkout com Pix e cartão, order bump de mockups, 14 dias grátis no Dashboard.</td></tr>
+          <tr><td>Hook<span>a frase</span></td>
+            <td>"Sua próxima proposta de R$ 30 mil sai esta semana?"</td>
+            <td>"Sua marca ficou pequena para a empresa que você construiu."</td>
+            <td>"Sua logo em 3 minutos. Quer a marca inteira? O Nuvo faz com você."</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MENSAGEM -->
+  <section id="mensagem">
+    <div class="sec-head">
+      <p class="eyebrow">07 · Mensagem</p>
+      <h2>Os cinco pilares do quadro aplicados a cada canal</h2>
+      <p>Branding e Dor se alimentam, Público define o tom, Copy e VSL carregam a mensagem, e a Apresentação do produto prova.</p>
+    </div>
+    <div class="msg">
+      <div class="msgcard glass c-kit"><p class="eyebrow">Kit · agências</p><h3>O que ele compra é margem</h3><dl>
+        <div><dt>Dor</dt><dd>Recusa rebrand por falta de braço, ou terceiriza para freela que some e atrasa.</dd></div>
+        <div><dt>Público</dt><dd>Cético, apressado, com a conta do projeto na cabeça. Alergia a copy de "transformamos histórias".</dd></div>
+        <div><dt>Branding</dt><dd>Você como o estúdio de bastidor de outras agências. Preço fixo, prazo fixo, escopo fechado.</dd></div>
+        <div><dt>Copy / VSL</dt><dd class="hook">"Brand System pra agência revender como dela."</dd></div>
+        <div><dt>Apresentação</dt><dd>Vitrine limpa com marcas de laboratório e a conta de margem aberta na call.</dd></div>
+      </dl></div>
+      <div class="msgcard glass c-studio"><p class="eyebrow">Studio · empresas</p><h3>O que ele compra é régua de preço</h3><dl>
+        <div><dt>Dor</dt><dd>A marca não sustenta o preço e o calibre de cliente que a empresa quer atender.</dd></div>
+        <div><dt>Público</dt><dd>Fundador que já gastou com freela, agência e tentativa interna, e não viu virar marca.</dd></div>
+        <div><dt>Branding</dt><dd>Método nomeado, 10 semanas, marcos visíveis, você na sala.</dd></div>
+        <div><dt>Copy / VSL</dt><dd class="hook">"Sua marca ficou pequena para a empresa que você construiu."</dd></div>
+        <div><dt>Apresentação</dt><dd>Diagnóstico com o custo da inação e cases como IPCOM e FCA Advogados.</dd></div>
+      </dl></div>
+      <div class="msgcard glass c-nuvo"><p class="eyebrow">Nuvo · self-serve</p><h3>O que ele compra é velocidade</h3><dl>
+        <div><dt>Dor</dt><dd>Precisa de marca agora e não tem orçamento para estúdio.</dd></div>
+        <div><dt>Público</dt><dd>Compra pelo celular, por impulso, e abandona se tiver atrito.</dd></div>
+        <div><dt>Branding</dt><dd>Simples e rápido, com um caminho claro para crescer junto.</dd></div>
+        <div><dt>Copy / VSL</dt><dd class="hook">"Sua logo em 3 minutos, de graça para testar."</dd></div>
+        <div><dt>Apresentação</dt><dd>Vídeo de 15 segundos gerando uma logo do zero até o mockup.</dd></div>
+      </dl></div>
+    </div>
+    <div class="vsl glass">
+      <p class="eyebrow">Roteiro de VSL · 90 segundos · Kit Agência</p>
+      <h3>O vídeo do canal que vende primeiro</h3>
+      <ol>
+        <li><span class="ts">00:00</span><span class="part">Hook</span><span>"Sua agência já recusou um rebrand porque não tinha quem tocasse?"</span></li>
+        <li><span class="ts">00:08</span><span class="part">Dor</span><span>O cliente pede marca, o freela atrasa, a margem do projeto vai embora em retrabalho.</span></li>
+        <li><span class="ts">00:25</span><span class="part">Virada</span><span>"Eu viro o estúdio de branding da sua agência. Vocês vendem, eu produzo, o cliente final nunca sabe que eu existo."</span></li>
+        <li><span class="ts">00:45</span><span class="part">Prova</span><span>O processo de estúdio em cinco passos: estratégia, direção de arte, direção de fotografia, controle de qualidade e curadoria. Na tela, um sistema real da vitrine limpa.</span></li>
+        <li><span class="ts">01:05</span><span class="part">Oferta</span><span>Express R$ 3.800 e Studio R$ 7.500, com prazo fixo e 15% de desconto se eu atrasar. Revenda sugerida de R$ 12 a 35 mil.</span></li>
+        <li><span class="ts">01:20</span><span class="part">CTA</span><span>"Agenda 20 minutos ou manda o briefing. A proposta sai em 24 horas."</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- SIMULADOR -->
+  <section id="simulador">
+    <div class="sec-head">
+      <p class="eyebrow">08 · Simulador de meta</p>
+      <h2>Quanto funil a meta pede, e se você dá conta</h2>
+      <p>Vem preenchido com o Kit Studio e as taxas implícitas nas metas do guia: 15 conversas, 5 briefings, 1 a 2 pagamentos. Troque pelas suas depois de 30 dias de números reais.</p>
+    </div>
+    <div class="sim glass">
+      <div class="ctrl">
+        <h3>Serviço</h3>
+        <div class="row"><label for="sm-meta">Meta de serviço no mês <output id="o-meta"></output></label><input type="range" id="sm-meta" min="3800" max="150000" step="100"></div>
+        <div class="row"><label for="sm-ticket">Ticket médio <output id="o-ticket"></output></label><input type="range" id="sm-ticket" min="1000" max="60000" step="100"></div>
+        <div class="row"><label for="sm-cap">Projetos que você entrega por mês <output id="o-cap"></output></label><input type="range" id="sm-cap" min="1" max="10" step="1"></div>
+        <div class="row"><label for="sm-reply">Abordagem que vira conversa <output id="o-reply"></output></label><input type="range" id="sm-reply" min="2" max="40" step="1"></div>
+        <div class="row"><label for="sm-brief">Conversa que vira briefing ou call <output id="o-brief"></output></label><input type="range" id="sm-brief" min="5" max="80" step="1"></div>
+        <div class="row"><label for="sm-close">Briefing que vira pagamento <output id="o-close"></output></label><input type="range" id="sm-close" min="5" max="80" step="1"></div>
+        <h3>Assinaturas do Nuvo</h3>
+        <div class="row"><label for="sm-mrr">Meta de receita recorrente <output id="o-mrr"></output></label><input type="range" id="sm-mrr" min="500" max="50000" step="500"></div>
+        <div class="row"><label for="sm-arpu">Ticket médio mensal <output id="o-arpu"></output></label><input type="range" id="sm-arpu" min="39" max="600" step="1"></div>
+        <div class="row"><label for="sm-churn">Cancelamento ao mês <output id="o-churn"></output></label><input type="range" id="sm-churn" min="1" max="20" step="0.5"></div>
+      </div>
+      <div class="flow">
+        <div class="fstep" id="fs-cap"><span><em>nível 4</em>Pagamentos no mês</span><b id="f-sales"></b><small id="f-cap"></small></div>
+        <div class="fstep"><span><em>nível 3</em>Briefings ou calls</span><b id="f-brief"></b><div class="fbar"><i id="fb-brief"></i></div></div>
+        <div class="fstep"><span><em>nível 2</em>Conversas com caso real</span><b id="f-conv"></b><div class="fbar"><i id="fb-conv"></i></div></div>
+        <div class="fstep"><span><em>topo</em>Abordagens no mês</span><b id="f-appr"></b><small id="f-appr-d"></small></div>
+        <div class="fstep"><span>Assinantes ativos necessários</span><b id="f-subs"></b><small id="f-subs-n"></small></div>
+        <div class="fstep"><span>Receita do mês</span><b id="f-total"></b><small>serviço mais recorrência</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 90 DIAS -->
+  <section id="90dias">
+    <div class="sec-head">
+      <p class="eyebrow">09 · Ordem de execução</p>
+      <h2>90 dias: Kit primeiro, Studio em seguida, Nuvo em beta</h2>
+      <p>O Kit é o único canal com preço, produto rodado e público mapeado. Ele paga o caminho, gera cases e mede o seu tempo, que é o que falta para precificar todo o resto.</p>
+    </div>
+    <div class="road">
+      <div class="month glass"><p class="eyebrow">Novembro · Caixa</p><h3>Abrir o Kit de verdade</h3>
+        <h4 class="c-kit">Kit</h4><ul>
+          <li>Fechar o checklist do guia: entregas sem carimbo do motor, contrato white-label, vitrine limpa e o link do rodapé da LP.</li>
+          <li>15 conversas, 5 briefings, 1 a 2 pagamentos. Abrir as 5 vagas de parceiro fundador.</li></ul>
+        <h4 class="c-studio">Studio</h4><ul><li>Abordar 10 fundadores de tech B2B e fazer 2 diagnósticos.</li></ul>
+        <h4 class="c-nuvo">Nuvo e Plano B</h4><ul><li>Logoforge grátis no ar. Beta fechado do StuddyBuddy com 30 alunos em reta final.</li></ul>
+        <p class="goal">Meta: R$ 7.500 a R$ 15 mil</p></div>
+      <div class="month glass"><p class="eyebrow">Dezembro · Ritmo</p><h3>Entregar no prazo e medir</h3>
+        <h4 class="c-kit">Kit</h4><ul>
+          <li>3 kits entregues no prazo e a primeira recompra.</li>
+          <li>Decidir o preço do logo do zero com a telemetria dos runs.</li></ul>
+        <h4 class="c-studio">Studio</h4><ul><li>Primeira proposta de Sprint enviada, com início em fevereiro.</li></ul>
+        <h4 class="c-nuvo">Nuvo</h4><ul><li>Beta fechado do Brandforge SaaS com 15 vagas. Dashboard pago com 14 dias grátis para as agências do Kit.</li></ul>
+        <p class="goal">Meta: R$ 22.500 em kits e R$ 1.500 por mês recorrentes</p></div>
+      <div class="month glass"><p class="eyebrow">Janeiro · Conjunto</p><h3>Fechar o primeiro Sprint</h3>
+        <h4 class="c-kit">Kit</h4><ul><li>Com o tempo por kit medido, decidir se abre a assinatura de agência.</li></ul>
+        <h4 class="c-studio">Studio</h4><ul><li>Primeiro Sprint assinado, Guardião de marca oferecido no mesmo contrato.</li></ul>
+        <h4 class="c-nuvo">Nuvo e Plano B</h4><ul><li>Lançar o Nuvo Studio Stack. Decidir o MotionForge pela lista de espera. Preparar o lançamento do StuddyBuddy para fevereiro.</li></ul>
+        <p class="goal">Meta: R$ 22.500 em kits, 1 Sprint de R$ 58.400 assinado e R$ 4 mil por mês recorrentes</p></div>
+    </div>
+  </section>
+
+  <!-- PREMISSAS -->
+  <section id="premissas">
+    <div class="sec-head">
+      <p class="eyebrow">10 · Premissas e pontos em aberto</p>
+      <h2>De onde veio cada número e o que ainda é seu para decidir</h2>
+    </div>
+    <div class="open glass">
+      <ul>
+        <li><b>Seus documentos:</b> preços e regras do Kit vêm do guia comercial de 23/09 e da oferta do Kit Agência. O Sprint vem da M17. O ICP de empresa vem da M14. Os planos do Dashboard vêm do código do portal. O StuddyBuddy vem do PRD.</li>
+        <li><b>Propostas minhas:</b> Logoforge, Brandforge SaaS, MotionForge, Guardião de marca, os avulsos do Studio e os valores do Dashboard em reais.</li>
+        <li><b>Nuvo</b> foi tratado como marca-mãe dos produtos de software. Se for outro produto, a estrutura de pacotes continua valendo.</li>
+        <li><b>Os 5 do SaaS</b> são os 5 agentes da arquitetura v2. <b>Extensions</b> é o sistema gráfico além da logo, como está na mesma arquitetura.</li>
+        <li><b>MockupForge</b> não está no quadro, mas tem licença de R$ 4.997. O módulo de mockups do SaaS precisa de limite de créditos para não canibalizar essa licença.</li>
+        <li><b>Decisões abertas do guia:</b> D1 parceiro fundador, D2 preço do logo do zero, D3 vitrine limpa, D6 parceria com rede de franquias e D7 higiene das entregas.</li>
+        <li><b>Postelier</b> ficou fora deste plano, como você pediu.</li>
+        <li><b>Regra de reajuste:</b> se 3 clientes seguidos de um produto fecham sem negociar, suba o preço em 20%.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>Plano gerado a partir do Mapa Estratégico. Preços editados e seleções do montador ficam salvos só neste navegador.</footer>
+</main>
+
+<script>
+(function(){
+  const KEY='plano-comercial-lobo-v2';
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:(v%1?2:0),minimumFractionDigits:(v%1?2:0)}).format(v);
+  const int=v=>new Intl.NumberFormat('pt-BR').format(Math.ceil(v-1e-9));
+
+  /* ch: canal · disc: entra na regra de desconto */
+  const ITEMS=[
+    {id:'sprint',name:'Sprint de Branding Completo',ch:'studio',price:58400,type:'u',disc:false},
+    {id:'guardiao',name:'Guardião de marca',ch:'studio',price:4900,type:'m',disc:true},
+    {id:'av-manual',name:'Manual',ch:'studio',price:5900,type:'u',disc:true},
+    {id:'av-deck',name:'Deck',ch:'studio',price:3900,type:'u',disc:true},
+    {id:'av-mock',name:'Mockups · 30 em 4K',ch:'studio',price:4900,type:'u',disc:true},
+    {id:'av-lp',name:'Landing page',ch:'studio',price:7900,type:'u',disc:true},
+    {id:'av-graf',name:'Grafismos',ch:'studio',price:3900,type:'u',disc:true},
+    {id:'av-ilus',name:'Ilustrações · pack de 6',ch:'studio',price:4900,type:'u',disc:true},
+    {id:'av-ext',name:'Extensions',ch:'studio',price:4900,type:'u',disc:true},
+    {id:'kit-exp',name:'Kit Express',ch:'kit',price:3800,type:'u',disc:false},
+    {id:'kit-studio',name:'Kit Studio',ch:'kit',price:7500,type:'u',disc:false},
+    {id:'kit-sig',name:'Kit Signature · sob consulta',ch:'kit',price:14500,type:'u',disc:false},
+    {id:'lf-kit',name:'Logoforge Kit',ch:'nuvo',price:67,type:'u',disc:true},
+    {id:'lf-pro',name:'Logoforge Pro',ch:'nuvo',price:39,type:'m',disc:true},
+    {id:'saas-beta',name:'Brandforge SaaS · beta fechado',ch:'nuvo',price:197,type:'m',disc:false},
+    {id:'saas-starter',name:'Brandforge SaaS · Starter',ch:'nuvo',price:97,type:'m',disc:true},
+    {id:'saas-pro',name:'Brandforge SaaS · Pro',ch:'nuvo',price:247,type:'m',disc:true},
+    {id:'saas-studio',name:'Brandforge SaaS · Studio',ch:'nuvo',price:597,type:'m',disc:true},
+    {id:'saas-credit',name:'Brandforge SaaS · crédito de 1 kit',ch:'nuvo',price:197,type:'u',disc:false},
+    {id:'db-st',name:'Dashboard Starter',ch:'nuvo',price:49,type:'m',disc:true},
+    {id:'db-pro',name:'Dashboard Pro',ch:'nuvo',price:129,type:'m',disc:true},
+    {id:'db-studio',name:'Dashboard Studio',ch:'nuvo',price:297,type:'m',disc:true},
+    {id:'mf-pro',name:'MotionForge Pro',ch:'b',price:49,type:'m',disc:true},
+    {id:'mf-studio',name:'MotionForge Studio',ch:'b',price:129,type:'m',disc:true},
+    {id:'mf-founder',name:'MotionForge Founder vitalício',ch:'b',price:597,type:'u',disc:false},
+    {id:'sb',name:'StuddyBuddy · pacote TCC',ch:'b',price:149,type:'u',disc:false}
+  ];
+  const CH={studio:{label:'Studio · varejo premium',cls:'c-studio'},kit:{label:'Kit · atacado white-label',cls:'c-kit'},nuvo:{label:'Nuvo · self-serve',cls:'c-nuvo'},b:{label:'Plano B',cls:'c-b'}};
+  const DEFAULT_PRICES=Object.fromEntries(ITEMS.map(i=>[i.id,i.price]));
+  const BUNDLES=[
+    {name:'Agência parceira',ch:'kit',for:'Para agências do canal Kit.',items:['kit-studio','db-pro'],perk:'Dashboard Pro grátis nos 3 primeiros meses, para a agência apresentar o kit ao cliente dela com a própria marca.'},
+    {name:'Empresa completa',ch:'studio',for:'Para o fundador que fecha o Sprint.',items:['sprint','guardiao'],perk:'Portal Dashboard incluso durante as 10 semanas. Guardião com mínimo de 6 meses, assinado no mesmo contrato.'},
+    {name:'Nuvo Studio Stack',ch:'nuvo',for:'Para designers e estúdios pequenos.',items:['saas-pro','db-pro','lf-pro','mf-pro'],perk:'Assinatura única no lugar de quatro. Anual com mais 20% off.'}
+  ];
+  const DEFAULT_SIM={meta:22500,ticket:7500,cap:3,reply:15,brief:33,close:30,mrr:4000,arpu:180,churn:6};
+  const DEFAULT_MG={tier:'kit-studio',resale:30000};
+
+  let state={prices:{...DEFAULT_PRICES},sel:['kit-studio','db-pro'],sim:{...DEFAULT_SIM},mg:{...DEFAULT_MG}};
+  try{ const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s){ state.prices={...DEFAULT_PRICES,...(s.prices||{})}; if(Array.isArray(s.sel)) state.sel=s.sel.filter(id=>DEFAULT_PRICES[id]!=null); state.sim={...DEFAULT_SIM,...(s.sim||{})}; state.mg={...DEFAULT_MG,...(s.mg||{})}; } }catch(e){}
+  const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} };
+  const P=id=>state.prices[id];
+  const byId=id=>ITEMS.find(i=>i.id===id);
+
+  const rate=n=>n>=4?.2:n===3?.15:n===2?.1:0;
+  function calc(ids){
+    const items=ids.map(byId).filter(Boolean);
+    const n=items.filter(i=>i.disc).length, r=rate(n);
+    let uf=0,mf=0,ud=0,md=0;
+    items.forEach(i=>{ const p=P(i.id), d=i.disc?p*r:0; if(i.type==='u'){uf+=p;ud+=d}else{mf+=p;md+=d} });
+    const chans=new Set(items.map(i=>i.ch));
+    return {r,n,uf,mf,ud,md,ut:Math.round(uf-ud),mt:Math.round(mf-md),mixed:chans.has('kit')&&chans.has('studio')};
+  }
+
+  function paintPrices(){
+    $$('[data-price]').forEach(el=>{ const v=P(el.dataset.price); if(v!=null) el.textContent=brl(v); });
+    $('[data-kpi="kit"]').textContent=brl(P('kit-studio'));
+    $('[data-kpi="sprint"]').textContent=brl(P('sprint'));
+  }
+
+  function paintBundles(){
+    $('#bundles').innerHTML=BUNDLES.map((b,k)=>{
+      const c=calc(b.items);
+      const lines=b.items.map(id=>{ const it=byId(id); return `<li>${it.name} · ${brl(P(id))}${it.type==='m'?'/mês':''}</li>`; }).join('');
+      const parts=[];
+      if(c.uf) parts.push(`<div><span class="price">${brl(c.ut)}</span>${c.ud?` <span class="old">${brl(c.uf)}</span>`:''}</div>`);
+      if(c.mf) parts.push(`<div><span class="price">${brl(c.mt)}</span><span class="hint"> /mês</span>${c.md?` <span class="old">${brl(c.mf)}</span>`:''}</div>`);
+      const tag=c.r?`<span class="tag t-conj">${Math.round(c.r*100)}% off · ${c.n} itens</span>`:`<span class="tag t-src">Preço fixo, valor somado</span>`;
+      return `<article class="bundle glass ${CH[b.ch].cls}">${tag}<h3>${b.name}</h3><p class="for">${b.for}</p><ul>${lines}</ul>${parts.join('')}<p class="perk">${b.perk}</p><button class="btn" type="button" data-load="${k}">Abrir no montador</button></article>`;
+    }).join('');
+  }
+
+  function buildList(){
+    let html='', g='';
+    ITEMS.forEach(i=>{
+      if(i.ch!==g){ g=i.ch; html+=`<div class="bgroup ${CH[g].cls}">${CH[g].label}</div>`; }
+      const note=[i.type==='m'?'mensal':'pagamento único', i.disc?'':'preço fixo, sem desconto'].filter(Boolean).join(' · ');
+      html+=`<div class="brow"><input type="checkbox" id="ck-${i.id}" data-id="${i.id}"><label for="ck-${i.id}">${i.name}<small>${note}</small></label><span class="pin">R$<input type="number" id="pr-${i.id}" data-pid="${i.id}" min="0" step="1" aria-label="Preço de ${i.name}"></span></div>`;
+    });
+    $('#blist').innerHTML=html;
+  }
+  function syncList(){ ITEMS.forEach(i=>{ $('#ck-'+i.id).checked=state.sel.includes(i.id); const inp=$('#pr-'+i.id); if(document.activeElement!==inp) inp.value=P(i.id); }); }
+  function paintSummary(){
+    const c=calc(state.sel);
+    $('#s-u-full').textContent=brl(c.uf); $('#s-u-disc').textContent='− '+brl(Math.round(c.ud)); $('#s-u-tot').textContent=brl(c.ut);
+    $('#s-m-full').textContent=brl(c.mf); $('#s-m-disc').textContent='− '+brl(Math.round(c.md)); $('#s-m-tot').textContent=brl(c.mt);
+    $('#s-disc-lbl').textContent=c.n?`Desconto de ${Math.round(c.r*100)}% · ${c.n} ${c.n===1?'item':'itens'} na regra`:'Desconto';
+    $('#mixwarn').hidden=!c.mixed;
+  }
+
+  /* margem do parceiro */
+  function paintMargin(){
+    const cost=P(state.mg.tier), resale=state.mg.resale, m=resale-cost;
+    $$('.seg [data-tier]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tier===state.mg.tier)));
+    const i=$('#mg-resale'); if(document.activeElement!==i) i.value=resale; $('#o-resale').value=brl(resale);
+    $('#mg-out').textContent=brl(m);
+    $('#mg-x').textContent=m>0?`A agência cobra ${(resale/cost).toLocaleString('pt-BR',{maximumFractionDigits:1})} vezes o que paga no kit.`:'Abaixo do custo do kit: essa agência não é ICP hoje.';
+  }
+
+  /* simulador */
+  const pct=v=>String(v).replace('.',',')+'%';
+  const SIMF={meta:brl,ticket:brl,cap:v=>v+(v===1?' projeto':' projetos'),reply:pct,brief:pct,close:pct,mrr:brl,arpu:brl,churn:pct};
+  function paintSim(){
+    const s=state.sim;
+    Object.keys(SIMF).forEach(k=>{ const i=$('#sm-'+k); if(document.activeElement!==i) i.value=s[k]; $('#o-'+k).value=SIMF[k](s[k]); });
+    const sales=Math.ceil(s.meta/s.ticket-1e-9), brief=sales/(s.close/100), conv=brief/(s.brief/100), appr=conv/(s.reply/100);
+    const subs=Math.ceil(s.mrr/s.arpu-1e-9), repl=Math.ceil(subs*s.churn/100-1e-9);
+    $('#f-sales').textContent=int(sales);
+    const over=sales>s.cap, fs=$('#fs-cap'); fs.classList.toggle('alert',over); fs.classList.toggle('ok',!over);
+    $('#f-cap').textContent=over?`Acima do seu teto de ${s.cap}. Suba o ticket ou baixe a meta antes de vender mais.`:`Dentro do seu teto de ${s.cap} por mês.`;
+    $('#f-brief').textContent=int(brief); $('#f-conv').textContent=int(conv); $('#f-appr').textContent=int(appr);
+    $('#f-appr-d').textContent=`cerca de ${int(appr/22)} por dia útil`;
+    const mx=Math.max(conv,1); $('#fb-brief').style.width=(Math.ceil(brief)/mx*100)+'%'; $('#fb-conv').style.width='100%';
+    $('#f-subs').textContent=int(subs); $('#f-subs-n').textContent=`mais ${int(repl)} novos por mês só para repor cancelamentos`;
+    $('#f-total').textContent=brl(sales*s.ticket+s.mrr);
+  }
+
+  function renderAll(){ paintPrices(); paintBundles(); syncList(); paintSummary(); paintMargin(); paintSim(); }
+
+  buildList();
+  $('#blist').addEventListener('change',e=>{
+    const id=e.target.dataset.id; if(!id) return;
+    state.sel=e.target.checked?[...new Set([...state.sel,id])]:state.sel.filter(x=>x!==id);
+    paintSummary(); save();
+  });
+  $('#blist').addEventListener('input',e=>{
+    const id=e.target.dataset.pid; if(!id) return;
+    const v=parseFloat(e.target.value); if(!isFinite(v)||v<0) return;
+    state.prices[id]=v; paintPrices(); paintBundles(); paintSummary(); paintMargin(); save();
+  });
+  $('#bundles').addEventListener('click',e=>{
+    const b=e.target.closest('[data-load]'); if(!b) return;
+    state.sel=[...BUNDLES[+b.dataset.load].items]; syncList(); paintSummary(); save();
+    $('.builder').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+  });
+  $('#b-clear').addEventListener('click',()=>{ state.sel=[]; syncList(); paintSummary(); save(); });
+  $('#b-reset').addEventListener('click',()=>{ state.prices={...DEFAULT_PRICES}; renderAll(); save(); });
+  $$('.seg [data-tier]').forEach(b=>b.addEventListener('click',()=>{ state.mg.tier=b.dataset.tier; paintMargin(); save(); }));
+  $('#mg-resale').addEventListener('input',e=>{ state.mg.resale=parseFloat(e.target.value); paintMargin(); save(); });
+  Object.keys(SIMF).forEach(k=>$('#sm-'+k).addEventListener('input',e=>{ state.sim[k]=parseFloat(e.target.value); paintSim(); save(); }));
+
+  renderAll();
+})();
+</script>
