@@ -15,7 +15,7 @@ de itens. Tudo fica salvo no navegador; **Copiar JSON** exporta a configuração
 - `plano-comercial.standalone.html` — abra direto no navegador.
 - `plano-comercial.html` — mesma página no formato dos Artifacts do Claude.
 
-Plano de vendas de tudo que está no Mapa: três canais que não se cruzam (Studio para empresa final, Brandforge · Kit Agência
-em white-label para agências, Nuvo self-serve), mais o Plano B. Traz catálogo com preços, entregáveis avulsos, pacotes,
+Plano de vendas de tudo que está no Mapa: três canais que não se cruzam (Studio para empresa final, Brandforge Kit Agência
+em white-label para agências, Brandforge self-serve), mais o Plano B. Traz catálogo com preços, entregáveis avulsos, pacotes,
 as 8 etapas de aquisição por canal, pilares de mensagem com roteiro de VSL, simulador de meta com teto de capacidade e
 um plano de 90 dias. Preços e seleções do montador são editáveis e ficam salvos no navegador.

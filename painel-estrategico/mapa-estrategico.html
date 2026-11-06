@@ -172,7 +172,7 @@ textarea{min-height:110px; resize:vertical; font-family:var(--mono) !important; 
             <h2 class="label"><span class="txt" data-field="lists.planA.label">Plano A</span></h2>
             <ol></ol>
             <button class="add" type="button">+ adicionar item</button>
-            <p class="card-note txt" data-field="lists.planA.note">Ciclo contínuo entre Nuvo e o SaaS: validar, coletar feedback, melhorar.</p>
+            <p class="card-note txt" data-field="lists.planA.note">Ciclo contínuo entre o Brandforge e o SaaS: validar, coletar feedback, melhorar.</p>
           </div>
           <div class="card glass" data-list="planB" data-tone="warm">
             <h2 class="label"><span class="txt" data-field="lists.planB.label">Plano B</span></h2>
@@ -243,8 +243,8 @@ textarea{min-height:110px; resize:vertical; font-family:var(--mono) !important; 
     title:'Mapa Estratégico',
     subtitle:'Portfólio de produtos, entregáveis de marca e a máquina de aquisição, em um só quadro.',
     lists:{
-      planA:{label:'Plano A',note:'Ciclo contínuo entre Nuvo e o SaaS: validar, coletar feedback, melhorar.',loop:[0,4,'ciclo'],
-        items:['Nuvo','Brandforge','Dashboard','SaaS Infinibrand / Logoforge','SaaS Brandforge dividido em 5 · validar, feedback, melhorias','Postelier']},
+      planA:{label:'Plano A',note:'Ciclo contínuo entre o Brandforge e o SaaS: validar, coletar feedback, melhorar.',loop:[0,3,'ciclo'],
+        items:['Brandforge','Dashboard','SaaS Infinibrand / Logoforge','SaaS Brandforge dividido em 5 · validar, feedback, melhorias','Postelier']},
       planB:{label:'Plano B',items:['StuddyBuddy','MotionForge']},
       deliv:{label:'Entregáveis',note:'Tudo que cada produto do Plano A precisa gerar para ir ao mercado.',
         items:['Manual','Deck','Mockups','LP','Grafismos','Ilustrações','Extensions (?)']},
@@ -256,6 +256,9 @@ textarea{min-height:110px; resize:vertical; font-family:var(--mono) !important; 
 
   let settings=clone(DEFAULT_SETTINGS), data=clone(DEFAULT_DATA);
   try{ const saved=JSON.parse(localStorage.getItem(KEY)||'null'); if(saved){ Object.assign(settings,saved.settings||{}); if(saved.data) data=saved.data; } }catch(e){}
+  /* migração: remove o item antigo do Plano A em dados salvos antes da mudança */
+  try{ const A=data.lists&&data.lists.planA; const i=A?A.items.indexOf('Nuvo'):-1;
+    if(i>=0){ A.items.splice(i,1); const a=A.items.indexOf('Brandforge'), b=A.items.findIndex(x=>/^SaaS Brandforge/.test(x)); if(a>=0&&b>=0) A.loop=[a,b,'ciclo']; else delete A.loop; if(A.note) A.note=A.note.replace('entre Nuvo','entre o Brandforge'); } }catch(e){}
   function save(){ try{ localStorage.setItem(KEY,JSON.stringify({settings,data})); }catch(e){} }
 
   const getPath=(o,p)=>p.split('.').reduce((a,k)=>a&&a[k],o);
