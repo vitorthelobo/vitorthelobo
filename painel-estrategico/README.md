@@ -29,4 +29,4 @@ um plano de 90 dias. Preços e seleções do montador são editáveis e ficam sa
   validação com limites ajustáveis e a tabela de repositórios de skills com comandos de instalação.
 - Os arquivos sem `.standalone` são as mesmas páginas no formato dos Artifacts do Claude.
 
-Fora de todos os painéis, por decisão: Postelier, Nuvo, StuddyBuddy e MotionForge.
+Fora de todos os painéis, por decisão: Postelier, Nuvo e StuddyBuddy. O MotionForge segue no Plano B.

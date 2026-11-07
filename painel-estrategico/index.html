@@ -252,7 +252,7 @@ textarea{min-height:110px; resize:vertical; font-family:var(--mono) !important; 
     lists:{
       planA:{label:'Plano A',note:'Ciclo contínuo entre o Brandforge e o SaaS: validar, coletar feedback, melhorar.',loop:[0,3,'ciclo'],
         items:['Brandforge','Dashboard','SaaS Infinibrand / Logoforge','SaaS Brandforge dividido em 5 · validar, feedback, melhorias','Postelier']},
-      planB:{label:'Plano B',items:[]},
+      planB:{label:'Plano B',items:['MotionForge']},
       deliv:{label:'Entregáveis',note:'Tudo que cada produto do Plano A precisa gerar para ir ao mercado.',
         items:['Manual','Deck','Mockups','LP','Grafismos','Ilustrações','Extensions (?)']},
       funnel:{label:'Aquisição',numbered:true,items:['Lead','Prospects','Roteiro','Funil','Canais','Abordagem','Captação','Hook']},
@@ -264,7 +264,7 @@ textarea{min-height:110px; resize:vertical; font-family:var(--mono) !important; 
   let settings=clone(DEFAULT_SETTINGS), data=clone(DEFAULT_DATA);
   try{ const saved=JSON.parse(localStorage.getItem(KEY)||'null'); if(saved){ Object.assign(settings,saved.settings||{}); if(saved.data) data=saved.data; } }catch(e){}
   /* migração: remove itens retirados do plano em dados salvos antes da mudança */
-  try{ const B=data.lists&&data.lists.planB; if(B) B.items=B.items.filter(x=>!/^(StuddyBuddy|MotionForge)$/i.test(x)); }catch(e){}
+  try{ const B=data.lists&&data.lists.planB; if(B) B.items=B.items.filter(x=>!/^StuddyBuddy$/i.test(x)); }catch(e){}
   /* migração: remove o item antigo do Plano A em dados salvos antes da mudança */
   try{ const A=data.lists&&data.lists.planA; const i=A?A.items.indexOf('Nuvo'):-1;
     if(i>=0){ A.items.splice(i,1); const a=A.items.indexOf('Brandforge'), b=A.items.findIndex(x=>/^SaaS Brandforge/.test(x)); if(a>=0&&b>=0) A.loop=[a,b,'ciclo']; else delete A.loop; if(A.note) A.note=A.note.replace('entre Nuvo','entre o Brandforge'); } }catch(e){}
