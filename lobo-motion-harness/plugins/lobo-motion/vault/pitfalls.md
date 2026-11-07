@@ -59,3 +59,9 @@ Leituras que enganam e armadilhas de ferramenta. Cada uma custou tempo real em a
 ## Studio: família com nome curto caía no efeito anterior
 A spec mandada pro Claude trazia `key` curto (`object3d`, `grid`) junto do nome longo; ele respondia `family: "object3d"`, a página não reconhecia e usava `studio.family` anterior em silêncio. Resultado: pedido de cubo 3D, palco com grid de pontos, note falando de cubo. Correção: spec sem `key`, lista explícita dos 11 nomes + tabela "quando usar" na instrução, `resolveFamily()` aceita nome longo, chave curta e nome de exibição, e família desconhecida vira erro visível sem tocar o palco. `coerce()` também descarta preset inexistente, enum fora da lista (corrigindo caixa) e cor fora de `#RRGGBB`; Criar não leva histórico pra não puxar a família anterior; `verifyStage()` confere `__lobo.family` depois do load.
 
+## Imagem → 3D: contorno traçado com y invertido troca furo por sólido
+No extrude, as arestas de cada célula sólida são emitidas em ordem fixa (x,y)→(x+1,y)→(x+1,y+1)→(x,y+1) em coordenadas de imagem (y pra baixo). Ao converter pra y pra cima, o laço externo fica horário (área negativa) e o furo anti-horário. Classificar "externo = área positiva" sem reverter deu letras viradas em furo e só os miolos do O e do B viraram sólido. Correção: `pts.reverse()` em cada laço antes de medir a área. Teste rápido fora do navegador: `traceContours` + `signedArea` em Node sobre um PBM do logo (`convert logo.png -resize 96x60! -threshold 50% pbm:-`).
+
+## Sonda Playwright com UA headless cai no fallback de bot
+`chromium.launch()` cru manda `HeadlessChrome` no user agent e todo template vira estático (`frames: 0`, screenshot igual com e sem interação). Use `userAgent` de desktop normal (o `UA` de `tools/qa/_lib.mjs`) e os `GPU_ARGS` de lá.
+

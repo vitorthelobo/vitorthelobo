@@ -238,6 +238,15 @@ Todos abrem com `?preset=<nome>` no template da família. Lidos em folha de cont
 | ripple-pastel | ripples | **claro**: anéis pastel |
 | conic-candy | conic | rosa, amarelo, menta, azul girando |
 
+Interação (hover + clique em qualquer shape):
+| preset | shape | hover · clique |
+| --- | --- | --- |
+| lens-warp | warped | warp (lente que puxa) · ripple |
+| ripple-pool | caustics | ripple (água ondula) · ripple |
+| spotlight-mesh | mesh | spotlight (lanterna) · flash |
+| ink-vortex | blobs | swirl (redemoinho) · shock |
+| shift-stripes | stripes | shift (listras deslocam) · shock, **claro** |
+
 ### particle-forms
 | preset | forma · sprite · movimento | diferencial |
 | --- | --- | --- |
@@ -286,6 +295,7 @@ entrada: slow-dissolve (3.2 s, ruído fino), big-pixels (mosaico 140 px), micro-
 
 ### 3d-object-scene
 glass-torus · black-chrome (esfera) · candy-capsule (clay) · copper-knot · opal-icosa (iridescente) · wire-torus · jade-dodeca (vidro verde) · matte-cube (**claro**, cena cinza) · neon-wire-sphere · brushed-steel (cápsula).
+Imagem → 3D (qualquer preset): `image` + `imageMode` extrude (logo com furos e bisel), relief (foto em baixo-relevo texturizado) ou voxel (cubinhos coloridos por pixel). No showroom: aba 3D Object Scene, "Imagem → 3D", upload, arrastar ou "Logo de exemplo".
 
 ### morph-transition
 cosmos-cycle (galaxy→saturn→atom→phyllotaxis) · life-cycle (coral→jellyfish→neuron→lotus) · geometry (sphere→cylinder→lattice→torusKnot, elastic) · lobo-heart (heart→glyph→atom) · helix-mobius (helixDna→mobius→ribbon→lissajous) · storm-calm (tornado→membrane→vortex→cosmicWave) · fountain-bloom (fountain→superformula→lotus→coral) · orbit-system (atom→magnetosphere→gyroscope→saturn) · slow-dream (4 s, DOF e parallax) · glitch-swap (0.9 s, linear, sem stagger).

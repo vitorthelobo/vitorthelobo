@@ -32,6 +32,8 @@ Preencha o objeto completo com todas as chaves do schema, inclusive `seed`. Esco
 
 Paleta: 4 ou 5 stops, do escuro pro claro, com um stop de acento na posição 0.5 a 0.75. Mistura é em OKLab no shader, então cores saturadas não lavam.
 
+Interação (qualquer shape): `hover` + `hoverRadius`/`hoverStrength` e `click` + `clickStrength`/`clickSpeed`. Brief diz "reage ao mouse", "segue o cursor", "água que ondula" → `hover: ripple`; "lente", "puxa", "distorce" → `warp`; "redemoinho" → `swirl`; "lanterna", "revela" → `spotlight`; "troca as cores perto do cursor" → `shift`. Clique: "pulso", "gota" → `ripple`; "clarão" → `flash`; "onda que muda a cor" → `shock`. Default é `none` nos dois: fundo de hero que não é pra interagir fica sem.
+
 ## 2. Shader
 - Copie `templates/standalone.html`. O fragment lê **só uniforms**; a única mudança de código aceitável é em `shapeT()` (o campo) e nos efeitos empilháveis.
 - `dither`, `halftone` e `vignette` já existem como chaves planas (0 = off). Para um efeito novo (luz, glass, pixelate): adicione a chave no CONFIG, um uniform `uX` e um bloco no fragment aplicado na ordem shape → dither → gradient → contrast → halftone → vignette → grain. Funções no cookbook.

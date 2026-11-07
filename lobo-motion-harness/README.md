@@ -26,7 +26,7 @@ lobo-motion-harness/
 
 | Peça | Estado |
 | --- | --- |
-| `shader-background` | **Pronta.** Template WebGL2 testado pelas 4 sondas (1 programa, reduced motion assenta, bot sem WebGL, contexto volta). 26 presets, 12 campos (linear, radial, conic, mesh, warped, aurora, rays, ripples, stripes, caustics, blobs, band) e efeitos dither, halftone e vinheta. Cookbook GLSL e schema. |
+| `shader-background` | **Pronta.** Template WebGL2 testado pelas 4 sondas (1 programa, reduced motion assenta, bot sem WebGL, contexto volta). 31 presets, 12 campos (linear, radial, conic, mesh, warped, aurora, rays, ripples, stripes, caustics, blobs, band), efeitos dither, halftone e vinheta, hover de 5 modos e clique de 3 modos em qualquer campo. Cookbook GLSL e schema. |
 | `particle-forms` | **Pronta.** Template three.js testado, 35 formas com seed, 10 sprites, 8 movimentos stateless, 6 modos de cor, 5 efeitos de hover com sliders, zoom, profundidade de campo e parallax, blend aditivo ou opaco, curl noise, bloom, tiers. 54 presets. Geradores e GPGPU documentados. |
 | `effect-tool-ui`, `build-prompt`, `qa-motion`, `optimize-3d-scene`, `catalog-entry` | **Prontas** como procedimento; o contrato `window.__lobo` já está nos dois templates. |
 | `orb-reactive` | **Pronta.** Template WebGL2 testado: 15 presets, 6 estados com transição, áudio por microfone ou `setLevel`, modo widget (264 px) e hero (`size: 0`), fundo transparente opcional. |
@@ -36,7 +36,7 @@ lobo-motion-harness/
 | `post-image-fx` | **Pronta.** ASCII, dither e refração num shader WebGL2, 20 presets, upload de imagem ou vídeo. |
 | `image-reveal` | **Pronta.** Reveal líquido, pixel, tiles, wipe, ripple e líquido no hover num shader sobre a imagem, 16 presets, `<img>` no fallback. |
 | `grid-dots-field` | **Pronta.** Grade em canvas 2D com 10 glifos (dots, ring, square, diamond, triangle, star, plus, cross, lines, ascii), warp, onda, 5 efeitos de hover com sliders e toque, 18 presets. |
-| `3d-object-scene` | **Pronta.** GLB ou objeto procedural com material físico, PMREM, órbita por arrasto, parallax, 16 presets. |
+| `3d-object-scene` | **Pronta.** GLB, objeto procedural ou imagem do cliente (extrude com furos e bisel, relevo texturizado ou voxels) com material físico, PMREM, órbita por arrasto, parallax, 16 presets. |
 | `morph-transition` | **Pronta.** Transição entre as 35 formas de partícula com stagger e scatter, ciclo ou scroll, DOF e parallax, 15 presets. |
 | `integrate-effect` | **Pronta (doc).** Receitas React/Next, Vue, Astro/HTML, Framer, Webflow; cleanup, SSR, uma lib de motion. |
 | `scroll-grammar` | **Pronta (doc).** switch/scrub/progress/pin, driver próprio ou ScrollTrigger/Lenis, receitas por família. |

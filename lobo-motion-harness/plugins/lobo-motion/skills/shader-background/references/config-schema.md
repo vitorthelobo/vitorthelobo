@@ -26,10 +26,17 @@ Um objeto plano. Painel, URL (`?s=` base64url do JSON), favorito e build prompt 
 | height | number | 0..1 | 0.45 | só band: altura da borda da faixa, do topo (angle ≥ 90 inverte pra base) |
 | softness | number | 0..1 | 0.5 | só band: suavidade da borda |
 | pointer | number | 0..1 | 0.8 | só band: quanto a faixa se estica em direção ao cursor (mouse, ou dedo arrastando) |
+| hover | enum | none, warp, ripple, swirl, spotlight, shift | none | qualquer shape: o cursor (ou o dedo arrastando) deforma o campo. warp puxa como lente, ripple ondula, swirl gira, spotlight acende, shift desloca o gradiente |
+| hoverRadius | number | 0.1..1 | 0.35 | raio do hover em unidades de altura da tela |
+| hoverStrength | number | 0..1 | 0.6 | força do hover |
+| click | enum | none, ripple, flash, shock | none | clique/toque dispara uma onda a partir do ponto (até 4 vivas, ~3 s). ripple é um anel que se expande, flash um clarão, shock um anel que desloca o gradiente |
+| clickStrength | number | 0..1 | 0.7 | força da onda |
+| clickSpeed | number | 0.3..3 | 1 | velocidade da onda |
 | seed | integer | 0..9999 | 0 | desloca o campo de ruído |
 | dprMax | number | 1..2 | 1.5 | teto de DPR (phone é clampado em 1.25) |
 
 ## Operações
+- Hover e clique também animam com `prefers-reduced-motion` (são resposta a um gesto) e o loop só fica vivo enquanto a onda existe ou o cursor se move. `window.__lobo.tap(x, y)` dispara uma onda por código (x, y em unidades de altura, centrado, y pra cima).
 - `setConfig(changes)` devolve `{ ignored: [] }`; nunca cria chave nova.
 - Tint: trocar `colors` (e opcionalmente `stops`). Nunca o shader.
 - Variação: trocar `seed`. A fórmula fica.

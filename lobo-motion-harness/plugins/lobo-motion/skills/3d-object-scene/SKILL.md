@@ -9,13 +9,15 @@ allowed-tools: Bash, Read, Grep, Glob, Edit, Write
 `templates/standalone.html` é a referência: three.js por import map, `MeshPhysicalMaterial` com todas as chaves físicas no CONFIG, RoomEnvironment em PMREM, key + rim + hemisfério, arrasto com inércia (sem OrbitControls), GLB normalizado e centrado, procedural como fallback, prewarm, tiers. Schema em `references/config-schema.md`; valores por material em `references/materials.md`. `optimize-3d-scene` cuida do peso depois.
 
 ## 0. Intake
-- Objeto: GLB (URL/arquivo), logo em SVG pra extrudar, ou procedural (torusKnot, icosahedron, sphere, capsule, box, dodecahedron, torus).
+- Objeto: GLB (URL/arquivo), imagem (PNG/JPG/SVG rasterizado) que vira extrude/relief/voxel, ou procedural (torusKnot, icosahedron, sphere, capsule, box, dodecahedron, torus).
 - Material pelo brief: luxo → chrome/metal; tech → glass/iridescent; humano/soft → clay; esquema/blueprint → wire.
 - Interação: só gira sozinho, ou o usuário arrasta? Scroll gira (`scroll-grammar` scrub em `rotationY` via `setConfig({ tiltX })` ou `rotateSpeed`)?
 - Fundo: a cena tem `bg` sólido; pra ficar sobre um shader-background, `alpha: true` no renderer e `setClearColor(0, 0)` (uma linha, e cuide de ter um só canvas pesado).
 
 ## 1. CONFIG
-`preset, src, object, material, color, bg, roughness, metalness, transmission, ior, iridescence, clearcoat, envIntensity, exposure, keyColor, rimColor, autoRotate, rotateSpeed, tiltX, cameraZ, scale, wire, drag, seed, dprMax`.
+`preset, src, image, imageMode, imageDepth, imageThreshold, imageInvert, imageRes, imageBevel, imageSmooth, imageColor, object, material, color, bg, roughness, metalness, transmission, ior, iridescence, clearcoat, envIntensity, exposure, keyColor, rimColor, autoRotate, rotateSpeed, tiltX, cameraZ, scale, wire, drag, parallax, parallaxAmount, seed, dprMax`.
+
+Logo ou imagem do cliente sem GLB: `image` (URL ou data URL) com `imageMode`. Logo vetorial/plano → `extrude` (chrome, gold, glass ficam ótimos no bisel); foto, textura, mapa → `relief`; pixel art, ícone, emoji → `voxel`. Logo branco em fundo escuro → `imageInvert: true`. Sem alpha, o escuro é sólido.
 
 ## 2. Técnica
 - Pivot `Group` recebe rotação; o mesh fica em (0,0,0). GLB: `Box3` → centraliza e escala pra 2 unidades.
