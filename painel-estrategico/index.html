@@ -238,7 +238,7 @@ textarea{min-height:110px; resize:vertical; font-family:var(--mono) !important; 
 
 <script>
 (function(){
-  const KEY='mapa-estrategico-lobo-v1';
+  const KEY='mapa-estrategico-lobo-v2';
   const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const clone=o=>JSON.parse(JSON.stringify(o));
 
@@ -251,7 +251,7 @@ textarea{min-height:110px; resize:vertical; font-family:var(--mono) !important; 
     subtitle:'Portfólio de produtos, entregáveis de marca e a máquina de aquisição, em um só quadro.',
     lists:{
       planA:{label:'Plano A',note:'Ciclo contínuo entre o Brandforge e o SaaS: validar, coletar feedback, melhorar.',loop:[0,3,'ciclo'],
-        items:['Brandforge','Dashboard','SaaS Infinibrand / Logoforge','SaaS Brandforge dividido em 5 · validar, feedback, melhorias','Postelier']},
+        items:['Brandforge','Dashboard','SaaS Infinibrand / Logoforge','SaaS Brandforge dividido em 5 · validar, feedback, melhorias']},
       planB:{label:'Plano B',items:['MotionForge']},
       deliv:{label:'Entregáveis',note:'Tudo que cada produto do Plano A precisa gerar para ir ao mercado.',
         items:['Manual','Deck','Mockups','LP','Grafismos','Ilustrações','Extensions (?)']},
@@ -263,11 +263,7 @@ textarea{min-height:110px; resize:vertical; font-family:var(--mono) !important; 
 
   let settings=clone(DEFAULT_SETTINGS), data=clone(DEFAULT_DATA);
   try{ const saved=JSON.parse(localStorage.getItem(KEY)||'null'); if(saved){ Object.assign(settings,saved.settings||{}); if(saved.data) data=saved.data; } }catch(e){}
-  /* migração: remove itens retirados do plano em dados salvos antes da mudança */
-  try{ const B=data.lists&&data.lists.planB; if(B) B.items=B.items.filter(x=>!/^StuddyBuddy$/i.test(x)); }catch(e){}
-  /* migração: remove o item antigo do Plano A em dados salvos antes da mudança */
-  try{ const A=data.lists&&data.lists.planA; const i=A?A.items.indexOf('Nuvo'):-1;
-    if(i>=0){ A.items.splice(i,1); const a=A.items.indexOf('Brandforge'), b=A.items.findIndex(x=>/^SaaS Brandforge/.test(x)); if(a>=0&&b>=0) A.loop=[a,b,'ciclo']; else delete A.loop; if(A.note) A.note=A.note.replace('entre Nuvo','entre o Brandforge'); } }catch(e){}
+  /* dados salvos de versões anteriores ficam de fora: a chave mudou */
   function save(){ try{ localStorage.setItem(KEY,JSON.stringify({settings,data})); }catch(e){} }
 
   const getPath=(o,p)=>p.split('.').reduce((a,k)=>a&&a[k],o);
