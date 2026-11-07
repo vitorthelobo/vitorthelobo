@@ -19,3 +19,14 @@ Plano de vendas de tudo que está no Mapa: três canais que não se cruzam (Stud
 em white-label para agências, Brandforge self-serve), mais o Plano B. Traz catálogo com preços, entregáveis avulsos, pacotes,
 as 8 etapas de aquisição por canal, pilares de mensagem com roteiro de VSL, simulador de meta com teto de capacidade e
 um plano de 90 dias. Preços e seleções do montador são editáveis e ficam salvos no navegador.
+
+## Largada em 7 Dias e Manual da Largada
+
+- `largada-7-dias.standalone.html` — resumo interativo do plano de uma semana: duas trilhas (Kit Agência e loja de
+  entregáveis com nome próprio), régua de 7 dias, vereditos filtráveis e as três skills a instalar.
+- `manual-da-largada.standalone.html` — versão detalhada e editável: diagnóstico com fontes, vereditos, catálogo da loja
+  com preços e capacidade recalculados ao vivo, checklist de bloqueios do Kit, plano dia a dia editável, placar de
+  validação com limites ajustáveis e a tabela de repositórios de skills com comandos de instalação.
+- Os arquivos sem `.standalone` são as mesmas páginas no formato dos Artifacts do Claude.
+
+Fora de todos os painéis, por decisão: Postelier, Nuvo, StuddyBuddy e MotionForge.

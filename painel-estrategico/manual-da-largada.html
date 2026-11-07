@@ -1,0 +1,593 @@
+<title>Manual da Largada</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: coluna editorial com navegação fixa; cada seção abre com rótulo mono. Vidro nos blocos que se operam:
+   preços, capacidade, checklist, plano editável e placar. Tudo que o usuário muda fica no navegador. */
+:root{
+  --bg:#edf1f5; --fg:#101826; --muted:#5d6878; --surface:#ffffff; --line:#101826;
+  --accent:#0e9fb0; --wire:#e2489e; --loop:#2a9f5c; --warm:#e0582c; --gold:#b07a0c;
+  --shadow-base:.11; --bg-dim:1; --hl:.55;
+  --display:'Outfit',ui-sans-serif,system-ui,sans-serif; --body:'DM Sans',ui-sans-serif,system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:22px; --gap:20px; --ease:cubic-bezier(.16,1,.3,1);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#0b1016; --fg:#edf1f5; --muted:#97a2b2; --surface:#141c27; --line:#ffffff; --loop:#3fc77a; --warm:#ff7a4d; --gold:#f0b545; --shadow-base:.42; --bg-dim:.6; --hl:.12; color-scheme:dark }
+}
+:root[data-theme="dark"]{ --bg:#0b1016; --fg:#edf1f5; --muted:#97a2b2; --surface:#141c27; --line:#ffffff; --loop:#3fc77a; --warm:#ff7a4d; --gold:#f0b545; --shadow-base:.42; --bg-dim:.6; --hl:.12; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} .in{animation:none} }
+body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--body); font-size:16px; line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:0; -webkit-font-smoothing:antialiased; overflow-x:hidden}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:30; background:var(--bg)}
+.bg{position:fixed; inset:0; z-index:-1; pointer-events:none; background:
+  radial-gradient(55% 45% at 10% 4%, hsl(205 90% 70% / calc(.5 * var(--bg-dim))), transparent 70%),
+  radial-gradient(40% 40% at 92% 22%, color-mix(in srgb, var(--accent) calc(45% * var(--bg-dim)), transparent), transparent 70%),
+  radial-gradient(45% 45% at 80% 92%, color-mix(in srgb, var(--wire) calc(26% * var(--bg-dim)), transparent), transparent 70%),
+  radial-gradient(40% 40% at 8% 88%, hsl(275 80% 65% / calc(.33 * var(--bg-dim))), transparent 70%)}
+.page{max-width:1180px; margin:0 auto; padding-block:36px 64px; display:grid; gap:56px}
+.glass{background:color-mix(in srgb,var(--surface) 60%,transparent); -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
+  border:1px solid color-mix(in srgb,var(--line) 14%,transparent); border-radius:var(--radius); box-shadow:0 14px 32px rgba(2,8,20,var(--shadow-base)), inset 0 1px 0 rgba(255,255,255,var(--hl))}
+.eyebrow{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted); margin:0}
+h1,h2,h3,h4{font-family:var(--display); margin:0; text-wrap:balance; line-height:1.1}
+h1{font-size:clamp(2.2rem,5vw,3.6rem); font-weight:800; letter-spacing:-.02em}
+h2{font-size:clamp(1.6rem,3vw,2.2rem); font-weight:700}
+h3{font-size:1.2rem; font-weight:700}
+h4{font-size:1rem; font-weight:700}
+p{margin:0}
+.lead{font-size:1.12rem; color:var(--muted); max-width:64ch}
+.sec-head{display:grid; gap:10px; max-width:72ch}
+.sec-head p:not(.eyebrow){color:var(--muted)}
+section{display:grid; gap:24px; scroll-margin-top:84px}
+.num{font-variant-numeric:tabular-nums}
+.in{animation:in .7s var(--ease) both; animation-delay:calc(var(--i,0) * 70ms)}
+@keyframes in{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+.c-kit{--tone:var(--accent)} .c-loja{--tone:var(--loop)} .c-shelf{--tone:var(--gold)} .c-no{--tone:var(--warm)}
+
+.nav{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; display:flex; gap:6px; overflow-x:auto; padding:8px; border-radius:999px; scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none; text-decoration:none; color:var(--fg); font:600 .85rem var(--display); padding:.45em .9em; border-radius:999px}
+.nav a:hover,.nav a:focus-visible{background:color-mix(in srgb,var(--accent) 16%,transparent); outline:none}
+
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr)); gap:14px}
+.kpi{padding:18px 20px; display:grid; gap:4px; align-content:start}
+.kpi b{font:700 1.6rem var(--display); font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted); font-size:.9rem}
+
+.tag{display:inline-flex; align-items:center; gap:.4em; font:500 11px var(--mono); letter-spacing:.08em; text-transform:uppercase; padding:.35em .7em; border-radius:999px; border:1px solid color-mix(in srgb,var(--tone,var(--accent)) 45%,transparent); color:var(--tone,var(--accent)); background:color-mix(in srgb,var(--tone,var(--accent)) 10%,transparent); white-space:nowrap}
+.tag::before{content:""; width:.55em; height:.55em; border-radius:50%; background:currentColor}
+.t-vai{--tone:var(--loop)} .t-ajusta{--tone:var(--gold)} .t-nao{--tone:var(--warm)} .t-src{--tone:var(--muted)}
+
+.cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:var(--gap)}
+@media (min-width:700px){ .span2{grid-column:span 2} }
+.card{padding:22px 24px; display:grid; gap:12px; align-content:start; min-width:0}
+.card.top{border-top:4px solid var(--tone)}
+.card .eyebrow{color:var(--tone,var(--muted))}
+.card ul{margin:0; padding-left:1.1em; display:grid; gap:7px; font-size:.95rem}
+.card li{overflow-wrap:anywhere; min-width:0}
+.card li b{font-family:var(--display)}
+.card p.note{font-size:.9rem; color:var(--muted)}
+.src{font:500 .74rem var(--mono); color:var(--muted)}
+
+.tbl-wrap{overflow-x:auto; border-radius:var(--radius)}
+table{width:100%; border-collapse:collapse; font-size:.93rem}
+th,td{text-align:left; padding:12px 14px; vertical-align:top; border-bottom:1px solid color-mix(in srgb,var(--line) 9%,transparent)}
+th{font:500 11px var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td b{font-family:var(--display)}
+td.r,th.r{text-align:right}
+.wide{min-width:820px}
+
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:.5em; padding:.55em .95em; border-radius:999px; cursor:pointer; font:600 .85rem var(--display); color:var(--fg); border:1px solid color-mix(in srgb,var(--line) 18%,transparent); background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.btn.primary{background:var(--accent); color:#fff; border-color:transparent}
+.btn.small{padding:.35em .7em; font-size:.78rem}
+.btn:hover{filter:brightness(.95)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+input[type=number],input[type=text],select,textarea{font:inherit; color:var(--fg); border:1px solid color-mix(in srgb,var(--line) 18%,transparent); background:color-mix(in srgb,var(--surface) 80%,transparent); border-radius:10px; padding:.4em .6em}
+input[type=number]{width:110px; font:600 .95rem var(--mono); text-align:right}
+input[type=checkbox]{width:1.15em; height:1.15em; accent-color:var(--accent); flex:none}
+input[type=range]{width:100%; accent-color:var(--accent)}
+output{font:500 .85rem var(--mono); color:var(--muted); font-variant-numeric:tabular-nums}
+
+/* loja */
+.prod{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 14px; align-items:center; padding:12px 0; border-bottom:1px solid color-mix(in srgb,var(--line) 9%,transparent)}
+.prod:last-child{border-bottom:0}
+.prod h4{font-size:1.02rem}
+.prod small{display:block; color:var(--muted); font-size:.85rem}
+.prod .pin{display:flex; align-items:center; gap:6px; font:500 .8rem var(--mono); color:var(--muted)}
+.sumbox{padding:16px 18px; border-radius:16px; background:color-mix(in srgb,var(--surface) 55%,transparent); border:1px solid color-mix(in srgb,var(--line) 12%,transparent); display:grid; gap:8px}
+.sumrow{display:flex; justify-content:space-between; gap:12px; font-size:.95rem}
+.sumrow b{font-variant-numeric:tabular-nums}
+.sumrow.total{font:700 1.2rem var(--display); padding-top:8px; border-top:1px solid color-mix(in srgb,var(--line) 12%,transparent)}
+.warn{font-size:.9rem; padding:12px 14px; border-radius:12px; background:color-mix(in srgb,var(--warm) 12%,transparent); border:1px solid color-mix(in srgb,var(--warm) 35%,transparent)}
+.ok{font-size:.9rem; padding:12px 14px; border-radius:12px; background:color-mix(in srgb,var(--loop) 12%,transparent); border:1px solid color-mix(in srgb,var(--loop) 35%,transparent)}
+.rows{display:grid; gap:12px}
+.row{display:grid; gap:4px}
+.row label{display:flex; justify-content:space-between; gap:10px; font-size:.92rem; font-weight:500}
+.faq{display:grid; gap:8px}
+.faq details{padding:12px 16px; border-radius:14px; border:1px solid color-mix(in srgb,var(--line) 11%,transparent); background:color-mix(in srgb,var(--surface) 50%,transparent)}
+.faq summary{cursor:pointer; font:600 .98rem var(--display)}
+.faq p{margin-top:8px; font-size:.93rem; color:var(--muted)}
+
+/* checklist */
+.check{display:grid; gap:4px}
+.ck{display:grid; grid-template-columns:auto minmax(0,1fr); gap:12px; align-items:start; padding:10px 12px; border-radius:12px}
+.ck:hover{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.ck label{cursor:pointer; font-size:.95rem}
+.ck label small{display:block; color:var(--muted); font-size:.82rem}
+.ck.done label{text-decoration:line-through; color:var(--muted)}
+.prog{display:flex; align-items:center; gap:12px; font:600 .9rem var(--display)}
+.prog .bar{flex:1; height:6px; border-radius:6px; background:color-mix(in srgb,var(--line) 8%,transparent); overflow:hidden}
+.prog .bar i{display:block; height:100%; width:0; background:var(--accent); border-radius:6px; transition:width .5s var(--ease)}
+
+/* plano */
+.dayblock{display:grid; gap:12px; padding:20px 22px}
+.dayhead{display:flex; justify-content:space-between; gap:12px; align-items:baseline; flex-wrap:wrap}
+.dayhead h3{font-size:1.25rem}
+.dayhead .eyebrow{color:var(--accent)}
+.twocol{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:14px}
+.tasks{display:grid; gap:4px; align-content:start}
+.tasks .eyebrow{padding-bottom:4px}
+.task{display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:10px; align-items:start; padding:7px 8px; border-radius:10px}
+.task:hover{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.task .txt{min-width:0; overflow-wrap:anywhere; outline:none; font-size:.93rem; border-radius:6px; padding:0 .2em; margin:0 -.2em}
+.task .txt:focus{box-shadow:0 0 0 2px var(--accent)}
+.task.done .txt{text-decoration:line-through; color:var(--muted)}
+.task .del{border:0; background:color-mix(in srgb,var(--wire) 14%,transparent); color:var(--wire); width:1.5em; height:1.5em; border-radius:50%; font:600 .8em/1 var(--body); cursor:pointer; opacity:0; display:grid; place-items:center}
+.task:hover .del,.task:focus-within .del{opacity:1}
+.add{border:1px dashed color-mix(in srgb,var(--line) 30%,transparent); background:transparent; color:var(--muted); border-radius:999px; padding:.35em .85em; font:500 .82rem var(--body); cursor:pointer; justify-self:start; margin-top:4px}
+
+/* placar */
+.score{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:var(--gap)}
+.score .card{border-top:4px solid var(--tone)}
+.pin2{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; font-size:.93rem; padding:6px 0}
+.status{padding:14px 16px; border-radius:14px; font:600 .95rem var(--display); display:grid; gap:4px}
+.status small{font:400 .88rem var(--body); color:var(--muted)}
+.status.go{background:color-mix(in srgb,var(--loop) 14%,transparent); border:1px solid color-mix(in srgb,var(--loop) 40%,transparent)}
+.status.fix{background:color-mix(in srgb,var(--gold) 14%,transparent); border:1px solid color-mix(in srgb,var(--gold) 40%,transparent)}
+.status.stop{background:color-mix(in srgb,var(--warm) 14%,transparent); border:1px solid color-mix(in srgb,var(--warm) 40%,transparent)}
+.status.wait{background:color-mix(in srgb,var(--line) 6%,transparent); border:1px solid color-mix(in srgb,var(--line) 14%,transparent)}
+.thr{display:grid; gap:6px; font-size:.88rem; color:var(--muted)}
+.thr div{display:flex; justify-content:space-between; gap:8px; align-items:center}
+.thr input{width:80px}
+
+/* skills */
+.cmd{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center}
+.cmd code{font:500 .76rem/1.4 var(--mono); padding:.5em .7em; border-radius:10px; background:color-mix(in srgb,var(--line) 7%,transparent); overflow-wrap:anywhere; min-width:0}
+.actions{display:flex; gap:8px; flex-wrap:wrap}
+textarea{min-height:110px; resize:vertical; width:100%; font-family:var(--mono); font-size:.75rem}
+footer{color:var(--muted); font-size:.88rem; display:flex; gap:14px; flex-wrap:wrap; justify-content:space-between}
+footer a{color:var(--fg); font-weight:600}
+.toast{position:fixed; left:50%; bottom:calc(22px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:60; padding:.6em 1.1em; font-size:.9rem; border-radius:999px}
+</style>
+
+<div class="bg" aria-hidden="true"></div>
+
+<main class="page">
+  <header style="display:grid; gap:18px">
+    <p class="eyebrow">The Lobo Studio · Largada · 9 a 15 de novembro de 2026</p>
+    <h1>Manual da Largada</h1>
+    <p class="lead">A versão longa do plano de 7 dias: o diagnóstico com fontes, os vereditos com o porquê, a loja com preços e capacidade editáveis, os bloqueios do Kit em checklist, o plano dia a dia que você pode reescrever e o placar que diz se segue, ajusta ou para. Tudo que você mudar fica salvo neste navegador.</p>
+    <div class="kpis">
+      <div class="kpi glass in" style="--i:1"><b class="num" id="k-prog">0%</b><span>dos bloqueios do Kit resolvidos</span></div>
+      <div class="kpi glass in" style="--i:2"><b class="num" id="k-plan">0%</b><span>do plano de 7 dias concluído</span></div>
+      <div class="kpi glass in" style="--i:3"><b class="num" id="k-cap">0</b><span>pedidos da loja que cabem por semana com as horas que você marcar</span></div>
+      <div class="kpi glass in" style="--i:4"><b class="num" id="k-week">R$ 0</b><span>caixa da semana se as metas baterem</span></div>
+    </div>
+  </header>
+
+  <nav class="nav glass" aria-label="Seções">
+    <a href="#diag">Diagnóstico</a><a href="#vereditos">Vereditos</a><a href="#loja">Loja</a><a href="#kit">Kit</a><a href="#plano">Plano 7 dias</a><a href="#placar">Placar</a><a href="#skills">Skills</a><a href="#fontes">Fontes</a>
+  </nav>
+
+  <!-- 01 DIAGNÓSTICO -->
+  <section id="diag">
+    <div class="sec-head"><p class="eyebrow">01 · Diagnóstico</p><h2>O que existe, o que falta e o que os números dizem</h2><p>Lido nos seus repositórios em 7 de novembro. Onde um documento contradiz outro, está marcado.</p></div>
+    <div class="cols">
+      <div class="card glass top c-kit in" style="--i:1"><p class="eyebrow">Existe e está pronto</p><ul>
+        <li><b>LP do Kit Agência</b> no ar em kit-agencia-v3.vercel.app, sem indexação, com preço fixo, FAQ de 8 perguntas, pilares e CTAs.</li>
+        <li><b>Guia comercial de 23/09</b> com ICP, 5 canais, scripts A, B e C, cadência D0, D3, D7 e D14, call de 20 minutos e objeções.</li>
+        <li><b>74 leads</b> no CSV: 61 agências em 15 estados, 10 na prioridade "semana-1", 6 conferidos à mão.</li>
+        <li><b>Marca de laboratório pública</b> em luna-deck.vercel.app e gerador de proposta em proposta-lobo.vercel.app.</li>
+        <li><b>14 skills</b> de preço, oferta, validação, objeção e copy instaladas no estúdio.</li>
+        <li><b>Plano frio de 3/10</b> com DM para negócio com logo, proposta de marketplace e resposta a "quanto é".</li>
+      </ul></div>
+      <div class="card glass top c-no in" style="--i:2"><p class="eyebrow">Falta e bloqueia a venda</p><ul>
+        <li><b>Contrato white-label</b> modelo. Agência séria pede antes do Pix.</li>
+        <li><b>Cal.com</b> e <b>formulário</b>: os dois estavam pendentes em 23/09. Sem a chave do e-mail, o formulário responde "ok" e o lead some.</li>
+        <li><b>Rodapé da LP</b> ainda linka "Ver a vitrine do motor", que fala em motor e mostra marcas de cliente.</li>
+        <li><b>Entregas antigas com carimbo</b> BRANDFORGE no HTML. Decisão D7, obrigatória antes do primeiro kit vendido.</li>
+        <li><b>Preço do logo do zero</b> (D2) e <b>vitrine limpa</b> (D3) ainda em aberto.</li>
+        <li><b>Tempo ponta a ponta</b> por kit nunca foi medido. Só existe 184 minutos de motor até as extensions.</li>
+        <li><b>Nenhum cliente pagante</b> do Brandforge registrado nos documentos. Se houve venda depois de outubro, ela não está escrita.</li>
+      </ul></div>
+      <div class="card glass top c-shelf in" style="--i:3"><p class="eyebrow">O que os números dizem</p><ul>
+        <li><b>Custo de imagem por Studio: R$ 8,70.</b> O teto não é crédito, é a sua atenção: 3 kits por mês.</li>
+        <li><b>3 de outubro:</b> rede quente não comprou "marca completa" a R$ 2.800. Você mesmo escreveu: "essas pessoas não vão querer fazer".</li>
+        <li><b>99Freelas:</b> pedidos abertos com a cara do Express, ticket típico de R$ 300 a 1.500.</li>
+        <li><b>Referências do M17:</b> manual de marca R$ 4.500, identidade completa R$ 18.000, 10 aplicações R$ 5.000.</li>
+        <li><b>Freelancer:</b> R$ 100 a 200 por mockup; logo avulso R$ 700 a 2.500.</li>
+        <li><b>MockupForge:</b> licença de R$ 4.997, zero lançamentos, zero vendas, zero validação.</li>
+      </ul></div>
+      <div class="card glass top c-shelf in" style="--i:4"><p class="eyebrow">Contradições para decidir hoje</p><ul>
+        <li><b>Preço fixo ou faixa.</b> A tabela de 8/9 é fixa; o documento de 24/9 propõe "a partir de"; a sua régua de proposta diz "nunca a partir de". Veredito: fixo. Arquive o site de faixas.</li>
+        <li><b>Sprint:</b> o próprio M17 diverge entre R$ 170 mil e R$ 178,5 mil de valor empilhado. Nada disso importa esta semana; a oferta fica na prateleira.</li>
+        <li><b>Diferencial "atendimento direto"</b> do briefing do estúdio contra o white-label do Kit. Na loja, resolva com "feito por um estúdio com 12 anos", sem rosto no processo e sem call.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <!-- 02 VEREDITOS -->
+  <section id="vereditos">
+    <div class="sec-head"><p class="eyebrow">02 · Vereditos</p><h2>Item por item, com o porquê e a fonte</h2></div>
+    <div class="tbl-wrap glass"><table class="wide"><thead><tr><th>Item</th><th>Veredito</th><th>Por quê</th><th>Fonte</th></tr></thead><tbody id="vtable"></tbody></table></div>
+  </section>
+
+  <!-- 03 LOJA -->
+  <section id="loja">
+    <div class="sec-head"><p class="eyebrow">03 · Loja de entregáveis</p><h2>Produtos, preços, regras e capacidade</h2><p>Mude os preços e as horas. O combo, o desconto, a capacidade e o caixa da semana recalculam na hora.</p></div>
+    <div class="cols">
+      <div class="card glass" style="grid-column:span 1">
+        <p class="eyebrow c-loja">Catálogo editável</p>
+        <div id="prods"></div>
+        <div class="sumbox">
+          <div class="sumrow"><span>Manual + deck + 30 mockups, avulsos</span><b id="l-sum"></b></div>
+          <div class="sumrow"><span>Combo, preço definido</span><b id="l-combo"></b></div>
+          <div class="sumrow"><span>Desconto do combo</span><b id="l-disc"></b></div>
+          <div class="sumrow total"><span>Distância para o Kit Express</span><b id="l-gap"></b></div>
+        </div>
+        <p id="l-warn" class="warn" hidden></p>
+        <p id="l-ok" class="ok" hidden></p>
+      </div>
+      <div class="card glass">
+        <p class="eyebrow c-loja">Capacidade</p>
+        <div class="rows">
+          <div class="row"><label for="h-manual">Horas suas por manual <output id="o-h-manual"></output></label><input type="range" id="h-manual" data-h="manual" min="0.5" max="6" step="0.25"></div>
+          <div class="row"><label for="h-deck">Horas por deck <output id="o-h-deck"></output></label><input type="range" id="h-deck" data-h="deck" min="0.5" max="6" step="0.25"></div>
+          <div class="row"><label for="h-mock">Horas por pack de 30 mockups <output id="o-h-mock"></output></label><input type="range" id="h-mock" data-h="mock" min="0.5" max="6" step="0.25"></div>
+          <div class="row"><label for="h-week">Horas por semana que você dá à loja <output id="o-h-week"></output></label><input type="range" id="h-week" data-h="week" min="2" max="40" step="1"></div>
+        </div>
+        <div class="sumbox">
+          <div class="sumrow"><span>Pedido médio, mix de 1 manual, 1 deck, 2 packs</span><b id="c-avg"></b></div>
+          <div class="sumrow"><span>Horas por pedido médio</span><b id="c-h"></b></div>
+          <div class="sumrow"><span>Pedidos que cabem por semana</span><b id="c-n"></b></div>
+          <div class="sumrow total"><span>Teto de faturamento da loja por semana</span><b id="c-rev"></b></div>
+          <div class="sumrow"><span>Valor da sua hora nesse teto</span><b id="c-hr"></b></div>
+        </div>
+        <p class="note" style="font-size:.9rem;color:var(--muted)">Meça o primeiro pedido real com cronômetro e corrija as horas. O número que vale é o medido, não o chutado.</p>
+      </div>
+      <div class="card glass">
+        <p class="eyebrow c-loja">Regras que protegem o preço</p>
+        <ul>
+          <li><b>Parte sempre de logo existente.</b> Sem logo, a loja indica o Kit ou o Studio. Logo ruim: vetorização como add-on.</li>
+          <li><b>Vende peça, nunca "marca completa".</b> Essa frase é do Express e do Studio.</li>
+          <li><b>Uma revisão</b>, 72 horas úteis, entrega por link. Rodada extra tem preço declarado.</li>
+          <li><b>Sem estratégia e sem call.</b> O briefing de 10 perguntas substitui a reunião.</li>
+          <li><b>Combo abaixo do Express</b>, mas sem landing, sem sistema de assets e sem estratégia. Se o combo encostar em R$ 3.800, você está vendendo o Express sem contrato.</li>
+          <li><b>Uso próprio.</b> Termos dizem "não revenda". Agência que quer revender é cliente do Kit.</li>
+          <li><b>Sem IA na copy.</b> Mesma regra de 23/09: sistema de produção do estúdio, curadoria, 12 anos.</li>
+          <li><b>Reajuste:</b> 3 pedidos seguidos sem negociação, sobe 20%.</li>
+        </ul>
+      </div>
+      <div class="card glass">
+        <p class="eyebrow c-loja">Trava do briefing</p>
+        <ul>
+          <li>Logo em SVG, PDF vetorial ou PNG transparente com 2.000px ou mais.</li>
+          <li>Nome das fontes ou os arquivos. Sem fonte, a loja usa similar e avisa.</li>
+          <li>Cores em HEX. Sem HEX, a loja extrai da logo e avisa.</li>
+          <li>Segmento, 3 adjetivos da marca e 3 concorrentes.</li>
+          <li>Para mockups: 5 aplicações prioritárias de uma lista fechada de 30.</li>
+          <li>Para o deck: a quem ele será apresentado.</li>
+          <li>Para o manual: existe alguma regra já decidida, como área de proteção ou versão em preto?</li>
+        </ul>
+        <p class="note">O formulário recusa envio sem a logo no formato certo. É isso que impede a loja de virar suporte por WhatsApp.</p>
+      </div>
+      <div class="card glass" style="grid-column:1/-1">
+        <p class="eyebrow c-loja">FAQ da loja: a objeção respondida sem call</p>
+        <div class="faq">
+          <details><summary>"É genérico? Vai parecer template?"</summary><p>Cada peça parte da sua logo, das suas cores e das suas fontes, e passa por curadoria de um estúdio com 12 anos de branding antes de ir para você. Veja as amostras: nenhuma parece com a outra.</p></details>
+          <details><summary>"Por que não tem reunião?"</summary><p>Porque o briefing de 10 perguntas resolve o que uma reunião resolveria, e é isso que deixa o preço onde está. Se a sua marca precisa de estratégia, o caminho é o estúdio, não a loja.</p></details>
+          <details><summary>"E se eu não gostar?"</summary><p>Uma rodada de ajustes está inclusa. Se a peça não seguir o briefing que você mandou, refazemos. Gosto pessoal fora do briefing é rodada extra, com preço na página.</p></details>
+          <details><summary>"Quanto tempo demora?"</summary><p>72 horas úteis depois do briefing completo e do pagamento confirmado. O relógio só começa quando os arquivos chegam no formato pedido.</p></details>
+          <details><summary>"Isso é feito com IA?"</summary><p>Resposta alinhada à sua decisão de 23/09: é o sistema de produção do estúdio, com critério, processo e curadoria. Se perguntarem na lata, não negue e não transforme em manchete.</p></details>
+          <details><summary>"Sou designer, posso usar nos meus clientes?"</summary><p>A loja é para uso próprio da marca. Para revender com a sua assinatura existe o Kit Agência, com contrato white-label e sistema completo.</p></details>
+        </div>
+      </div>
+      <div class="card glass" style="grid-column:1/-1">
+        <p class="eyebrow c-loja">Nome da loja: critérios, não a resposta</p>
+        <p style="font-size:.95rem">Naming é o seu ofício, então aqui vão só as travas. Duas ou três sílabas, pronunciável no WhatsApp, domínio .com.br livre, nada de "forge", "AI", "lab" ou "studio" (os dois primeiros entregam o motor, os dois últimos encostam no estúdio). Deve sugerir "peça pronta" ou "entrega", nunca "criação" ou "estratégia". Teste: a pessoa entende o que é sem ler a página. Se quiser uma skill para isso, a <b>glacierphonk/naming</b> está no awesome-list, mas a sua própria cabeça é melhor que ela.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 KIT -->
+  <section id="kit">
+    <div class="sec-head"><p class="eyebrow">04 · Kit Agência</p><h2>Bloqueios, cadência e o que não mudar</h2><p>Marque o que resolveu. O painel do topo acompanha.</p></div>
+    <div class="cols">
+      <div class="card glass span2">
+        <p class="eyebrow c-kit">Bloqueios antes do primeiro kit vendido</p>
+        <div class="prog"><span id="b-txt">0 de 0</span><div class="bar"><i id="b-bar"></i></div></div>
+        <div class="check" id="blockers"></div>
+        <button class="add" type="button" id="b-add">+ adicionar bloqueio</button>
+      </div>
+      <div class="card glass">
+        <p class="eyebrow c-kit">Cadência por lead</p>
+        <ul>
+          <li><b>D0:</b> convite no LinkedIn de até 300 caracteres com um detalhe real da agência, ou DM A: "quando cliente pede identidade visual ou rebrand, quem produz?"</li>
+          <li><b>D3:</b> follow-up com valor: link de uma marca de laboratório da vitrine limpa.</li>
+          <li><b>D7:</b> e-mail com assunto "marca completa com a assinatura da [agência]", entregáveis, prazo, "não falo com o cliente de vocês", CTA para o Cal.com.</li>
+          <li><b>D14:</b> encerramento: "vou parar de te encher por aqui".</li>
+          <li>Três toques e para. Abaixo de 5% de resposta por duas semanas, troca a mensagem, não o volume.</li>
+        </ul>
+        <p class="eyebrow c-kit" style="margin-top:6px">Call de 20 minutos</p>
+        <ul><li>Descoberta até o minuto 10 com as perguntas do Mom Test: "quando foi a última vez que um cliente pediu marca?", "quem produziu?", "quanto cobraram?".</li><li>Demo com a LUNA, encaixe do tier, proposta em 24 horas pelo gerador.</li><li>Parceiro fundador: 5 vagas, preço cheio, primeira parcela só depois de aprovar o norte.</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 PLANO -->
+  <section id="plano">
+    <div class="sec-head"><p class="eyebrow">05 · Plano de 7 dias</p><h2>Dia a dia, editável</h2><p>Clique no texto para reescrever, marque o que fez, adicione ou remova tarefas. O percentual do topo acompanha.</p></div>
+    <div id="plan" style="display:grid; gap:14px"></div>
+  </section>
+
+  <!-- 06 PLACAR -->
+  <section id="placar">
+    <div class="sec-head"><p class="eyebrow">06 · Placar e validação</p><h2>Preencha no domingo e deixe a regra decidir</h2><p>Os limites são os do guia comercial e da regra da loja. Pode ajustá-los, mas ajuste antes de contar, não depois.</p></div>
+    <div class="score">
+      <div class="card glass c-kit">
+        <p class="eyebrow">Kit Agência · placar real</p>
+        <div class="pin2"><span>Abordagens feitas</span><input type="number" id="s-k-appr" data-s="k_appr" min="0"></div>
+        <div class="pin2"><span>Conversas com caso real (nível 2)</span><input type="number" id="s-k-conv" data-s="k_conv" min="0"></div>
+        <div class="pin2"><span>Briefings ou calls (nível 3)</span><input type="number" id="s-k-brief" data-s="k_brief" min="0"></div>
+        <div class="pin2"><span>Pagamentos (nível 4)</span><input type="number" id="s-k-pay" data-s="k_pay" min="0"></div>
+        <div class="status wait" id="st-kit"></div>
+        <div class="thr"><p class="eyebrow">Limites</p>
+          <div><span>Mínimo de conversas</span><input type="number" id="t-k-conv" data-t="k_conv" min="0"></div>
+          <div><span>Mínimo de briefings</span><input type="number" id="t-k-brief" data-t="k_brief" min="0"></div>
+          <div><span>Resposta mínima (%)</span><input type="number" id="t-k-reply" data-t="k_reply" min="0" max="100"></div>
+        </div>
+      </div>
+      <div class="card glass c-loja">
+        <p class="eyebrow">Loja · placar real</p>
+        <div class="pin2"><span>Contatos: DMs, propostas e visitas</span><input type="number" id="s-l-cont" data-s="l_cont" min="0"></div>
+        <div class="pin2"><span>Briefings iniciados</span><input type="number" id="s-l-brief" data-s="l_brief" min="0"></div>
+        <div class="pin2"><span>Pedidos pagos</span><input type="number" id="s-l-pay" data-s="l_pay" min="0"></div>
+        <div class="pin2"><span>Receita dos pedidos (R$)</span><input type="number" id="s-l-rev" data-s="l_rev" min="0"></div>
+        <div class="status wait" id="st-loja"></div>
+        <div class="thr"><p class="eyebrow">Limites</p>
+          <div><span>Pedidos para seguir</span><input type="number" id="t-l-pay" data-t="l_pay" min="0"></div>
+          <div><span>Briefings mínimos sem venda</span><input type="number" id="t-l-brief" data-t="l_brief" min="0"></div>
+          <div><span>Contatos para arquivar sem venda</span><input type="number" id="t-l-cont" data-t="l_cont" min="0"></div>
+        </div>
+      </div>
+      <div class="card glass c-shelf">
+        <p class="eyebrow">Escada de evidência do guia</p>
+        <ul>
+          <li><b>0</b> suposição · <b>1</b> opinião · <b>2</b> comportamento passado contado · <b>3</b> compromisso sem dinheiro · <b>4</b> pagamento · <b>5</b> recompra.</li>
+          <li>Evidência forte: caso com número, cliente na fila, pergunta de preço e prazo, pede proposta.</li>
+          <li>Evidência fraca: "interessante", "manda um material", "vou ver com meu sócio" sem data.</li>
+          <li>Hipóteses do Kit: H1 confirma quando 10 de 15 contam caso dos últimos 90 dias; H2 quando metade cobra R$ 8 mil ou mais por identidade; H4 quando 1 em 4 propostas vira pagamento.</li>
+        </ul>
+        <p class="eyebrow" style="margin-top:6px">Hipóteses da loja, para esta semana</p>
+        <ul>
+          <li><b>L1:</b> negócio com logo paga por peça avulsa sem conversa. Confirma com 2 pedidos pagos sem call.</li>
+          <li><b>L2:</b> o marketplace entrega pedido com margem. Confirma se 1 em 5 propostas vira pedido acima de R$ 600.</li>
+          <li><b>L3:</b> a trava de briefing não mata a conversão. Confirma se mais da metade dos briefings iniciados chega ao fim.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 SKILLS -->
+  <section id="skills">
+    <div class="sec-head"><p class="eyebrow">07 · Skills e repositórios</p><h2>O que instalar, o que ignorar, e o que você já tem</h2><p>Busca feita no GitHub e no catálogo skills.sh em 7 de novembro. Nenhum repositório cobre real, Pix ou entregável avulso; todos são pensados para SaaS. Servem como método, não como resposta pronta.</p></div>
+    <div class="tbl-wrap glass"><table class="wide"><thead><tr><th>Repositório</th><th>Veredito</th><th>O que serve</th><th>Instalar</th></tr></thead><tbody id="stable"></tbody></table></div>
+    <div class="card glass"><p class="eyebrow">Já instaladas no estúdio, e suficientes para 90% da semana</p><ul>
+      <li><b>Preço e oferta:</b> pricing-anchoring-cost-of-inaction, offer-stack-construction, hormozi-value-equation, invoice-proposta.</li>
+      <li><b>Validação:</b> mom-test-questions, sinais-demanda-mapping, jtbd-switch-interview, market-segmentation-beachhead, negative-persona-mapping.</li>
+      <li><b>Venda e mensagem:</b> mapeamento-quebra-objecoes, positioning-messaging, copywriting, lp-conversion-architecture, pitch-roteiro-2min, yc-what-does-your-company-do.</li>
+    </ul><p class="note">O gargalo, nos seus próprios documentos, nunca foi produzir nem saber: foi vender. Nenhuma skill nova muda isso.</p></div>
+  </section>
+
+  <!-- 08 FONTES -->
+  <section id="fontes">
+    <div class="sec-head"><p class="eyebrow">08 · Fontes e premissas</p><h2>De onde veio cada coisa</h2></div>
+    <div class="card glass"><ul>
+      <li><b>Preços e regras do Kit:</b> PROJETOS/BRANDFORGE/docs/tabela-entregaveis.md (8/9) e comercial-guia-2026-09-23.md.</li>
+      <li><b>Plano frio e scripts para negócio com logo:</b> PROJETOS/BRANDFORGE/docs/sprint-3-dias-express-2026-10-03.md.</li>
+      <li><b>Custo e capacidade:</b> PROJETOS/BRANDFORGE/runs/PILOTO_COGS.md e BRANDFORGE/CLAUDE.md.</li>
+      <li><b>Sprint e referências de mercado:</b> PROJETOS/Direção/M17_Oferta/M17_Oferta.md.</li>
+      <li><b>MockupForge:</b> PROJETOS/MockupForge/01_Oferta e WORKFLOW.md.</li>
+      <li><b>Leads:</b> PROJETOS/BRANDFORGE/docs/comercial-leads-2026-09-23.csv (74 linhas) e Kit Agencia/_prospeccao.</li>
+      <li><b>Skills do estúdio:</b> .claude/skills no repositório the-lobo-studio.</li>
+      <li><b>Repositórios externos:</b> GitHub e skills.sh, lidos em 7/11. Estrelas e licenças como mostradas nas páginas naquele dia.</li>
+      <li><b>Preços da loja, horas por peça e limites da validação</b> são propostas minhas para testar, marcadas como editáveis. Os limites do Kit são os do guia.</li>
+      <li><b>Fora deste plano, por sua decisão:</b> Postelier, Nuvo, StuddyBuddy e MotionForge.</li>
+    </ul></div>
+    <div class="card glass"><p class="eyebrow">Dados</p><div class="actions"><button class="btn primary" type="button" id="exp">Copiar JSON</button><button class="btn" type="button" id="imp">Aplicar JSON colado</button><button class="btn" type="button" id="reset">Restaurar padrão</button></div><textarea id="json" spellcheck="false" aria-label="JSON exportado ou colado"></textarea></div>
+  </section>
+
+  <footer><span>Preços editados, checklist, plano e placar ficam salvos só neste navegador.</span><a id="link-resumo" href="https://claude.ai/artifact/KzW8iUtBjyR1enYciVjgFF">Abrir a Largada em 7 Dias</a></footer>
+</main>
+
+<script>
+(function(){
+  const KEY='manual-largada-v1';
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const brl=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(v);
+  const clone=o=>JSON.parse(JSON.stringify(o));
+
+  const D={
+    prices:{kitExp:3800,kitStudio:7500,manual:1497,deck:897,mock:697,combo:2497,vet:297,lp:1997},
+    hours:{manual:2.5,deck:1.5,mock:1.5,week:12},
+    thr:{k_conv:15,k_brief:5,k_reply:5,l_pay:2,l_brief:10,l_cont:100},
+    score:{k_appr:0,k_conv:0,k_brief:0,k_pay:0,l_cont:0,l_brief:0,l_pay:0,l_rev:0},
+    blockers:[
+      {t:'Tirar o link "Ver a vitrine do motor" do rodapé da LP',s:'kit-agencia-v3/app/components/Footer.tsx. A vitrine fala em motor e mostra marcas de cliente.',d:false},
+      {t:'Formulário caindo em algum lugar',s:'Chave do Resend configurada, ou trocar o botão por WhatsApp. Hoje responde "ok" e perde o lead.',d:false},
+      {t:'Cal.com no ar',s:'cal.com/vitorthelobostudio/diagnostico-kit, 20 minutos, agenda real.',d:false},
+      {t:'Contrato white-label de uma página',s:'Confidencialidade, não divulgação, prazo com multa, revisões, propriedade dos arquivos na quitação.',d:false},
+      {t:'Entregas sem carimbo BRANDFORGE',s:'Decisão D7: nada que a agência recebe cita o motor.',d:false},
+      {t:'Vitrine limpa só com marcas de laboratório',s:'Decisão D3. A LUNA já serve. Sem texto de motor.',d:false},
+      {t:'Resposta pronta para "e se o cliente não tem logo?"',s:'Decisão D2. Enquanto não tiver preço, a resposta é "cotado à parte na proposta".',d:false},
+      {t:'10 leads semana-1 revisados',s:'6 dos 10 estão conferidos à mão. Confira os outros 4 em 2 minutos cada.',d:false},
+      {t:'Decidir: preço fixo, arquivar o site de faixas',s:'Uma LP, um preço. brandforge-site fica guardado.',d:false}
+    ],
+    plan:[
+      {t:'Preparar',sub:'seg 9 · tudo que trava a venda sai do caminho',kit:['Higiene da LP: rodapé, formulário, Cal.com','Contrato white-label de uma página','Separar os 10 leads semana-1 e pedir 3 apresentações'],loja:['Decidir nome, 3 produtos e preços','Escolher 3 marcas de laboratório para amostras','Escrever a trava do briefing']},
+      {t:'Publicar',sub:'ter 10 · as duas vitrines abrem no mesmo dia',kit:['Post no LinkedIn, ângulo da dor, sem link no corpo','10 DMs com a versão A'],loja:['Página única no ar com 9 blocos e FAQ','Checkout por link, formulário de briefing, termos','Listar os 3 pacotes no 99Freelas e no Workana']},
+      {t:'Volume',sub:'qua 11 · encher o topo das duas trilhas',kit:['10 DMs novas e follow-up D3 com a LUNA','Responder tudo em menos de 1 hora'],loja:['30 DMs no Instagram para negócio com logo','Responder 5 pedidos abertos nos marketplaces','Reel 1: 30 mockups em 15 segundos']},
+      {t:'Conversas',sub:'qui 12 · o Kit fala, a loja produz',kit:['10 DMs e calls de 20 minutos','Proposta em 24 horas pelo gerador','Oferecer parceiro fundador: 5 vagas'],loja:['Produzir o primeiro pedido cronometrando','Reel 2: manual folheado','Ajustar a página pelo que perguntaram']},
+      {t:'Fechar',sub:'sex 13 · melhor horário para dono responder',kit:['10 DMs e propostas pendentes','50% no Pix para entrar na fila','Última chamada para quem ficou em "vou pensar"'],loja:['Follow-up das 30 DMs de quarta','Entregar o primeiro pedido e pedir depoimento']},
+      {t:'Produzir',sub:'sáb 14 · sem abordagem nova',kit:['Follow-ups pendentes','Produção com quadro de horas aberto'],loja:['Produção e entrega','Terceiro conteúdo: antes e depois']},
+      {t:'Placar',sub:'dom 15 · contar, decidir, escalar',kit:['Preencher o placar do Kit','Decidir a mensagem da semana 2 pelos números'],loja:['Preencher o placar da loja','Aplicar a regra: segue, ajusta ou arquiva']}
+    ]
+  };
+  let S=clone(D);
+  try{ const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s){ S.prices={...D.prices,...(s.prices||{})}; S.hours={...D.hours,...(s.hours||{})}; S.thr={...D.thr,...(s.thr||{})}; S.score={...D.score,...(s.score||{})}; if(Array.isArray(s.blockers)) S.blockers=s.blockers; if(Array.isArray(s.plan)) S.plan=s.plan; } }catch(e){}
+  const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} };
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  /* vereditos */
+  const V=[
+    ['vai','Kit Studio R$ 7.500','Carro-chefe, 12 marcas rodadas nesse volume, preço com margem para a agência revender por R$ 25 a 35 mil.','guia §0.1, tabela 8/9'],
+    ['vai','Kit Express R$ 3.800','Vende, mas nunca rodou de verdade. Prometa 7 dias úteis, não 5. A primeira venda é o teste do formato.','guia §0.1'],
+    ['vai','Loja com nome próprio','É o plano frio de 3/10 produtizado: negócio com logo, preço fechado, sem call. Nome próprio protege o estúdio e o Kit.','sprint 3/10 §2-B'],
+    ['vai','Marketplaces como canal da loja','Pedidos abertos com a cara da loja já existem no 99Freelas. Taxa de 10 a 20% e escrow, mas é demanda real hoje.','sprint 3/10 §2-B'],
+    ['vai','Parceiro fundador no Kit','5 vagas, preço cheio, 1ª parcela após o norte. Quebra o risco sem desconto e sem ensinar que o preço real é menor.','guia §7 e D1'],
+    ['vai','Trava de briefing na loja','O gate de logo vetorial, fonte e HEX já existe no MockupForge Spaces. Sem ele a loja vira suporte.','mockupforge-spaces'],
+    ['vai','Preço fixo no Kit','A tabela de 8/9 e a régua de proposta concordam. O "a partir de" de 24/9 nunca teve OK.','tabela 8/9, precificacao-br.md'],
+    ['ajusta','Preços da loja','Manual R$ 1.497, deck R$ 897, 30 mockups R$ 697, combo R$ 2.497, vetorização R$ 297. Acima do freela, abaixo do Express. A régua premium pediria manual a R$ 2.250 ou mais; vende menos. Escolha "preço de aprender" e suba 20% a cada 3 vendas sem negociação.','M17 referências, régua pricing-anchoring'],
+    ['ajusta','"Renda passiva"','Custo de imagem é centavos; sua curadoria é 1,5 a 2,5 horas por pedido. É serviço produtizado. Passivo mesmo seria infoproduto, e o MockupForge nunca saiu do papel.','PILOTO_COGS, MockupForge WORKFLOW'],
+    ['ajusta','Esconder o Brandforge','Esconda o motor, não o estúdio. "Feito por um estúdio com 12 anos" é prova; página sem rosto perde para o freela com portfólio. Sem IA na copy.','guia D4, BRIEFING §8'],
+    ['ajusta','Rede quente','Não comprou em outubro. Serve para 3 apresentações, depoimento e teste da página. Não é canal de venda da loja.','sprint 3/10 §2-B'],
+    ['ajusta','Signature R$ 14.500','Sob consulta até rodar um ciclo de motion. Não anuncie prazo nem mockups em número.','escopo-comercial §5'],
+    ['ajusta','Logo do zero','Metade das agências pergunta na primeira call. Enquanto não tiver preço medido, "cotado à parte na proposta".','guia D2'],
+    ['nao','Sprint R$ 58.400 nesta semana','Preço é hipótese, valor empilhado diverge dentro do próprio M17, ciclo de 30 a 90 dias. Prateleira. Entra só se um fundador com gatilho aparecer.','M17'],
+    ['nao','Site de faixas de preço','brandforge-site contradiz a tabela fixa e a sua régua. Uma LP, um preço.','brandforge-site README, precificacao-br.md'],
+    ['nao','Assinatura de agência','Sem tempo medido por kit, sem preço. Não se abre o que não se consegue precificar.','guia §0.1'],
+    ['nao','Anúncio pago na semana 1','Sem conversão medida, R$ 150 a 300 em anúncio compram conversas, não vendas. Depois de 10 vendas orgânicas.','sprint 3/10 frente 4'],
+    ['nao','SaaS, Dashboard, Logoforge agora','Meses. Cada hora neles sai das duas trilhas que vendem.','arquitetura-saas v2 fases'],
+    ['nao','Instalar 10 repositórios','14 skills de venda e preço já instaladas. Instale 3 e venda.','.claude/skills']
+  ];
+  $('#vtable').innerHTML=V.map(([k,t,p,s])=>`<tr><td><b>${t}</b></td><td><span class="tag t-${k}">${k==='vai'?'Vai':k==='nao'?'Não vai':'Ajusta'}</span></td><td>${p}</td><td class="src">${s}</td></tr>`).join('');
+
+  /* loja */
+  const PRODS=[
+    ['manual','Manual de marca','24 a 40 páginas em PDF: construção, proteção, cores, tipografia, aplicações. 72h úteis.'],
+    ['deck','Deck de apresentação','20 a 30 slides da marca para sócios, investidores ou time.'],
+    ['mock','Pack de 30 mockups em 4K','5 aplicações escolhidas de uma lista fechada, 30 cenas.'],
+    ['combo','Combo: manual + deck + 30 mockups','Preço definido por você. O desconto aparece ao lado.'],
+    ['vet','Vetorização e limpeza de logo','Add-on para quem só tem JPG. Entra antes de qualquer peça.'],
+    ['lp','Landing page de uma dobra','Semana 2. Precisa de copy e publicação; não entra no lançamento.']
+  ];
+  $('#prods').innerHTML=PRODS.map(([id,n,d])=>`<div class="prod"><div><h4>${n}</h4><small>${d}</small></div><span class="pin">R$ <input type="number" id="p-${id}" data-p="${id}" min="0" step="1" aria-label="Preço de ${n}"></span></div>`).join('');
+  function paintLoja(){
+    const p=S.prices;
+    $$('[data-p]').forEach(i=>{ if(document.activeElement!==i) i.value=p[i.dataset.p]; });
+    const sum=p.manual+p.deck+p.mock, disc=sum?1-p.combo/sum:0, gap=p.kitExp-p.combo;
+    $('#l-sum').textContent=brl(sum); $('#l-combo').textContent=brl(p.combo); $('#l-disc').textContent=Math.round(disc*100)+'%'; $('#l-gap').textContent=(gap>=0?'−':'+')+' '+brl(Math.abs(gap));
+    const warn=[], ok=[];
+    if(p.combo>=p.kitExp*0.85) warn.push('O combo está a menos de 15% do Kit Express: você está vendendo o Express sem contrato e sem landing.');
+    if(disc>0.25) warn.push('Desconto do combo acima de 25% ensina que o preço avulso é falso.');
+    if(disc<0.1) warn.push('Desconto do combo abaixo de 10% não motiva ninguém a levar os três.');
+    if(p.mock<p.kitExp*0.12) warn.push('Pack de mockups muito barato para o que custa de curadoria. Abaixo de 12% do Express a sua hora não fecha.');
+    if(!warn.length) ok.push('Preços coerentes: acima do freelancer, abaixo do Express, combo com desconto entre 10 e 25%.');
+    $('#l-warn').hidden=!warn.length; $('#l-warn').textContent=warn.join(' '); $('#l-ok').hidden=!ok.length; $('#l-ok').textContent=ok.join(' ');
+    /* capacidade */
+    const h=S.hours;
+    $$('[data-h]').forEach(i=>{ if(document.activeElement!==i) i.value=h[i.dataset.h]; const o=$('#o-h-'+i.dataset.h); o.value=h[i.dataset.h]+' h'; });
+    const avg=(p.manual+p.deck+2*p.mock)/4, hAvg=(h.manual+h.deck+2*h.mock)/4, n=Math.floor(h.week/hAvg), rev=n*avg;
+    $('#c-avg').textContent=brl(avg); $('#c-h').textContent=hAvg.toFixed(2).replace('.',',')+' h'; $('#c-n').textContent=n; $('#c-rev').textContent=brl(rev); $('#c-hr').textContent=brl(avg/hAvg)+'/h';
+    $('#k-cap').textContent=n;
+    $('#k-week').textContent=brl(p.kitExp+2*avg);
+  }
+  $('#prods').addEventListener('input',e=>{ const k=e.target.dataset.p; if(!k) return; const v=parseFloat(e.target.value); if(!isFinite(v)||v<0) return; S.prices[k]=v; paintLoja(); save(); });
+  $$('[data-h]').forEach(i=>i.addEventListener('input',e=>{ S.hours[e.target.dataset.h]=parseFloat(e.target.value); paintLoja(); save(); }));
+
+  /* bloqueios */
+  function paintBlockers(){
+    const B=S.blockers, done=B.filter(b=>b.d).length;
+    $('#blockers').innerHTML=B.map((b,i)=>`<div class="ck${b.d?' done':''}"><input type="checkbox" id="bk-${i}" data-b="${i}" ${b.d?'checked':''}><label for="bk-${i}"><span class="txt" contenteditable="true" data-bt="${i}">${esc(b.t)}</span><small contenteditable="true" data-bs="${i}">${esc(b.s)}</small></label></div>`).join('');
+    $('#b-txt').textContent=`${done} de ${B.length}`; $('#b-bar').style.width=(B.length?done/B.length*100:0)+'%'; $('#k-prog').textContent=(B.length?Math.round(done/B.length*100):0)+'%';
+  }
+  $('#blockers').addEventListener('change',e=>{ const i=e.target.dataset.b; if(i==null) return; S.blockers[+i].d=e.target.checked; paintBlockers(); save(); });
+  $('#blockers').addEventListener('input',e=>{ const t=e.target.dataset.bt, s=e.target.dataset.bs; if(t!=null) S.blockers[+t].t=e.target.textContent; if(s!=null) S.blockers[+s].s=e.target.textContent; save(); });
+  $('#b-add').addEventListener('click',()=>{ S.blockers.push({t:'Novo bloqueio',s:'o que precisa acontecer',d:false}); paintBlockers(); save(); const last=$$('#blockers [data-bt]').pop(); if(last) last.focus(); });
+
+  /* plano */
+  function paintPlan(){
+    let total=0, done=0;
+    $('#plan').innerHTML=S.plan.map((d,di)=>{
+      const col=(k,label)=>`<div class="tasks"><p class="eyebrow c-${k==='kit'?'kit':'loja'}" style="color:var(--tone)">${label}</p>${d[k].map((t,ti)=>{ const o=typeof t==='string'?{t,d:false}:t; total++; if(o.d) done++; return `<div class="task${o.d?' done':''}"><input type="checkbox" data-td="${di}.${k}.${ti}" ${o.d?'checked':''} aria-label="Concluída"><span class="txt" contenteditable="true" data-tt="${di}.${k}.${ti}">${esc(o.t)}</span><button class="del" type="button" data-tx="${di}.${k}.${ti}" title="Remover">×</button></div>`; }).join('')}<button class="add" type="button" data-ta="${di}.${k}">+ tarefa</button></div>`;
+      return `<article class="dayblock glass"><div class="dayhead"><div><p class="eyebrow">Dia ${di+1}</p><h3 contenteditable="true" data-dt="${di}">${esc(d.t)}</h3></div><span class="src" contenteditable="true" data-ds="${di}">${esc(d.sub)}</span></div><div class="twocol">${col('kit','Kit Agência')}${col('loja','Loja de entregáveis')}</div></article>`;
+    }).join('');
+    $('#k-plan').textContent=(total?Math.round(done/total*100):0)+'%';
+  }
+  const at=(path)=>{ const [di,k,ti]=path.split('.'); const list=S.plan[+di][k]; if(typeof list[+ti]==='string') list[+ti]={t:list[+ti],d:false}; return {list,ti:+ti,di:+di,k}; };
+  $('#plan').addEventListener('change',e=>{ const p=e.target.dataset.td; if(!p) return; const {list,ti}=at(p); list[ti].d=e.target.checked; paintPlan(); save(); });
+  $('#plan').addEventListener('input',e=>{ const t=e.target; if(t.dataset.tt){ const {list,ti}=at(t.dataset.tt); list[ti].t=t.textContent; } else if(t.dataset.dt!=null){ S.plan[+t.dataset.dt].t=t.textContent; } else if(t.dataset.ds!=null){ S.plan[+t.dataset.ds].sub=t.textContent; } save(); });
+  $('#plan').addEventListener('click',e=>{
+    const x=e.target.closest('[data-tx]'); if(x){ const {list,ti}=at(x.dataset.tx); list.splice(ti,1); paintPlan(); save(); return; }
+    const a=e.target.closest('[data-ta]'); if(a){ const [di,k]=a.dataset.ta.split('.'); S.plan[+di][k].push({t:'Nova tarefa',d:false}); paintPlan(); save(); const last=$$(`[data-tt^="${di}.${k}."]`).pop(); if(last){ last.focus(); const r=document.createRange(); r.selectNodeContents(last); const s=getSelection(); s.removeAllRanges(); s.addRange(r); } }
+  });
+  document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.closest('[contenteditable]')){ e.preventDefault(); e.target.blur(); } });
+  document.addEventListener('paste',e=>{ const t=e.target.closest('[contenteditable]'); if(!t) return; e.preventDefault(); document.execCommand('insertText',false,(e.clipboardData||window.clipboardData).getData('text/plain').replace(/\s+/g,' ')); });
+
+  /* placar */
+  function paintScore(){
+    const s=S.score, t=S.thr;
+    $$('[data-s]').forEach(i=>{ if(document.activeElement!==i) i.value=s[i.dataset.s]; });
+    $$('[data-t]').forEach(i=>{ if(document.activeElement!==i) i.value=t[i.dataset.t]; });
+    const k=$('#st-kit'); k.className='status';
+    const reply=s.k_appr?s.k_conv/s.k_appr*100:0;
+    if(!s.k_appr){ k.classList.add('wait'); k.innerHTML='Sem abordagens contadas ainda.<small>Preencha no domingo.</small>'; }
+    else if(s.k_pay>=1){ k.classList.add('go'); k.innerHTML='Segue. Há pagamento.<small>Produza no prazo, peça depoimento e repita a mensagem que converteu.</small>'; }
+    else if(s.k_conv>=t.k_conv&&s.k_brief<t.k_brief){ k.classList.add('fix'); k.innerHTML='Ajusta a oferta ou o ICP.<small>Conversas chegaram e briefings não: o problema não é volume. Volte ao §2 do guia antes de abordar mais.</small>'; }
+    else if(reply<t.k_reply){ k.classList.add('fix'); k.innerHTML=`Troca a mensagem, não o volume.<small>Resposta de ${reply.toFixed(1).replace('.',',')}%, abaixo de ${t.k_reply}%.</small>`; }
+    else if(s.k_conv<t.k_conv){ k.classList.add('wait'); k.innerHTML=`Ainda sem amostra.<small>${s.k_conv} de ${t.k_conv} conversas. Continue o volume até sexta antes de julgar.</small>`; }
+    else { k.classList.add('go'); k.innerHTML='Funil saudável, sem pagamento ainda.<small>Briefings existem. Acompanhe propostas com dia e hora; a venda costuma vir na semana 2.</small>'; }
+    const l=$('#st-loja'); l.className='status';
+    if(!s.l_cont){ l.classList.add('wait'); l.innerHTML='Sem contatos contados ainda.<small>Preencha no domingo.</small>'; }
+    else if(s.l_pay>=t.l_pay){ l.classList.add('go'); l.innerHTML=`Segue.<small>${s.l_pay} pedidos pagos${s.l_rev?', '+brl(s.l_rev):''}. Depois de 3 vendas sem negociação, suba 20%.</small>`; }
+    else if(s.l_pay>0){ l.classList.add('go'); l.innerHTML='Sinal de vida.<small>Houve pagamento sem call: a hipótese L1 começou a confirmar. Dobre o canal que trouxe o pedido.</small>'; }
+    else if(s.l_cont>=t.l_cont){ l.classList.add('stop'); l.innerHTML='Arquiva ou reposiciona.<small>Contatos no limite e zero pedido. Antes de arquivar, teste uma semana só com o pack de mockups a preço de entrada.</small>'; }
+    else if(s.l_brief<t.l_brief){ l.classList.add('fix'); l.innerHTML='Mexe na oferta antes de mais tráfego.<small>Poucos briefings iniciados: o problema é a página ou o preço, não o volume.</small>'; }
+    else { l.classList.add('fix'); l.innerHTML='Briefings entram, pagamento não.<small>Olhe a trava do briefing e o checkout. Se mais da metade abandona na logo, ofereça a vetorização antes.</small>'; }
+  }
+  $$('[data-s]').forEach(i=>i.addEventListener('input',e=>{ S.score[e.target.dataset.s]=Math.max(0,parseFloat(e.target.value)||0); paintScore(); save(); }));
+  $$('[data-t]').forEach(i=>i.addEventListener('input',e=>{ S.thr[e.target.dataset.t]=Math.max(0,parseFloat(e.target.value)||0); paintScore(); save(); }));
+
+  /* skills */
+  const SK=[
+    ['vai','coreyhaines31/marketingskills','pricing, offers, launch, copywriting, cold-email, cro. MIT, 59 mil estrelas. SaaS na veia; use como método.','npx skills add coreyhaines31/marketingskills'],
+    ['vai','phuryn/pm-skills','/plan-launch para o roteiro de lançamento, /discover para experimentos de validação, pricing-strategy. MIT.','claude plugin marketplace add phuryn/pm-skills && claude plugin install pm-go-to-market@pm-skills'],
+    ['vai','mfwarren/entrepreneur-claude-skills','offer-creation, objection-handling, pricing-strategy. Curto, feito por fundador. MIT.','npx skills add mfwarren/entrepreneur-claude-skills'],
+    ['ajusta','firatcand/founder-skills','pricing (value metric, tiers, WTP) e copywriter-skill. Só se os três acima não bastarem.','npx skills add firatcand/founder-skills --skill pricing -a claude-code'],
+    ['ajusta','guia-matthieu/clawfu-skills · conversion-copywriting','Método Joanna Wiebe, voz do cliente antes de escrever. Bom para o hero da loja. Não li os passos completos.','npx skills add https://github.com/guia-matthieu/clawfu-skills --skill conversion-copywriting'],
+    ['ajusta','rampstackco/claude-skills · landing-page-copy','Esqueleto de 7 blocos para a página da loja. Sem comando de instalação; copie o SKILL.md.','copiar o arquivo skills/landing-page-copy/SKILL.md'],
+    ['ajusta','revfactory/harness-100 · pricing-strategy','Van Westendorp e elasticidade em 5 agentes. Pesado; use só o questionário de 4 perguntas à mão.','ler o skill.md, não instalar'],
+    ['nao','louisblythe/Sales-Skills','122 skills de SDR e bots B2B. Você não tem call de vendas na loja e o Kit já tem script.','npx add-skill louisblythe/salesskills'],
+    ['nao','realwigu/claude-skills','190 skills sem nome listado; baixo sinal para preço e venda.','git clone e copiar'],
+    ['nao','samber/cc-skills · copywriting-hooks','Hooks para artigo longo, não para headline de página.','/plugin install cc-skills@samber'],
+    ['nao','realjaymes/marketingagentskills','34 skills com templates SaaS; o que serve (ad-creative, product-messaging) o coreyhaines31 já cobre.','git clone e copiar']
+  ];
+  $('#stable').innerHTML=SK.map(([k,n,w,c])=>`<tr><td><b>${n}</b></td><td><span class="tag t-${k}">${k==='vai'?'Instalar':k==='nao'?'Pular':'Opcional'}</span></td><td>${w}</td><td><div class="cmd"><code>${esc(c)}</code><button class="btn small" type="button" data-copy="${esc(c)}">Copiar</button></div></td></tr>`).join('');
+
+  /* dados */
+  const toast=document.createElement('div'); toast.className='toast glass'; toast.hidden=true; document.body.appendChild(toast); let tt;
+  function say(m){ toast.textContent=m; toast.hidden=false; clearTimeout(tt); tt=setTimeout(()=>toast.hidden=true,2200); }
+  document.addEventListener('click',e=>{ const b=e.target.closest('[data-copy]'); if(!b) return; const txt=b.dataset.copy; const fb=()=>{ const r=document.createRange(); r.selectNodeContents(b.previousElementSibling); const s=getSelection(); s.removeAllRanges(); s.addRange(r); say('Selecionado: copie com Ctrl+C'); }; if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(()=>say('Copiado')).catch(fb); else fb(); });
+  $('#exp').addEventListener('click',()=>{ const txt=JSON.stringify(S,null,2); const ta=$('#json'); ta.value=txt; const fb=()=>{ ta.focus(); ta.select(); say('Selecionado: copie com Ctrl+C'); }; if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(()=>say('JSON copiado')).catch(fb); else fb(); });
+  $('#imp').addEventListener('click',()=>{ try{ const o=JSON.parse($('#json').value); S={...clone(D),...o}; renderAll(); save(); say('JSON aplicado'); }catch(e){ say('JSON inválido'); } });
+  $('#reset').addEventListener('click',()=>{ S=clone(D); try{localStorage.removeItem(KEY)}catch(e){} renderAll(); say('Padrão restaurado'); });
+
+  function renderAll(){ paintLoja(); paintBlockers(); paintPlan(); paintScore(); }
+  renderAll();
+})();
+</script>
